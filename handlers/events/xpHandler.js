@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
-const localConfig = require('../commands/kayit/config.js');
-const db = require('../utils/database');
+const roleConfig = require('../../commands/kayit/config.js');
+const levelConfig = require('../../commands/level/config.js').levelSystem;
+const db = require('../../utils/database');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -10,11 +11,14 @@ module.exports = {
         if (message.author.bot || !message.guild) return;
 
         // 2. Yoksayılan kanallar
-        if (localConfig.levelSystem.ignoredChannels.includes(message.channel.id)) return;
+        if (levelConfig.ignoredChannels.includes(message.channel.id)) return;
 
         // 3. Kullanıcı rollerini kontrol et
+        const member = message.member;
+        if (!member) return;
+
         // Sadece "Kayıtsız" rolü OLMAYANLAR XP kazanabilir.
-        if (message.member.roles.cache.has(localConfig.roles.unregistered)) return;
+        if (member.roles.cache.has(roleConfig.roles.unregistered)) return;
 
         const userId = message.author.id;
         const now = Date.now();
@@ -22,54 +26,94 @@ module.exports = {
         // 4. Veritabanından kullanıcıyı çek
         const user = db.getUser(userId);
 
-        // 5. Cooldown Kontrolü (1 dakika)
-        if (now - user.last_message_turn < localConfig.levelSystem.cooldown) {
+        // 5. Cooldown Kontrolü
+        if (now - user.last_message_turn < levelConfig.cooldown) {
             return;
         }
 
-        // 6. Rastgele XP Hesapla
-        const minXp = localConfig.levelSystem.xpPerMessage.min;
-        const maxXp = localConfig.levelSystem.xpPerMessage.max;
-        const earnedXp = Math.floor(Math.random() * (maxXp - minXp + 1)) + minXp;
+        // 6. XP Hesapla (Temel + Bonuslar)
+        let earnedXp = Math.floor(Math.random() * (levelConfig.xpPerMessage.max - levelConfig.xpPerMessage.min + 1)) + levelConfig.xpPerMessage.min;
+        let bonusXp = 0;
+
+        // A) Boost Bonusu (Gün Bazlı)
+        if (member.premiumSince) {
+            const boostDurationMs = now - member.premiumSinceTimestamp;
+            const boostDays = Math.floor(boostDurationMs / (1000 * 60 * 60 * 24)); // Gün sayısı
+            const dailyBonus = levelConfig.bonuses.boostDaily || 0;
+
+            // Bonus Hesapla: Gün * GünlükBonus
+            const boostBonus = Math.floor(boostDays * dailyBonus);
+            if (boostBonus > 0) bonusXp += boostBonus;
+        }
+
+        // B) Rol Bonusları
+        if (levelConfig.bonuses.roles) {
+            for (const [roleId, bonus] of Object.entries(levelConfig.bonuses.roles)) {
+                if (member.roles.cache.has(roleId)) {
+                    bonusXp += bonus;
+                }
+            }
+        }
+
+        earnedXp += bonusXp;
 
         // 7. XP'yi Ekle ve Zamanı Güncelle
         db.addXp(userId, earnedXp);
+
+        // --- SÜREKLİ COIN KAZANCI ---
+        // Her mesajda az da olsa para kazansın (XP'nin %10'u kadar)
+        const instantCoin = Math.max(1, Math.floor(earnedXp / 10));
+        db.addMoney(userId, instantCoin);
+
         db.updateCooldown(userId, now);
 
         // ================= SEVİYE ATLAMA MANTIĞI =================
-        // Formül: 5 * (Level ^ 2) + (50 * Level) + 100
-        // Örn: Lvl 0 -> 1 için 100 XP gerekir.
         const currentLevel = user.level;
+        // Zorluk Formülü: 5 * L^2 + 50 * L + 100
         const nextLevelXp = 5 * Math.pow(currentLevel, 2) + (50 * currentLevel) + 100;
 
-        let newTotalXp = user.xp + earnedXp; // user.xp henüz güncellenmediği için +earnedXp ekliyoruz (db.addXp async değil better-sqlite3 sync çalışır ama db.getUser eski veriyi tutuyor olabilir, db.addXp update yaptı)
-        // Düzeltme: better-sqlite3 senkroni olduğu için db.addXp sonrası tekrar çekmeye gerek yok ama user objesi eski.
-        // Basitlik için user.xp'ye manuel ekliyoruz:
-        newTotalXp = user.xp + earnedXp;
+        // Not: user objesi eski veriyi tuttuğu için manuel ekliyoruz
+        let newTotalXp = user.xp + earnedXp;
 
         if (newTotalXp >= nextLevelXp) {
             const newLevel = currentLevel + 1;
             db.setLevel(userId, newLevel);
 
-            // Para Ödülü
-            const rewardMoney = newLevel * localConfig.levelSystem.coinMultiplier;
-            db.addMoney(userId, rewardMoney);
+            // Para Ödülü (Bonuslar parayı da etkiler)
+            // Formül: (Level * Çarpan) + (BonusXP * 2)
+            const baseMoney = newLevel * levelConfig.coinMultiplier;
+            const bonusMoney = bonusXp * 2; // Bonus XP'si yüksek olanın parası da artar
+            const totalMoney = baseMoney + bonusMoney;
 
-            // Mesaj Gönder
+            db.addMoney(userId, totalMoney);
+
             const channel = message.channel;
-            await channel.send(`🎉 Tebrikler <@${userId}>! **Seviye ${newLevel}** oldun! 💸 **${rewardMoney} Furyuna Coin** kazandın.`);
+
+            // ================= ROL ÖDÜLLERİ =================
+            // Config'de tanımlı seviye ödülü varsa ver
+            if (levelConfig.levelRewards[newLevel]) {
+                const rewardRoleId = levelConfig.levelRewards[newLevel];
+                try {
+                    await member.roles.add(rewardRoleId);
+                    // Rol verildi mesajı eklenebilir
+                } catch (e) {
+                    console.error("Rol ödülü verilemedi:", e);
+                }
+            }
 
             // ================= 1. SEVİYE ÖZEL: OTO DOĞRULAMA =================
-            // Eğer Yeni Üye ise ve Level 1 olduysa -> Doğrula
-            if (newLevel >= 1 && message.member.roles.cache.has(localConfig.roles.newMember)) {
+            if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
                 try {
-                    await message.member.roles.remove([localConfig.roles.newMember, localConfig.roles.unregistered]);
-                    await message.member.roles.add(localConfig.roles.verifiedMember);
-                    await channel.send(`🛡️ **OTOMATİK DOĞRULAMA:** <@${userId}> 1. seviyeye ulaştığı için **Doğrulanmış Üye** oldu!`);
+                    await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
+                    await member.roles.add(roleConfig.roles.verifiedMember);
+                    await channel.send(`🛡️ <@${userId}> **1. Seviye** olduğu için otomatik doğrulandı!`);
                 } catch (error) {
                     console.error("Oto doğrulama hatası:", error);
                 }
             }
+
+            // Normal Level Up Mesajı
+            await channel.send(`🎉 Tebrikler <@${userId}>! **Seviye ${newLevel}** oldun!\n💸 **${totalMoney}** Furyuna Coin kazandın. (Bonus: +${bonusMoney})`);
         }
     }
 };
