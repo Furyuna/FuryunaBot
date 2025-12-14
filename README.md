@@ -1,58 +1,64 @@
 # 🤖 FuryunaBot
 
-FuryunaBot, Discord sunucuları için geliştirilmiş gelişmiş bir **Kayıt ve Doğrulama** botudur. Kullanıcıları kaydetmek, doğrulamak ve rollerini yönetmek için Slash Komutları (`/`) ve Sağ Tık Menülerini kullanır.
+FuryunaBot, Discord sunucuları için geliştirilmiş **Kayıt, Doğrulama, Seviye ve Ekonomi** botudur. Modern arayüzü, detaylı seviye sistemi ve güvenli kayıt özellikleriyle topluluğunuzu yönetmenizi sağlar.
 
 ## 🌟 Özellikler
 
-*   **🛡️ Güvenli Doğrulama:** Kullanıcıları "Doğrulanmış Üye" yaparak sunucu güvenliğini artırın.
-*   **📝 Kolay Kayıt:** Tek komutla kullanıcıları kaydedin ve rollerini otomatik yönetin.
-*   **⚡ Hızlı İşlemler:** Kullanıcının üzerine sağ tıklayarak saniyeler içinde işlem yapın.
-*   **🚫 Akıllı Hata Yönetimi:** Zaten kayıtlı veya doğrulanmış kullanıcıları tespit eder ve bilgilendirir.
+### 🛡️ Kayıt & Güvenlik
+*   **Güvenli Doğrulama:** Kullanıcıları "Doğrulanmış Üye" yaparak sunucu güvenliğini artırın.
+*   **Kolay Kayıt:** Tek komutla (`/kayıt`) veya sağ tık menüsüyle hızlı işlem.
+*   **Akıllı Kontrol:** Zaten kayıtlı/doğrulanmış kullanıcıları otomatik algılar.
+
+### 🏆 Level & Ekonomi Sistemi (YENİ!)
+*   **Gelişmiş XP:** Mesaj başına ve **Ses Kanallarında** (dakika başı) XP kazanımı.
+*   **Sürekli Kazanç:** Sadece seviye atlayınca değil, aktif oldukça anında **Furyuna Coin** kazanılır.
+*   **Rütbe Sistemi:** Belirli seviyelerde (5, 10, 20 vb.) otomatik **Bronz, Gümüş, Altın** gibi roller verilir.
+*   **Boost & Rol Bonusu:** Sunucuya Boost basanlar veya özel role sahip olanlar daha hızlı gelişir.
+*   **Görsel Profil:** `/profil` komutu ile yüzdelik dilimli, şık bir ilerleme çubuğu görüntülenir.
 
 ## 🛠️ Komutlar
 
-### Slash Komutları (Sohbet)
+### 🎮 Level & Ekonomi
 | Komut | Açıklama |
 | :--- | :--- |
-| `/kayıt @kullanıcı` | Kullanıcıyı sunucuya kayıt eder (Yeni Üye rolü verir). |
-| `/kayıt-sil @kullanıcı` | Kullanıcının kaydını siler ve Kayıtsız'a atar. |
-| `/doğrula @kullanıcı` | Kullanıcıyı doğrular (Doğrulanmış Üye rolü verir). |
-| `/doğrulama-sil @kullanıcı` | Kullanıcının doğrulamasını kaldırır. |
+| `/profil` | Seviye, XP, Coin ve Rütbe durumunu gösterir. |
+| `/sıralama` | Sunucudaki en yüksek seviyeli ilk 10 kişiyi listeler. |
+| `/level-yonet xp-ver` | (Admin) Kullanıcıya XP ve Para verir. |
+| `/level-yonet level-ayarla`| (Admin) Kullanıcının seviyesini direkt ayarlar. |
+| `/level-yonet sifirla` | (Admin) Kullanıcının tüm verilerini siler. |
+
+### 📝 Kayıt & Yetkili
+| Komut | Açıklama |
+| :--- | :--- |
+| `/kayıt @kullanıcı` | Kullanıcıyı kayıt eder (Yeni Üye). |
+| `/kayıt-sil @kullanıcı` | Kaydı siler ve Kayıtsız'a atar. |
+| `/doğrula @kullanıcı` | Kullanıcıyı doğrular. |
+| `/doğrulama-sil @kullanıcı` | Doğrulamayı kaldırır. |
 | `/ping` | Botun gecikme süresini gösterir. |
 
-### Prefix Komutları (Mesaj)
-*   `!kayıt @kullanıcı`
-*   `!kayıt sil @kullanıcı`
-*   `!doğrula @kullanıcı`
-*   `!doğrulama sil @kullanıcı`
+### 🖱️ Sağ Tık Menüsü (Hızlı İşlem)
+Kullanıcı üzerine sağ tıklayıp **Uygulamalar** menüsünden:
+*   `Hızlı Kayıt Et` / `Sil`
+*   `Hızlı Doğrula` / `Sil`
 
-### 🖱️ Sağ Tık Menüsü (Uygulamalar)
-Kullanıcının üzerine sağ tıklayıp **Uygulamalar (Apps)** menüsünden şunları seçebilirsiniz:
-*   `Hızlı Kayıt Et`
-*   `Hızlı Kayıt Sil`
-*   `Hızlı Doğrula`
-*   `Hızlı Doğrulama Sil`
+## ⚙️ Kurulum & Ayarlar
 
-## ⚙️ Kurulum
+### 1. Dosyaları İndirin
+```bash
+git clone https://github.com/Furyuna/FuryunaBot.git
+cd FuryunaBot
+npm install
+```
 
-1.  Repoyu klonlayın:
-    ```bash
-    git clone https://github.com/Furyuna/FuryunaBot.git
-    ```
-2.  Gerekli paketleri yükleyin:
-    ```bash
-    npm install
-    ```
-3.  `.env` dosyasını oluşturun ve Token'ınızı girin:
-    ```env
-    BOT_TOKEN=sizin_bot_tokeniniz
-    CLIENT_ID=sizin_client_id
-    GUILD_ID=sizin_sunucu_id
-    ```
-4.  Botu başlatın:
-    ```bash
-    node index.js
-    ```
+### 2. Ayarları Yapılandırın
+Botun ayarları iki ana dosyada tutulur:
+*   **`commands/kayit/config.js`**: Kayıt rolleri ve yetkili ayarları.
+*   **`commands/level/config.js`**: Seviye XP oranları, ödül rolleri (ID'ler buraya girilir), ses kazançları ve bonuslar.
+
+### 3. Başlatın
+```bash
+node index.js
+```
 
 ---
-*Furyuna için geliştirilmiştir.*
+*Furyuna Topluluğu İçin Geliştirilmiştir.*
