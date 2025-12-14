@@ -26,10 +26,36 @@ module.exports = {
 
         const progressBar = '🟦'.repeat(progress) + '⬜'.repeat(empty); // [🟦🟦⬜⬜...]
 
+        const { levelRewards } = require('./config.js').levelSystem;
+
+        // Rütbe (Rank) Belirleme
+        let rankName = "N/A"; // Varsayılan
+        let rankColor = "#ffd700"; // Varsayılan renk
+
+        // Config'deki ödülleri kontrol et
+        const rewardLevels = Object.keys(levelRewards).map(Number).sort((a, b) => b - a); // Büyükten küçüğe
+        for (const lvl of rewardLevels) {
+            if (user.level >= lvl) {
+                const roleId = levelRewards[lvl];
+                const role = interaction.guild.roles.cache.get(roleId);
+                if (role) {
+                    rankName = role.name;
+                    rankColor = role.hexColor;
+                }
+                break; // En yüksek rütbeyi bulduk, döngüden çık
+            }
+        }
+
+        // Eğer rütbe bulunamadıysa (Level 1-4 arası)
+        if (rankName === "N/A") {
+            // Level 1 ise "Doğrulanmış Üye" diyebiliriz veya boş bırakabiliriz
+            rankName = user.level >= 1 ? "Doğrulanmış Üye" : "Kayıtsız";
+        }
+
         const embed = new EmbedBuilder()
-            .setColor('#ffd700') // Gold sürümü
+            .setColor(rankColor) // Rütbenin rengi olsun
             .setAuthor({ name: `${targetUser.username} Profili`, iconURL: targetUser.displayAvatarURL() })
-            .setDescription(`**İlerleme:**\n${progressBar} **%${percentage}**`)
+            .setDescription(`**Rütbe:** ${rankName}\n${progressBar} **%${percentage}**`)
             .addFields(
                 { name: '🏆 Seviye', value: `**${user.level}**`, inline: true },
                 { name: '✨ XP', value: `${user.xp} / ${nextLevelXp}`, inline: true },
