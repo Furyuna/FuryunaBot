@@ -19,6 +19,9 @@ client.commands = new Collection();
 require('./handlers/commandHandler')(client);
 require('./handlers/eventHandler')(client);
 
+// --- VERİTABANI BAŞLAT ---
+require('./utils/database').initDatabase();
+
 // --- SLASH KOMUT HANDLER ( / ) & SAĞ TIK ---
 // Event handler events/interactionCreate.js dosyasında yönetiliyor
 

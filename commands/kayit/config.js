@@ -18,6 +18,15 @@ module.exports = {
     // --- KOMUT İSİMLERİ VE PREFİX TAKMA ADLARI ---
     // slash: Discord'da görünecek /komut adı (Küçük harf, boşluksuz, Türkçe karakter YOK)
     // aliases: Prefix ile kullanılabilecek alternatifler (Türkçe serbest)
+    staffRoles: process.env.STAFF_ROLES ? process.env.STAFF_ROLES.split(',') : [],
+
+    levelSystem: {
+        xpPerMessage: { min: 10, max: 30 }, // Mesaj başına rastgele XP aralığı
+        cooldown: 60000, // 1 Dakika (milisaniye cinsinden)
+        coinMultiplier: 100, // Seviye başına verilecek para (Level * 100)
+        ignoredChannels: [] // Buraya ID'ler yazılacak: ["123456789", "987654321"]
+    },
+
     // menuName: Sağ tık menüsünde görünecek isim
     commands: {
         kayit: {
