@@ -33,8 +33,11 @@ module.exports = {
         let rankColor = "#ffd700"; // Varsayılan renk
 
         // Config'deki ödülleri kontrol et
-        const rewardLevels = Object.keys(levelRewards).map(Number).sort((a, b) => b - a); // Büyükten küçüğe
-        for (const lvl of rewardLevels) {
+        const sortedLevels = Object.keys(levelRewards).map(Number).sort((a, b) => a - b); // Küçükten büyüğe sırala
+
+        // 1. Mevcut Rütbeyi Bul (En yüksek hak edilen)
+        for (let i = sortedLevels.length - 1; i >= 0; i--) {
+            const lvl = sortedLevels[i];
             if (user.level >= lvl) {
                 const roleId = levelRewards[lvl];
                 const role = interaction.guild.roles.cache.get(roleId);
@@ -42,20 +45,32 @@ module.exports = {
                     rankName = role.name;
                     rankColor = role.hexColor;
                 }
-                break; // En yüksek rütbeyi bulduk, döngüden çık
+                break;
             }
         }
 
-        // Eğer rütbe bulunamadıysa (Level 1-4 arası)
-        if (rankName === "N/A") {
-            // Level 1 ise "Doğrulanmış Üye" diyebiliriz veya boş bırakabiliriz
-            rankName = user.level >= 1 ? "Doğrulanmış Üye" : "Kayıtsız";
+        // Kural: Rütbe yoksa "Yok" yazsın
+        if (rankName === "N/A") rankName = "Yok";
+
+        // 2. Bir Sonraki Rütbeyi Bul (Hedef)
+        let nextRankName = "Maksimum Seviye! 👑";
+        for (const lvl of sortedLevels) {
+            if (lvl > user.level) {
+                const roleId = levelRewards[lvl];
+                const role = interaction.guild.roles.cache.get(roleId);
+                if (role) {
+                    nextRankName = role.name; // Rol ismini al
+                } else {
+                    nextRankName = `Level ${lvl} Rütbesi`; // Rol silinmişse idare et
+                }
+                break; // İlk büyük olanı bul ve çık
+            }
         }
 
         const embed = new EmbedBuilder()
-            .setColor(rankColor) // Rütbenin rengi olsun
+            .setColor(rankColor)
             .setAuthor({ name: `${targetUser.username} Profili`, iconURL: targetUser.displayAvatarURL() })
-            .setDescription(`**Rütbe:** ${rankName}\n${progressBar} **%${percentage}**`)
+            .setDescription(`**Rütbe:** ${rankName}\n**Sonraki Rütbe:** ${nextRankName}\n\n${progressBar} **%${percentage}**`)
             .addFields(
                 { name: '🏆 Seviye', value: `**${user.level}**`, inline: true },
                 { name: '✨ XP', value: `${user.xp} / ${nextLevelXp}`, inline: true },
@@ -66,3 +81,4 @@ module.exports = {
         await interaction.reply({ embeds: [embed] });
     }
 };
+```
