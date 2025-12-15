@@ -73,8 +73,12 @@ module.exports = {
             for (const [points, roleId] of Object.entries(thresholds)) {
                 if (currentActivity >= parseInt(points)) {
                     if (!guildMember.roles.cache.has(roleId)) {
-                        guildMember.roles.add(roleId).catch(console.error);
-                        // Opsiyonel: Rütbe atladın mesajı atılabilir
+                        guildMember.roles.add(roleId)
+                            .then(() => {
+                                // Rütbe Atlama Mesajı
+                                message.channel.send(`🎉 Tebrikler <@${userId}>! Aktifliğin sayesinde **${points} Puan** barajını geçtin ve **<@&${roleId}>** rütbesini kazandın! 🚀`);
+                            })
+                            .catch(console.error);
                     }
                 }
             }
