@@ -10,9 +10,13 @@ module.exports = (client) => {
 
         console.log('[SİSTEM] Günlük Aktiflik Çürümesi (Decay) Başladı...');
 
-        // 1. Herkesin puanını düşür (%5)
+        // 1. Herkesin puanını düşür (%5) - Ama sadece 24 saattir mesaj atmayanlarınkini!
         const decayRate = levelSystem.rankSystem.decayRate || 0.05;
-        db.decayActivity(decayRate);
+
+        // Şu andan 24 saat (veya 1 gün) öncesi
+        const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+
+        db.decayActivity(decayRate, oneDayAgo);
 
         // 2. Rolleri Kontrol Et (Düşmesi gerekenleri düşür)
         // Sunucudaki üyeleri tarayalım

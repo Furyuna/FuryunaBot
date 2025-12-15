@@ -48,12 +48,17 @@ function addActivity(userId, amount) {
     db.prepare('UPDATE users SET activity_points = activity_points + ? WHERE user_id = ?').run(amount, userId);
 }
 
-// Aktiflik Puanlarını Çürüt (Decay) (YENİ)
-// Herkesin puanını belli bir oranda düşürür (Örn: 0.95 ile çarpar)
-function decayActivity(rate) {
+// Aktiflik Puanlarını Çürüt (Decay) (YENİ - Koşullu)
+// Sadece 'cutoffTimestamp'ten önce mesaj atmış (yani 24 saattir pasif) olanların puanını düşürür.
+function decayActivity(rate, cutoffTimestamp) {
     // rate: 0.05 ise, kalacak oran 0.95'tir.
     const keepRate = 1.0 - rate;
-    db.prepare('UPDATE users SET activity_points = CAST(activity_points * ? AS INTEGER)').run(keepRate);
+
+    db.prepare(`
+        UPDATE users 
+        SET activity_points = CAST(activity_points * ? AS INTEGER) 
+        WHERE last_message_turn < ? AND activity_points > 0
+    `).run(keepRate, cutoffTimestamp);
 }
 
 // Seviye Güncelle
