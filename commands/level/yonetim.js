@@ -24,6 +24,10 @@ module.exports = {
             sub.setName('sifirla')
                 .setDescription('Bir kullanıcının tüm verilerini (XP, Level, Para) sıfırlar.')
                 .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+        )
+        .addSubcommand(sub =>
+            sub.setName('senkronize-et')
+                .setDescription('Tüm sunucu üyelerinin rollerini puanlarına göre düzeltir.')
         ),
 
     async execute(interaction) {
@@ -33,10 +37,59 @@ module.exports = {
 
         const subcommand = interaction.options.getSubcommand();
         const targetUser = interaction.options.getUser('kullanici');
-        const userId = targetUser.id;
+        const userId = targetUser ? targetUser.id : null;
 
-        // Kullanıcı verisini veritabanından çek (yoksa oluşturur)
-        const user = db.getUser(userId);
+        if (subcommand === 'senkronize-et') {
+            await interaction.deferReply();
+            const guild = interaction.guild;
+            const members = await guild.members.fetch();
+            let updatedCount = 0;
+
+            if (!levelConfig.rankSystem || !levelConfig.rankSystem.enabled) {
+                return interaction.editReply('❌ Rütbe sistemi aktif değil.');
+            }
+
+            const thresholds = levelConfig.rankSystem.thresholds;
+            const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
+            const allRankRoles = Object.values(thresholds);
+
+            for (const [memberId, member] of members) {
+                if (member.user.bot) continue;
+
+                const user = db.getUser(memberId);
+                const points = user.activity_points || 0;
+
+                let eligibleRoleId = null;
+                for (const threshold of sortedPoints) {
+                    if (points >= threshold) {
+                        eligibleRoleId = thresholds[threshold];
+                        break;
+                    }
+                }
+
+                let changed = false;
+                if (eligibleRoleId) {
+                    if (!member.roles.cache.has(eligibleRoleId)) {
+                        await member.roles.add(eligibleRoleId).catch(() => { });
+                        changed = true;
+                    }
+                }
+
+                for (const roleId of allRankRoles) {
+                    if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
+                        await member.roles.remove(roleId).catch(() => { });
+                        changed = true;
+                    }
+                }
+
+                if (changed) updatedCount++;
+            }
+
+            return interaction.editReply(`✅ Senkronizasyon Tamamlandı!\n**${members.size}** üye tarandı, **${updatedCount}** kişinin rolleri düzeltildi.`);
+        }
+
+        // Diğer komutlar kullanıcı gerektirir
+        if (!userId) return; // (Teorik olarak setRequired true ama güvenlik olsun)
 
         if (subcommand === 'xp-ver') {
             const xpAmount = interaction.options.getInteger('miktar');
@@ -52,26 +105,15 @@ module.exports = {
         } else if (subcommand === 'level-ayarla') {
             const newLevel = interaction.options.getInteger('seviye');
             db.setLevel(userId, newLevel);
-
-            // Level 1 ise XP'yi de o levele uygun ayarla ki hemen düşmesin
-            // Formül tersi zor olduğu için XP'yi sıfırlamıyoruz ama genelde level up için biraz xp verilir.
-
             await interaction.reply({
                 content: `🛠️ <@${userId}> kullanıcısının seviyesi **${newLevel}** olarak ayarlandı.`
             });
 
         } else if (subcommand === 'sifirla') {
-            db.setLevel(userId, 0);
-            // XP ve Para sıfırlama metodu db.js'de yoksa manuel set yapalım veya delete
-            // deleteUser yoksa update ile 0 yaparız.
-            // db.js'de setLevel var, xp ve money için add var ama set yoksa? 
-            // Veritabanı dosyasını kontrol etmeliyim ama şimdilik "kabaca" sıfırlayalım.
-            // En temizi veritabanında "setUser" veya "resetUser" olması lazım.
-
-            // Geçici çözüm: db.run ile SQL çalıştıracağız
             try {
+                // Basit SQL sorgusu ile sıfırla
                 const sqliteDb = require('better-sqlite3')('database.sqlite');
-                sqliteDb.prepare('UPDATE users SET xp = 0, level = 0, money = 0 WHERE user_id = ?').run(userId);
+                sqliteDb.prepare('UPDATE users SET xp = 0, level = 0, money = 0, activity_points = 0 WHERE user_id = ?').run(userId);
                 sqliteDb.close();
 
                 await interaction.reply({

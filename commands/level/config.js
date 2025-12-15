@@ -40,6 +40,6 @@ module.exports = {
         },
 
         // Arka Plan
-        cardBackground: "https://i.imgur.com/8m1z9lS.png"
+        cardBackground: ""
     }
 };
