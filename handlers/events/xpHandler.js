@@ -35,15 +35,10 @@ module.exports = {
         let earnedXp = Math.floor(Math.random() * (levelConfig.xpPerMessage.max - levelConfig.xpPerMessage.min + 1)) + levelConfig.xpPerMessage.min;
         let bonusXp = 0;
 
-        // A) Boost Bonusu (Gün Bazlı)
+        // A) Boost Bonusu (Sabit)
         if (member.premiumSince) {
-            const boostDurationMs = now - member.premiumSinceTimestamp;
-            const boostDays = Math.floor(boostDurationMs / (1000 * 60 * 60 * 24)); // Gün sayısı
-            const dailyBonus = levelConfig.bonuses.boostDaily || 0;
-
-            // Bonus Hesapla: Gün * GünlükBonus
-            const boostBonus = Math.floor(boostDays * dailyBonus);
-            if (boostBonus > 0) bonusXp += boostBonus;
+            const boostReward = levelConfig.bonuses.boostExtraXp || 0;
+            bonusXp += boostReward;
         }
 
         // B) Rol Bonusları

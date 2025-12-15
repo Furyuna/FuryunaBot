@@ -38,7 +38,7 @@ module.exports = {
 
         // XP Bonusları (Para ve Level XP'si için geçerli)
         bonuses: {
-            boostDaily: 0.5,
+            boostExtraXp: 20, // Boost basanlara mesaj başı sabit EKSTRA XP
             roles: {}
         },
 
