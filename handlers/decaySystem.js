@@ -51,13 +51,19 @@ module.exports = (client) => {
 
                 // Eğer hak ettiği bir rol varsa
                 if (eligibleRoleId) {
-                    // O role sahip değilse ver
+                    // O role sahip değilse ver (YENİ RÜTBE KAZANDI)
                     if (!member.roles.cache.has(eligibleRoleId)) {
-                        await member.roles.add(eligibleRoleId).catch(e => console.error(`Rol verme hatası: ${e}`));
-                        // console.log(`${member.user.tag} rütbesi güncellendi (Yükseldi/Korudu).`);
+                        await member.roles.add(eligibleRoleId).then(() => {
+                            // Bildirim Gönder (Ping yok, DisplayName var)
+                            const channel = guild.systemChannel || guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
+                            if (channel) {
+                                const roleName = guild.roles.cache.get(eligibleRoleId)?.name || "Yeni Rütbe";
+                                channel.send(`🎉 Tebrikler **${member.displayName}**! Aktifliğin sayesinde **${roleName}** rütbesini kazandın! 🚀`);
+                            }
+                        }).catch(e => console.error(`Rol verme hatası: ${e}`));
                     }
 
-                    // Diğer düşük/yüksek rütbe rollerini al (Sadece 1 rütbe taşısın istiyorsak)
+                    // Diğer düşük/yüksek rütbe rollerini al
                     // Veya "yüksek olan düşükleri de kapsar" mantığı değilse:
                     // Genelde discord'da "Gold" olan "Silver" rolünü de taşımaz, yenisi gelince eskisi gider.
                     // O yüzden diğer rank rollerini silelim.

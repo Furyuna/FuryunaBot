@@ -64,24 +64,7 @@ module.exports = {
         if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
             const activityGain = levelConfig.rankSystem.activityPerMessage;
             db.addActivity(userId, activityGain);
-            currentActivity += activityGain;
-
-            // --- RÜTBE KONTROLÜ (YENİ) ---
-            const thresholds = levelConfig.rankSystem.thresholds;
-            const guildMember = message.member;
-
-            for (const [points, roleId] of Object.entries(thresholds)) {
-                if (currentActivity >= parseInt(points)) {
-                    if (!guildMember.roles.cache.has(roleId)) {
-                        guildMember.roles.add(roleId)
-                            .then(() => {
-                                // Rütbe Atlama Mesajı
-                                message.channel.send(`🎉 Tebrikler <@${userId}>! Aktifliğin sayesinde **${points} Puan** barajını geçtin ve **<@&${roleId}>** rütbesini kazandın! 🚀`);
-                            })
-                            .catch(console.error);
-                    }
-                }
-            }
+            // Rank kontrolü kaldırıldı (Sadece 24 saatte bir yapılacak)
         }
 
         // --- SÜREKLİ COIN KAZANCI ---
