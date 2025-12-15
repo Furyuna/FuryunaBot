@@ -50,12 +50,20 @@ cd FuryunaBot
 npm install
 ```
 
-### 2. Ayarları Yapılandırın
+### 2. .env Dosyasını Oluşturun
+Proje kök dizininde `.env` adında bir dosya oluşturun ve içine şunları yazın:
+```env
+BOT_TOKEN=TOKEN_GRIN
+CLIENT_ID=BOT_ID_GRIN
+GUILD_ID=SUNUCU_ID_GRIN
+```
+
+### 3. Ayarları Yapılandırın
 Botun ayarları iki ana dosyada tutulur:
 *   **`commands/kayit/config.js`**: Kayıt rolleri ve yetkili ayarları.
-*   **`commands/level/config.js`**: Seviye XP oranları, ödül rolleri (ID'ler buraya girilir), ses kazançları ve bonuslar.
+*   **`commands/level/config.js`**: Seviye XP oranları, ödül rolleri ve Rank sistemi ayarları.
 
-### 3. Başlatın
+### 4. Başlatın
 ```bash
 node index.js
 ```
