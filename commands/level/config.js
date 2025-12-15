@@ -6,36 +6,40 @@ module.exports = {
         coinMultiplier: 100, // Seviye başına verilecek para (Level * 100)
         ignoredChannels: [], // Buraya ID'ler yazılacak
 
-        // Ses XP Ayarları
+        // Ses XP Ayarları (Level Sistemi İçin)
         voice: {
-            xpPerMinute: 10,        // Dakika başı XP
-            coinPerMinute: 5,       // Dakika başı Coin
-            ignoredChannels: []     // AFK kanalı ID'leri
+            xpPerMinute: 10,        // Level için XP
+            coinPerMinute: 5,       // Para
+            ignoredChannels: []
         },
 
-        // Seviye Ödülleri (Level -> Rol ID)
-        levelRewards: {
-            5: "1449821236111872120",   // Bronz
-            10: "1449821307016450119",  // Gümüş
-            20: "1449837249914212626",  // Altın
-            50: "1449837274291507310",  // Platin
-            100: "1449837286752780540"  // Elmas
-        },
+        // --- DİNAMİK RÜTBE SİSTEMİ (RANK SYSTEM) ---
+        rankSystem: {
+            enabled: true,
+            activityPerMessage: 5,        // Mesaj başı aktiflik puanı
+            activityPerVoiceMinute: 5,    // Ses dakika başı aktiflik puanı
+            decayRate: 0.05,              // Günlük silinme oranı (%5)
 
-        // XP Bonusları
-        bonuses: {
-            // Boost Bonus: (Boost Gün Sayısı * Günlük Bonus)
-            // Örn: 10 gündür boost basıyorsa ve günlük 0.5 ise: 10 * 0.5 = +5 XP
-            boostDaily: 0.5,
-
-            // Rol Bonusları (Sabit puan ekler)
-            roles: {
-                // "ROL_ID": EKSTRA_XP
-                // "1329376205195055125": 5 
+            // Aktiflik Puanı Hedefleri (Puan -> Rol ID)
+            thresholds: {
+                100: "1449821236111872120",   // Bronz (Yaklaşık 20 mesaj)
+                250: "1449821307016450119",   // Gümüş
+                500: "1449837249914212626",   // Altın
+                1000: "1449837274291507310",  // Platin
+                2000: "1449837286752780540"   // Elmas
             }
         },
 
-        // Arka Plan Görselleri (Canvas kartı için)
-        cardBackground: "https://i.imgur.com/8m1z9lS.png" // Varsayılan görsel
+        // Eski Level Ödülleri (İptal edildi, Rütbe sistemine taşındı)
+        levelRewards: {},
+
+        // XP Bonusları (Para ve Level XP'si için geçerli)
+        bonuses: {
+            boostDaily: 0.5,
+            roles: {}
+        },
+
+        // Arka Plan
+        cardBackground: "https://i.imgur.com/8m1z9lS.png"
     }
 };

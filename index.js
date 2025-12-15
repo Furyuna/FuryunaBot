@@ -72,4 +72,7 @@ client.on(Events.MessageCreate, async message => {
     }
 });
 
+const decaySystem = require('./handlers/decaySystem.js');
+decaySystem(client);
+
 client.login(process.env.BOT_TOKEN);

@@ -57,8 +57,28 @@ module.exports = {
 
         earnedXp += bonusXp;
 
-        // 7. XP'yi Ekle ve Zamanı Güncelle
+        // 7. XP ve Aktivite Puanı Ekle
         db.addXp(userId, earnedXp);
+
+        let currentActivity = user.activity_points || 0;
+        if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
+            const activityGain = levelConfig.rankSystem.activityPerMessage;
+            db.addActivity(userId, activityGain);
+            currentActivity += activityGain;
+
+            // --- RÜTBE KONTROLÜ (YENİ) ---
+            const thresholds = levelConfig.rankSystem.thresholds;
+            const guildMember = message.member;
+
+            for (const [points, roleId] of Object.entries(thresholds)) {
+                if (currentActivity >= parseInt(points)) {
+                    if (!guildMember.roles.cache.has(roleId)) {
+                        guildMember.roles.add(roleId).catch(console.error);
+                        // Opsiyonel: Rütbe atladın mesajı atılabilir
+                    }
+                }
+            }
+        }
 
         // --- SÜREKLİ COIN KAZANCI ---
         // Her mesajda az da olsa para kazansın (XP'nin %10'u kadar)

@@ -26,59 +26,61 @@ module.exports = {
 
         const progressBar = '🟦'.repeat(progress) + '⬜'.repeat(empty); // [🟦🟦⬜⬜...]
 
-        const { levelRewards } = require('./config.js').levelSystem;
+        const { levelRewards, rankSystem } = require('./config.js').levelSystem;
 
-        // Rütbe (Rank) Belirleme
-        let rankName = "N/A"; // Varsayılan
-        let rankColor = "#ffd700"; // Varsayılan renk
+        // Rütbe (Rank) Belirleme (YENİ SİSTEM)
+        let rankName = "N/A";
+        let rankColor = "#ffd700";
 
-        // Config'deki ödülleri kontrol et
-        const sortedLevels = Object.keys(levelRewards).map(Number).sort((a, b) => a - b); // Küçükten büyüğe sırala
+        if (rankSystem && rankSystem.enabled) {
+            const currentActivity = user.activity_points || 0;
+            const sortedThresholds = Object.keys(rankSystem.thresholds).map(Number).sort((a, b) => a - b);
 
-        // 1. Mevcut Rütbeyi Bul (En yüksek hak edilen)
-        for (let i = sortedLevels.length - 1; i >= 0; i--) {
-            const lvl = sortedLevels[i];
-            if (user.level >= lvl) {
-                const roleId = levelRewards[lvl];
-                const role = interaction.guild.roles.cache.get(roleId);
-                if (role) {
-                    rankName = role.name;
-                    rankColor = role.hexColor;
+            // En yüksek rütbeyi bul
+            for (let i = sortedThresholds.length - 1; i >= 0; i--) {
+                const threshold = sortedThresholds[i];
+                if (currentActivity >= threshold) {
+                    const roleId = rankSystem.thresholds[threshold];
+                    const role = interaction.guild.roles.cache.get(roleId);
+                    if (role) {
+                        rankName = role.name;
+                        rankColor = role.hexColor;
+                    }
+                    break;
                 }
-                break;
             }
-        }
 
-        // Kural: Rütbe yoksa "Yok" yazsın
-        if (rankName === "N/A") rankName = "Yok";
+            if (rankName === "N/A") rankName = "Yok";
 
-        // 2. Bir Sonraki Rütbeyi Bul (Hedef)
-        let nextRankName = "Maksimum Seviye! 👑";
-        for (const lvl of sortedLevels) {
-            if (lvl > user.level) {
-                const roleId = levelRewards[lvl];
-                const role = interaction.guild.roles.cache.get(roleId);
-                if (role) {
-                    nextRankName = role.name; // Rol ismini al
-                } else {
-                    nextRankName = `Level ${lvl} Rütbesi`; // Rol silinmişse idare et
+            // Sonraki Rütbe
+            var nextRankName = "Maksimum Rütbe! 👑";
+            var nextRankThreshold = 0;
+            for (const threshold of sortedThresholds) {
+                if (threshold > currentActivity) {
+                    const roleId = rankSystem.thresholds[threshold];
+                    const role = interaction.guild.roles.cache.get(roleId);
+                    nextRankName = role ? role.name : `+${threshold} Puan Rütbesi`;
+                    nextRankThreshold = threshold;
+                    break;
                 }
-                break; // İlk büyük olanı bul ve çık
             }
+        } else {
+            // Eski sistem (Fallback)
+            rankName = "Devre Dışı";
         }
 
         const embed = new EmbedBuilder()
             .setColor(rankColor)
             .setAuthor({ name: `${targetUser.username} Profili`, iconURL: targetUser.displayAvatarURL() })
-            .setDescription(`**Rütbe:** ${rankName}\n**Sonraki Rütbe:** ${nextRankName}\n\n${progressBar} **%${percentage}**`)
+            .setDescription(`**Rütbe:** ${rankName}\n**Aktiflik:** ${user.activity_points || 0} / ${nextRankThreshold || 'Max'} Puan\n**Sonraki Hedef:** ${nextRankName}\n\n${progressBar} **(Level İlerlemesi)**`)
             .addFields(
                 { name: '🏆 Seviye', value: `**${user.level}**`, inline: true },
-                { name: '✨ XP', value: `${user.xp} / ${nextLevelXp}`, inline: true },
+                { name: '🔥 Aktiflik Puanı', value: `**${user.activity_points || 0}**`, inline: true },
+                { name: '✨ Level XP', value: `${user.xp} / ${nextLevelXp}`, inline: true },
                 { name: '💸 Furyuna Coin', value: `**${user.money}**`, inline: true }
             )
-            .setFooter({ text: 'FuryunaBot Level Sistemi' });
+            .setFooter({ text: 'FuryunaBot Level & Rank Sistemi' });
 
         await interaction.reply({ embeds: [embed] });
     }
 };
-

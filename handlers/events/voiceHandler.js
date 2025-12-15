@@ -33,6 +33,15 @@ module.exports = {
                     db.addXp(userId, earningsXP);
                     db.addMoney(userId, earningsCoin);
 
+                    // Aktiflik Puanı (Rank Sistemi)
+                    if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
+                        const activityGain = minutes * levelConfig.rankSystem.activityPerVoiceMinute;
+                        db.addActivity(userId, activityGain);
+
+                        // Rütbe kontrolü burada yapılmıyor, kullanıcı mesaj atınca veya decay çalışınca güncellenir
+                        // (Performans için her dakika tüm seste olanlara role kontrolü yapmayalım)
+                    }
+
                     // Seviye kontrolü (Ses ile level atlama burada da yapılabilir ama
                     // şimdilik sadece XP ekliyoruz, bir sonraki mesajda level atlar.
                     // Veya burada da db.getUser ile kontrol edip level atlatılabilir.)
