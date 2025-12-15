@@ -120,7 +120,14 @@ module.exports = {
             }
 
             // Normal Level Up Mesajı
-            await channel.send(`🎉 Tebrikler <@${userId}>! **Seviye ${newLevel}** oldun!\n💸 **${totalMoney}** Furyuna Coin kazandın. (Bonus: +${bonusMoney})`);
+            // Mesaj şablonunu al ve değişkenleri yerleştir
+            let msg = levelConfig.messages.levelUp
+                .replace(/{user}/g, `<@${userId}>`)
+                .replace(/{level}/g, newLevel)
+                .replace(/{money}/g, totalMoney)
+                .replace(/{bonus}/g, bonusMoney);
+
+            await channel.send(msg);
         }
     }
 };

@@ -1,10 +1,13 @@
 module.exports = {
-    // --- SEVİYE SİSTEMİ AYARLARI ---
+    // --- GENEL AYARLAR (HEPSİ İÇİN GEÇERLİ) ---
     levelSystem: {
+        // ORTAK AYARLAR (Hem Level Hem Rütbe İçin)
+        cooldown: 60000,         // Bekleme Süresi (1 Dakika): Spamı engeller, ikisi için de geçerlidir.
+        ignoredChannels: [],     // Yoksayılan Kanallar: Burada ne XP ne Rütbe puanı kazanılır.
+
+        // --- SEVİYE SİSTEMİ (XP & PARA) ---
         xpPerMessage: { min: 10, max: 30 }, // Mesaj başına rastgele XP aralığı
-        cooldown: 60000, // 1 Dakika (milisaniye cinsinden)
-        coinMultiplier: 100, // Seviye başına verilecek para (Level * 100)
-        ignoredChannels: [], // Buraya ID'ler yazılacak
+        coinMultiplier: 100,     // Seviye başına verilecek para (Level * 100)
 
         // Ses XP Ayarları (Level Sistemi İçin)
         voice: {
@@ -40,6 +43,15 @@ module.exports = {
         },
 
         // Arka Plan
-        cardBackground: ""
+        cardBackground: "",
+
+        // --- MESAJLAR (Özelleştirilebilir) ---
+        messages: {
+            // {user} = Kullanıcı, {level} = Yeni Level, {money} = Toplam Para, {bonus} = Bonus Para
+            levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** Furyuna Coin kazandın. (Ekstra Bonus: +{bonus})",
+
+            // {user} = Kullanıcı (Display Name), {role} = Yeni Rütbe
+            rankUp: "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀"
+        }
     }
 };

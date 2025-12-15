@@ -58,7 +58,17 @@ module.exports = (client) => {
                             const channel = guild.systemChannel || guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
                             if (channel) {
                                 const roleName = guild.roles.cache.get(eligibleRoleId)?.name || "Yeni Rütbe";
-                                channel.send(`🎉 Tebrikler **${member.displayName}**! Aktifliğin sayesinde **${roleName}** rütbesini kazandın! 🚀`);
+                                let msg = levelConfig.rankSystem.messages?.rankUp || "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀";
+
+                                // Ana config'den çekmeyi dene (yapı biraz karışık olduğu için fallbackli)
+                                if (levelConfig.messages && levelConfig.messages.rankUp) {
+                                    msg = levelConfig.messages.rankUp;
+                                }
+
+                                msg = msg.replace(/{user}/g, member.displayName)
+                                    .replace(/{role}/g, roleName);
+
+                                channel.send(msg);
                             }
                         }).catch(e => console.error(`Rol verme hatası: ${e}`));
                     }
