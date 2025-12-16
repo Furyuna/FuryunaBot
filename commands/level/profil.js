@@ -16,9 +16,11 @@ module.exports = {
         // Veritabanından çek
         const user = db.getUser(targetUser.id);
 
-        // Formül: Sonraki seviye XP'si
+        // Formül: Sonraki seviye XP'si (Sabit Zorluk)
         const currentLevel = user.level;
-        const nextLevelXp = 5 * Math.pow(currentLevel, 2) + (50 * currentLevel) + 100;
+        const { xpNeededPerLevel } = require('./config.js').levelSystem;
+        const xpTarget = xpNeededPerLevel || 300;
+        const nextLevelXp = (currentLevel + 1) * xpTarget;
 
         // Yüzdelik ve Progress Bar
         const percentage = Math.floor((user.xp / nextLevelXp) * 100);

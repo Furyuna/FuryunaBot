@@ -71,8 +71,10 @@ module.exports = {
 
         // ================= SEVİYE ATLAMA MANTIĞI =================
         const currentLevel = user.level;
-        // Zorluk Formülü: 5 * L^2 + 50 * L + 100
-        const nextLevelXp = 5 * Math.pow(currentLevel, 2) + (50 * currentLevel) + 100;
+        // ZORLUK YOK: Her seviye için sabit XP gerekir (Örn: Lvl 1->300, Lvl 2->600)
+        // Eğer config'de yoksa varsayılan 300 al
+        const xpPerLevel = levelConfig.xpNeededPerLevel || 300;
+        const nextLevelXp = (currentLevel + 1) * xpPerLevel;
 
         // Not: user objesi eski veriyi tuttuğu için manuel ekliyoruz
         let newTotalXp = user.xp + earnedXp;

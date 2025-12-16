@@ -7,6 +7,7 @@ module.exports = {
 
         // --- SEVİYE SİSTEMİ (XP & PARA) ---
         xpPerMessage: { min: 10, max: 30 }, // Mesaj başına rastgele XP aralığı
+        xpNeededPerLevel: 300,   // Her seviye için gereken SABİT XP (Zorluk artmaz)
         coinMultiplier: 100,     // Seviye başına verilecek para (Level * 100)
 
         // Ses XP Ayarları (Level Sistemi İçin)
