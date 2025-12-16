@@ -1,9 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const db = require('../../utils/database.js');
 
+const config = require('./config.js').levelSystem;
+
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('profil')
+        .setName(config.commands.profile || 'profil')
         .setDescription('Kendinizin veya başka bir kullanıcının seviye ve parasını gösterir.')
         .addUserOption(option => option.setName('kullanici').setDescription('Görüntülenecek kullanıcı').setRequired(false)),
 

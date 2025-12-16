@@ -4,7 +4,7 @@ const levelConfig = require('./config.js').levelSystem;
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('level-yonet')
+        .setName(levelConfig.commands.management || 'level-yonet')
         .setDescription('Kullanıcıların seviye ve XP verilerini yönetir (Sadece Yetkililer).')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addSubcommand(sub =>

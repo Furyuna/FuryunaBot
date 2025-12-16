@@ -16,6 +16,13 @@ module.exports = {
             ignoredChannels: []
         },
 
+        // --- KOMUT İSİMLERİ (Buradan değiştirebilirsiniz) ---
+        commands: {
+            profile: "profil",       // Profil komutu adı
+            leaderboard: "sıralama", // Sıralama komutu adı
+            management: "level-yonet" // Yönetim komutu adı
+        },
+
         // --- DİNAMİK RÜTBE SİSTEMİ (RANK SYSTEM) ---
         rankSystem: {
             enabled: true,

@@ -1,9 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const db = require('../../utils/database.js');
 
+const config = require('./config.js').levelSystem;
+
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('sıralama')
+        .setName(config.commands.leaderboard || 'sıralama')
         .setDescription('En yüksek seviyeye sahip üyeleri gösterir.'),
 
     async execute(interaction) {
