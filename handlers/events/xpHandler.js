@@ -46,16 +46,9 @@ module.exports = {
             db.addActivity(userId, activityGain);
         }
 
-        // --- SÜREKLİ COIN KAZANCI ---
-        // Her mesajda az da olsa para kazansın (XP'nin %10'u kadar)
-        let instantCoin = Math.max(1, Math.floor(earnedXp / 10));
-
-        // BOOST VARSA PARA 2 KATINA ÇIKAR
-        if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
-            instantCoin *= levelConfig.bonuses.boostCoinMultiplier;
-        }
-
-        db.addMoney(userId, instantCoin);
+        // --- SÜREKLİ COIN KAZANCI (İPTAL EDİLDİ) ---
+        // Sadece Level atlayınca para verilecek.
+        // db.addMoney(userId, instantCoin); (Kaldırıldı)
 
         db.updateCooldown(userId, now);
 

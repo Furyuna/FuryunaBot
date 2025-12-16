@@ -27,11 +27,11 @@ module.exports = {
 
                     // Hesapla
                     const earningsXP = minutes * levelConfig.voice.xpPerMinute;
-                    const earningsCoin = minutes * levelConfig.voice.coinPerMinute;
+                    // Para kazanımı iptal edildi (Sadece level atlayınca)
 
                     // Veritabanına işle
                     db.addXp(userId, earningsXP);
-                    db.addMoney(userId, earningsCoin);
+                    // db.addMoney(userId, earningsCoin); (Kaldırıldı)
 
                     // Aktiflik Puanı (Rank Sistemi)
                     if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {

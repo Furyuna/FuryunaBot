@@ -13,7 +13,7 @@ module.exports = {
         // Ses XP Ayarları (Level Sistemi İçin)
         voice: {
             xpPerMinute: 10,        // Level için XP
-            coinPerMinute: 5,       // Para
+            coinPerMinute: 0,       // Para (İptal edildi)
             ignoredChannels: []
         },
 
@@ -56,7 +56,7 @@ module.exports = {
         // --- MESAJLAR (Özelleştirilebilir) ---
         messages: {
             // {user} = Kullanıcı, {level} = Yeni Level, {money} = Toplam Para, {bonus} = Bonus Para
-            levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** Furyuna Coin kazandın. (Ekstra Bonus: +{bonus})",
+            levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** Furyuna Coin kazandın. (Boost Bonusu: +{bonus})",
 
             // {user} = Kullanıcı (Display Name), {role} = Yeni Rütbe
             rankUp: "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀"
