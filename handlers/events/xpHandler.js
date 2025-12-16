@@ -31,26 +31,11 @@ module.exports = {
             return;
         }
 
-        // 6. XP Hesapla (Temel + Bonuslar)
+        // 6. XP Hesapla (Bonus YOK - Herkes Eşit)
         let earnedXp = Math.floor(Math.random() * (levelConfig.xpPerMessage.max - levelConfig.xpPerMessage.min + 1)) + levelConfig.xpPerMessage.min;
-        let bonusXp = 0;
 
-        // A) Boost Bonusu (Sabit)
-        if (member.premiumSince) {
-            const boostReward = levelConfig.bonuses.boostExtraXp || 0;
-            bonusXp += boostReward;
-        }
-
-        // B) Rol Bonusları
-        if (levelConfig.bonuses.roles) {
-            for (const [roleId, bonus] of Object.entries(levelConfig.bonuses.roles)) {
-                if (member.roles.cache.has(roleId)) {
-                    bonusXp += bonus;
-                }
-            }
-        }
-
-        earnedXp += bonusXp;
+        // Boost Kontrolü (Para için kullanılacak)
+        const isBooster = member.premiumSince || false;
 
         // 7. XP ve Aktivite Puanı Ekle
         db.addXp(userId, earnedXp);
@@ -59,19 +44,24 @@ module.exports = {
         if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
             const activityGain = levelConfig.rankSystem.activityPerMessage;
             db.addActivity(userId, activityGain);
-            // Rank kontrolü kaldırıldı (Sadece 24 saatte bir yapılacak)
         }
 
         // --- SÜREKLİ COIN KAZANCI ---
         // Her mesajda az da olsa para kazansın (XP'nin %10'u kadar)
-        const instantCoin = Math.max(1, Math.floor(earnedXp / 10));
+        let instantCoin = Math.max(1, Math.floor(earnedXp / 10));
+
+        // BOOST VARSA PARA 2 KATINA ÇIKAR
+        if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+            instantCoin *= levelConfig.bonuses.boostCoinMultiplier;
+        }
+
         db.addMoney(userId, instantCoin);
 
         db.updateCooldown(userId, now);
 
         // ================= SEVİYE ATLAMA MANTIĞI =================
         const currentLevel = user.level;
-        // ZORLUK YOK: Her seviye için sabit XP gerekir (Örn: Lvl 1->300, Lvl 2->600)
+        // ZORLUK YOK: Her seviye için sabit XP gerekir (Örn: Lvl 1->2000, Lvl 2->4000)
         // Eğer config'de yoksa varsayılan 300 al
         const xpPerLevel = levelConfig.xpNeededPerLevel || 300;
         const nextLevelXp = (currentLevel + 1) * xpPerLevel;
@@ -84,10 +74,16 @@ module.exports = {
             db.setLevel(userId, newLevel);
 
             // Para Ödülü (Bonuslar parayı da etkiler)
-            // Formül: (Level * Çarpan) + (BonusXP * 2)
-            const baseMoney = newLevel * levelConfig.coinMultiplier;
-            const bonusMoney = bonusXp * 2; // Bonus XP'si yüksek olanın parası da artar
-            const totalMoney = baseMoney + bonusMoney;
+            // Formül: (Level * Çarpan)
+            let totalMoney = newLevel * levelConfig.coinMultiplier;
+
+            // BOOST VARSA SEVİYE ÖDÜLÜ DE ARTAR
+            let bonusMoney = 0;
+            if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+                const multiplier = levelConfig.bonuses.boostCoinMultiplier;
+                bonusMoney = totalMoney * (multiplier - 1); // Eklenen kısım
+                totalMoney *= multiplier; // Toplam para
+            }
 
             db.addMoney(userId, totalMoney);
 

@@ -7,7 +7,7 @@ module.exports = {
 
         // --- SEVİYE SİSTEMİ (XP & PARA) ---
         xpPerMessage: { min: 10, max: 30 }, // Mesaj başına rastgele XP aralığı
-        xpNeededPerLevel: 300,   // Her seviye için gereken SABİT XP (Zorluk artmaz)
+        xpNeededPerLevel: 2000,  // Her seviye için gereken SABİT XP (Zorluk artmaz -> ~100 Mesaj)
         coinMultiplier: 100,     // Seviye başına verilecek para (Level * 100)
 
         // Ses XP Ayarları (Level Sistemi İçin)
@@ -46,7 +46,7 @@ module.exports = {
 
         // XP Bonusları (Para ve Level XP'si için geçerli)
         bonuses: {
-            boostExtraXp: 20, // Boost basanlara mesaj başı sabit EKSTRA XP
+            boostCoinMultiplier: 2, // Boost basanlara 2 KAT daha fazla para
             roles: {}
         },
 
