@@ -6,8 +6,18 @@ module.exports = {
         ignoredChannels: [],     // Yoksayılan Kanallar: Burada ne XP ne Rütbe puanı kazanılır.
 
         // --- SEVİYE SİSTEMİ (XP & PARA) ---
-        xpPerMessage: { min: 10, max: 30 }, // Mesaj başına rastgele XP aralığı
-        xpNeededPerLevel: 2000,  // Her seviye için gereken SABİT XP (Zorluk artmaz -> ~100 Mesaj)
+        // XP Gereksinimi (1000 XP):
+        // Kullanıcı isteği: 2000 çok görünüyor, 1000 olsun ama zorluk aynı kalsın.
+        // Çözüm: Hedefi yarıya indirdik, kazanılan XP'yi de yarıya indirdik.
+        xpNeededPerLevel: 1000,
+
+        // XP Kazanma Aralığı (5 - 15 ARASI):
+        // Eskiden 10-20 idi. Hedef 2000 -> 1000 olduğu için bunu da yarıya çektik.
+        // Böylece yine ortalama 100 mesajda level atlanacak.
+        xpPerMessage: {
+            min: 5,
+            max: 15
+        },
         coinMultiplier: 100,     // Seviye başına verilecek para (Level * 100)
 
         // Ses XP Ayarları (Level Sistemi İçin)
