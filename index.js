@@ -15,9 +15,11 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// --- HANDLER YÜKLEME ---
+// --- HANDLER YÜKLE ---
 require('./handlers/commandHandler')(client);
 require('./handlers/eventHandler')(client);
+require('./handlers/decaySystem')(client); // Çürüme sistemi
+require('./handlers/autoMessages')(client); // Oto-Mesaj sistemi (YENİ)
 
 // --- VERİTABANI BAŞLAT ---
 require('./utils/database').initDatabase();
