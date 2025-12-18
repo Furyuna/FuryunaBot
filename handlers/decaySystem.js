@@ -55,22 +55,24 @@ module.exports = (client) => {
                     if (!member.roles.cache.has(eligibleRoleId)) {
                         await member.roles.add(eligibleRoleId).then(() => {
                             // Bildirim Gönder (Ping yok, DisplayName var)
-                            const channel = guild.systemChannel || guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
-                            if (channel) {
-                                const roleName = guild.roles.cache.get(eligibleRoleId)?.name || "Yeni Rütbe";
-                                let msg = levelConfig.rankSystem.messages?.rankUp || "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀";
+                            // Sadece config'de açıksa gönder
+                            if (levelSystem.rankSystem.announceRankUp) {
+                                const channel = guild.systemChannel || guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
+                                if (channel) {
+                                    const roleName = guild.roles.cache.get(eligibleRoleId)?.name || "Yeni Rütbe";
+                                    let msg = levelConfig.rankSystem.messages?.rankUp || "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀";
 
-                                // Ana config'den çekmeyi dene (yapı biraz karışık olduğu için fallbackli)
-                                if (levelConfig.messages && levelConfig.messages.rankUp) {
-                                    msg = levelConfig.messages.rankUp;
+                                    // Ana config'den çekmeyi dene (yapı biraz karışık olduğu için fallbackli)
+                                    if (levelConfig.messages && levelConfig.messages.rankUp) {
+                                        msg = levelConfig.messages.rankUp;
+                                    }
+
+                                    msg = msg.replace(/{user}/g, member.displayName)
+                                        .replace(/{role}/g, roleName);
+
+                                    channel.send(msg);
                                 }
-
-                                msg = msg.replace(/{user}/g, member.displayName)
-                                    .replace(/{role}/g, roleName);
-
-                                channel.send(msg);
-                            }
-                        }).catch(e => console.error(`Rol verme hatası: ${e}`));
+                            }).catch(e => console.error(`Rol verme hatası: ${e}`));
                     }
 
                     // Diğer düşük/yüksek rütbe rollerini al

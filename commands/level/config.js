@@ -40,6 +40,7 @@ module.exports = {
             activityPerMessage: 5,        // Mesaj başı aktiflik puanı
             activityPerVoiceMinute: 5,    // Ses dakika başı aktiflik puanı
             decayRate: 0.05,              // Günlük silinme oranı (%5)
+            announceRankUp: false,    // Rütbe atlama mesajı gönderilsin mi? (Spam olmaması için kapalı)
 
             // Aktiflik Puanı Hedefleri (Puan -> Rol ID)
             thresholds: {
