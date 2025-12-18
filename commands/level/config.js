@@ -59,10 +59,7 @@ module.exports = {
             levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** Furyuna Coin kazandın. (Boost Bonusu: +{bonus})",
 
             // {user} = Kullanıcı (Display Name), {role} = Yeni Rütbe
-            rankUp: "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀",
-
-            // {user} = Kullanıcı
-            autoVerify: "🛡️ {user} **1. Seviye** olduğu için otomatik doğrulandı!"
+            rankUp: "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀"
         }
     }
 };
