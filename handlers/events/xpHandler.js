@@ -99,7 +99,8 @@ module.exports = {
                 try {
                     await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
                     await member.roles.add(roleConfig.roles.verifiedMember);
-                    const verifyMsg = (levelConfig.messages.autoVerify || "🛡️ {user} **1. Seviye** olduğu için otomatik doğrulandı!").replace(/{user}/g, `<@${userId}>`);
+                    // Resmi doğrulama mesajını kullan (Yetkili = Bot)
+                    const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
                     await channel.send(verifyMsg);
                 } catch (error) {
                     console.error("Oto doğrulama hatası:", error);
