@@ -97,7 +97,18 @@ module.exports = {
                 }
             }
 
+            // Normal Level Up Mesajı
+            // Mesaj şablonunu al ve değişkenleri yerleştir
+            let msg = levelConfig.messages.levelUp
+                .replace(/{user}/g, `<@${userId}>`)
+                .replace(/{level}/g, newLevel)
+                .replace(/{money}/g, totalMoney)
+                .replace(/{bonus}/g, bonusMoney);
+
+            await channel.send(msg);
+
             // ================= 1. SEVİYE ÖZEL: OTO DOĞRULAMA =================
+            // Level mesajından SONRA gelmesi istendi.
             if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
                 try {
                     await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
@@ -109,16 +120,6 @@ module.exports = {
                     console.error("Oto doğrulama hatası:", error);
                 }
             }
-
-            // Normal Level Up Mesajı
-            // Mesaj şablonunu al ve değişkenleri yerleştir
-            let msg = levelConfig.messages.levelUp
-                .replace(/{user}/g, `<@${userId}>`)
-                .replace(/{level}/g, newLevel)
-                .replace(/{money}/g, totalMoney)
-                .replace(/{bonus}/g, bonusMoney);
-
-            await channel.send(msg);
         }
     }
 };
