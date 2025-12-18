@@ -42,8 +42,11 @@ module.exports = {
 
         let currentActivity = user.activity_points || 0;
         if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
-            const activityGain = levelConfig.rankSystem.activityPerMessage;
-            db.addActivity(userId, activityGain);
+            // Sadece "Doğrulanmış Üye" rolü OLANLAR Rank/Aktiflik Puanı kazanabilir.
+            if (member.roles.cache.has(roleConfig.roles.verifiedMember)) {
+                const activityGain = levelConfig.rankSystem.activityPerMessage;
+                db.addActivity(userId, activityGain);
+            }
         }
 
         // --- SÜREKLİ COIN KAZANCI (İPTAL EDİLDİ) ---
