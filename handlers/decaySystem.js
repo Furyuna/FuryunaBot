@@ -72,7 +72,8 @@ module.exports = (client) => {
 
                                     channel.send(msg);
                                 }
-                            }).catch(e => console.error(`Rol verme hatası: ${e}`));
+                            }
+                        }).catch(e => console.error(`Rol verme hatası: ${e}`));
                     }
 
                     // Diğer düşük/yüksek rütbe rollerini al
