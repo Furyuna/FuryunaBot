@@ -16,19 +16,6 @@ module.exports = {
         // Veritabanından çek
         const user = db.getUser(targetUser.id);
 
-        // Formül: Sonraki seviye XP'si (Sabit Zorluk)
-        const currentLevel = user.level;
-        const { xpNeededPerLevel } = require('./config.js').levelSystem;
-        const xpTarget = xpNeededPerLevel || 300;
-        const nextLevelXp = (currentLevel + 1) * xpTarget;
-
-        // Yüzdelik ve Progress Bar
-        const percentage = Math.floor((user.xp / nextLevelXp) * 100);
-        const barSize = 10; // Çubuk uzunluğu
-        const progress = Math.round((percentage / 100) * barSize);
-        const empty = barSize - progress;
-
-        const progressBar = '🟦'.repeat(progress) + '⬜'.repeat(empty); // [🟦🟦⬜⬜...]
 
         const { levelRewards, rankSystem } = require('./config.js').levelSystem;
 
