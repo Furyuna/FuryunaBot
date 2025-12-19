@@ -22,6 +22,8 @@ module.exports = {
         // Rütbe (Rank) Belirleme (YENİ SİSTEM)
         let rankName = "N/A";
         let rankColor = "#ffd700";
+        let nextRankName = "Maksimum Rütbe! 👑";
+        let nextRankThreshold = "MAX";
 
         if (rankSystem && rankSystem.enabled) {
             const currentActivity = user.activity_points || 0;
