@@ -45,7 +45,7 @@ module.exports = {
             // Sadece "Doğrulanmış Üye" rolü OLANLAR Rank/Aktiflik Puanı kazanabilir.
             if (member.roles.cache.has(roleConfig.roles.verifiedMember)) {
                 const activityGain = levelConfig.rankSystem.activityPerMessage;
-                db.addActivity(userId, activityGain);
+                db.addActivityPoints(userId, activityGain);
             }
         }
 

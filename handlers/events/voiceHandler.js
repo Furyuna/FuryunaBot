@@ -36,7 +36,7 @@ module.exports = {
                     // Aktiflik Puanı (Rank Sistemi)
                     if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
                         const activityGain = minutes * levelConfig.rankSystem.activityPerVoiceMinute;
-                        db.addActivity(userId, activityGain);
+                        db.addActivityPoints(userId, activityGain);
 
                         // Rütbe kontrolü burada yapılmıyor, kullanıcı mesaj atınca veya decay çalışınca güncellenir
                         // (Performans için her dakika tüm seste olanlara role kontrolü yapmayalım)
