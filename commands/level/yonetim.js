@@ -28,6 +28,18 @@ module.exports = {
         .addSubcommand(sub =>
             sub.setName('senkronize-et')
                 .setDescription('Tüm sunucu üyelerinin rollerini puanlarına göre düzeltir.')
+        )
+        .addSubcommand(sub =>
+            sub.setName('puan-ver')
+                .setDescription('Bir kullanıcıya Rütbe/Aktiflik Puanı verir.')
+                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                .addIntegerOption(opt => opt.setName('miktar').setDescription('Puan Miktarı').setRequired(true))
+        )
+        .addSubcommand(sub =>
+            sub.setName('puan-sil')
+                .setDescription('Bir kullanıcıdan Rütbe/Aktiflik Puanı siler.')
+                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                .addIntegerOption(opt => opt.setName('miktar').setDescription('Silinecek Miktar').setRequired(true))
         ),
 
     async execute(interaction) {
@@ -102,6 +114,24 @@ module.exports = {
                 content: `✅ <@${userId}> kullanıcısına **${xpAmount} XP** ve **${moneyAmount} Coin** verildi!\n(Not: Seviye atlama işlemi bir sonraki mesajında gerçekleşir).`
             });
 
+        } else if (subcommand === 'puan-ver') {
+            const amount = interaction.options.getInteger('miktar');
+            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
+
+            db.addActivityPoints(userId, amount);
+            await interaction.reply({
+                content: `📈 <@${userId}> kullanıcısına **${amount} Aktiflik Puanı** verildi!\nRütbe güncellemesi için kullanıcının işlem yapması veya senkronizasyon gerekebilir.`
+            });
+
+        } else if (subcommand === 'puan-sil') {
+            const amount = interaction.options.getInteger('miktar');
+            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
+
+            db.removeActivityPoints(userId, amount);
+            await interaction.reply({
+                content: `📉 <@${userId}> kullanıcısından **${amount} Aktiflik Puanı** silindi.`
+            });
+
         } else if (subcommand === 'level-ayarla') {
             const newLevel = interaction.options.getInteger('seviye');
             db.setLevel(userId, newLevel);
@@ -111,10 +141,14 @@ module.exports = {
 
         } else if (subcommand === 'sifirla') {
             try {
-                // Basit SQL sorgusu ile sıfırla
-                const sqliteDb = require('better-sqlite3')('database.sqlite');
-                sqliteDb.prepare('UPDATE users SET xp = 0, level = 0, money = 0, activity_points = 0 WHERE user_id = ?').run(userId);
-                sqliteDb.close();
+                // Basit SQL sorgusu ile sıfırla (Better-sqlite3 db.prepare kullanalım)
+                // db modülü üzerinden erişim olmadığı için require ile açalım
+                const sqlite = require('better-sqlite3');
+                const path = require('path');
+                const rawDb = new sqlite(path.join(__dirname, '../../database.sqlite'));
+
+                rawDb.prepare('UPDATE users SET xp = 0, level = 0, money = 0, activity_points = 0 WHERE user_id = ?').run(userId);
+                rawDb.close();
 
                 await interaction.reply({
                     content: `♻️ <@${userId}> kullanıcısının tüm verileri sıfırlandı!`

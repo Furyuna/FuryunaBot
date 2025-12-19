@@ -109,7 +109,7 @@ module.exports = {
             .addFields(
                 {
                     name: '🏆 Seviye İlerlemesi',
-                    value: `> ${levelBar} **%${xpPercentage}**\n> XP: **${currentLevelXp}** / ${xpPerLevel}`,
+                    value: `> ${levelBar} **%${xpPercentage}**\n> XP: **${currentLevelXp} / ${xpPerLevel}**`,
                     inline: false
                 },
                 {

@@ -28,6 +28,17 @@ function initDatabase() {
     console.log("[VERİTABANI] Başlatıldı ve tablolar kontrol edildi.");
 }
 
+// Aktiflik Puanı Yönetimi (MANUEL)
+function addActivityPoints(userId, amount) {
+    const stmt = db.prepare('INSERT INTO users (user_id, activity_points) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET activity_points = activity_points + ?');
+    stmt.run(userId, amount, amount);
+}
+
+function removeActivityPoints(userId, amount) {
+    const stmt = db.prepare('UPDATE users SET activity_points = CASE WHEN activity_points - ? < 0 THEN 0 ELSE activity_points - ? END WHERE user_id = ?');
+    stmt.run(amount, amount, userId);
+}
+
 // Kullanıcıyı Getir (Yoksa oluşturur)
 function getUser(userId) {
     let user = db.prepare('SELECT * FROM users WHERE user_id = ?').get(userId);
@@ -85,7 +96,8 @@ module.exports = {
     initDatabase,
     getUser,
     addXp,
-    addActivity,
+    addActivityPoints,
+    removeActivityPoints,
     decayActivity,
     setLevel,
     addMoney,
