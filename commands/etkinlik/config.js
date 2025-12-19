@@ -2,8 +2,8 @@ module.exports = {
     // --- HAYIRLI CUMALAR MESAJI ---
     fridayMessage: {
         enabled: true,                  // Açık mı?
-        time: "09:00",                  // Saat kaçta atılacak? (24 saat formatı)
-        channelId: "1287071155219599525", // Mesajın atılacağı kanal ID'si
+        time: "11:53",                  // Saat kaçta atılacak? (24 saat formatı)
+        channelId: "1394372243554828431", // Mesajın atılacağı kanal ID'si
 
         // Rastgele seçilecek mesajlar
         messages: [
@@ -19,6 +19,6 @@ module.exports = {
     chatRevival: {
         enabled: false,
         timeoutMinutes: 60, // 60 dakika sessizlik olursa
-        channelId: "1287071155219599525"
+        channelId: "1394372243554828431"
     }
 };

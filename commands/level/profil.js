@@ -63,7 +63,7 @@ module.exports = {
         }
 
         // XP Hesabı ve İlerleme Çubuğu
-        const xpPerLevel = levelConfig.xpNeededPerLevel || 2000;
+        const xpPerLevel = config.xpNeededPerLevel || 2000;
 
         // Bu seviyede ne kadar XP kasmış? (Örn: Lvl 3 ise, 6000 XP taban. 6017 XP varsa -> 17 XP kasmış)
         let currentLevelXp = user.xp - (user.level * xpPerLevel);
