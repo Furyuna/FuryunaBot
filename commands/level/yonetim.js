@@ -119,8 +119,40 @@ module.exports = {
             if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
 
             db.addActivityPoints(userId, amount);
+
+            // --- OTOMATİK SENKRONİZASYON ---
+            if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
+                const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                if (member) {
+                    const user = db.getUser(userId); // Yeni puanı al
+                    const points = user.activity_points || 0;
+
+                    const thresholds = levelConfig.rankSystem.thresholds;
+                    const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
+
+                    let eligibleRoleId = null;
+                    for (const threshold of sortedPoints) {
+                        if (points >= threshold) {
+                            eligibleRoleId = thresholds[threshold];
+                            break;
+                        }
+                    }
+
+                    if (eligibleRoleId && !member.roles.cache.has(eligibleRoleId)) {
+                        await member.roles.add(eligibleRoleId).catch(() => { });
+                    }
+
+                    // Diğer rütbeleri temizle
+                    for (const roleId of Object.values(thresholds)) {
+                        if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
+                            await member.roles.remove(roleId).catch(() => { });
+                        }
+                    }
+                }
+            }
+
             await interaction.reply({
-                content: `📈 <@${userId}> kullanıcısına **${amount} Aktiflik Puanı** verildi!\nRütbe güncellemesi için kullanıcının işlem yapması veya senkronizasyon gerekebilir.`
+                content: `📈 <@${userId}> kullanıcısına **${amount} Aktiflik Puanı** verildi ve rolleri güncellendi!`
             });
 
         } else if (subcommand === 'puan-sil') {
@@ -128,8 +160,40 @@ module.exports = {
             if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
 
             db.removeActivityPoints(userId, amount);
+
+            // --- OTOMATİK SENKRONİZASYON ---
+            if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
+                const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                if (member) {
+                    const user = db.getUser(userId); // Yeni puanı al
+                    const points = user.activity_points || 0;
+
+                    const thresholds = levelConfig.rankSystem.thresholds;
+                    const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
+
+                    let eligibleRoleId = null;
+                    for (const threshold of sortedPoints) {
+                        if (points >= threshold) {
+                            eligibleRoleId = thresholds[threshold];
+                            break;
+                        }
+                    }
+
+                    if (eligibleRoleId && !member.roles.cache.has(eligibleRoleId)) {
+                        await member.roles.add(eligibleRoleId).catch(() => { });
+                    }
+
+                    // Diğer rütbeleri temizle
+                    for (const roleId of Object.values(thresholds)) {
+                        if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
+                            await member.roles.remove(roleId).catch(() => { });
+                        }
+                    }
+                }
+            }
+
             await interaction.reply({
-                content: `📉 <@${userId}> kullanıcısından **${amount} Aktiflik Puanı** silindi.`
+                content: `📉 <@${userId}> kullanıcısından **${amount} Aktiflik Puanı** silindi ve rolleri güncellendi.`
             });
 
         } else if (subcommand === 'level-ayarla') {
