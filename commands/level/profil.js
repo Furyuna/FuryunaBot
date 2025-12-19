@@ -69,31 +69,60 @@ module.exports = {
         let currentLevelXp = user.xp - (user.level * xpPerLevel);
         if (currentLevelXp < 0) currentLevelXp = 0; // Hata önleyici
 
-        const percentage = Math.floor((currentLevelXp / xpPerLevel) * 100);
+        // % Hesaplaması (XP)
+        const xpPercentage = Math.floor((currentLevelXp / xpPerLevel) * 100);
 
-        // Helper function for progress bar (re-created based on old logic)
-        const createProgressBar = (percent) => {
+        // % Hesaplaması (Rank)
+        let rankPercentage = 0;
+        let rankProgressText = "Maksimum Seviye";
+
+        if (nextRankThreshold !== "MAX") {
+            // Eğer "Gümüş" (150 puan) ise ve şu an 120 puan varsa -> %80
+            // Ancak, bir önceki rütbenin puanını taban almak daha doğru olur mu? 
+            // Şimdilik basitçe: (Mevcut / Hedef) * 100
+            rankPercentage = Math.floor((user.activity_points / nextRankThreshold) * 100);
+            if (rankPercentage > 100) rankPercentage = 100;
+            rankProgressText = `${user.activity_points} / ${nextRankThreshold}`;
+        } else {
+            rankPercentage = 100;
+            rankProgressText = `${user.activity_points} (Max)`;
+        }
+
+        // Helper function for custom progress bars
+        const createProgressBar = (percent, filledChar = '🟩', emptyChar = '⬛') => {
             const barSize = 10;
             const progress = Math.round((percent / 100) * barSize);
             const empty = barSize - progress;
-            return '🟦'.repeat(progress) + '⬜'.repeat(empty);
+            return filledChar.repeat(progress) + emptyChar.repeat(empty);
         };
 
-        const progressBar = createProgressBar(percentage);
+        const levelBar = createProgressBar(xpPercentage, '🟩', '⬛');
+        const rankBar = createProgressBar(rankPercentage, '🟨', '⬛');
 
         const embed = new EmbedBuilder()
-            .setColor('#FFD700')
-            .setAuthor({ name: `${targetUser.username} Profili`, iconURL: targetUser.displayAvatarURL() })
+            .setColor(rankColor) // Rengi rütbeye göre ayarla
+            .setAuthor({ name: `${targetUser.username}`, iconURL: targetUser.displayAvatarURL() })
+            .setDescription(`**${rankName} Üye** • Seviye ${user.level}`)
             .addFields(
-                { name: 'Rütbe', value: rankName, inline: false },
-                { name: 'Aktiflik', value: `${user.activity_points || 0} / ${nextRankThreshold} Puan\n**Sonraki Hedef:** ${nextRankName}`, inline: false },
-                { name: '\u200B', value: `${progressBar} (Level İlerlemesi)`, inline: false },
-                { name: '🏆 Seviye', value: `${user.level}`, inline: true },
-                { name: '🔥 Aktiflik Puanı', value: `${user.activity_points || 0}`, inline: true },
-                { name: '✨ Level XP', value: `${currentLevelXp} / ${xpPerLevel}`, inline: true },
-                { name: '💸 Furyuna Coin', value: `${user.money}`, inline: true }
+                {
+                    name: '🏆 Seviye İlerlemesi',
+                    value: `> ${levelBar} **%${xpPercentage}**\n> \`XP: ${currentLevelXp} / ${xpPerLevel}\``,
+                    inline: false
+                },
+                {
+                    name: '🎖️ Rütbe İlerlemesi',
+                    value: `> ${rankBar} **%${rankPercentage}**\n> \`Puan: ${rankProgressText}\`\n> **Sonraki:** ${nextRankName}`,
+                    inline: false
+                },
+                {
+                    name: '👜 Cüzdan',
+                    value: `> 💸 **${user.money}** Furyuna Coin`,
+                    inline: false
+                }
             )
-            .setFooter({ text: 'FuryunaBot Level & Rank Sistemi' });
+            .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
+            .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi', iconURL: interaction.client.user.displayAvatarURL() })
+            .setTimestamp();
 
         await interaction.reply({ embeds: [embed] });
     }
