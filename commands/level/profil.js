@@ -99,19 +99,22 @@ module.exports = {
         const levelBar = createProgressBar(xpPercentage, '🟩', '⬛');
         const rankBar = createProgressBar(rankPercentage, '🟨', '⬛');
 
+        // "Yok Üye" yerine daha düzgün bir tabir veya rütbe varsa onu göster
+        const displayRank = (rankName === "Yok" || rankName === "N/A") ? "Yeni Üye" : rankName;
+
         const embed = new EmbedBuilder()
             .setColor(rankColor) // Rengi rütbeye göre ayarla
             .setAuthor({ name: `${targetUser.username}`, iconURL: targetUser.displayAvatarURL() })
-            .setDescription(`**${rankName} Üye** • Seviye ${user.level}`)
+            .setDescription(`**${displayRank}** • Seviye ${user.level}`)
             .addFields(
                 {
                     name: '🏆 Seviye İlerlemesi',
-                    value: `> ${levelBar} **%${xpPercentage}**\n> \`XP: ${currentLevelXp} / ${xpPerLevel}\``,
+                    value: `> ${levelBar} **%${xpPercentage}**\n> XP: **${currentLevelXp}** / ${xpPerLevel}`,
                     inline: false
                 },
                 {
                     name: '🎖️ Rütbe İlerlemesi',
-                    value: `> ${rankBar} **%${rankPercentage}**\n> \`Puan: ${rankProgressText}\`\n> **Sonraki:** ${nextRankName}`,
+                    value: `> ${rankBar} **%${rankPercentage}**\n> Puan: **${rankProgressText}**\n> Sonraki: **${nextRankName}**`,
                     inline: false
                 },
                 {
