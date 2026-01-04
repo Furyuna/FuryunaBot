@@ -3,7 +3,7 @@ module.exports = {
     fridayMessage: {
         enabled: true,                  // Açık mı?
         time: "11:53",                  // Saat kaçta atılacak? (24 saat formatı)
-        channelId: "1394372243554828431", // Mesajın atılacağı kanal ID'si
+        channelId: "1287071155219599525", // Mesajın atılacağı kanal ID'si
 
         // Rastgele seçilecek mesajlar
         messages: [
@@ -19,6 +19,20 @@ module.exports = {
     chatRevival: {
         enabled: false,
         timeoutMinutes: 60, // 60 dakika sessizlik olursa
-        channelId: "1394372243554828431"
+        channelId: "1287071155219599525"
+    },
+
+    // --- HOŞ GELDİN MESAJI ---
+    welcome: {
+        enabled: true,
+        channelId: "1287071155219599525", // Genel Sohbet
+        pingRoleId: "1457114132108017837", // Hoş Geldin Ping Rolü
+        messages: [
+            (target, roleId) => `🎉 **Furyuna**'ya hoş geldin <@${target}>! Seni aramızda görmek harika. 🌟\n<@&${roleId}>`,
+            (target, roleId) => `🚀 **Furyuna** ailesine yeni bir üye katıldı! Hoş geldin <@${target}>. 🥳\n<@&${roleId}>`,
+            (target, roleId) => `👋 Selam <@${target}>! **Furyuna** evrenine hoş geldin, keyifli vakit geçirmen dileğiyle!\n<@&${roleId}>`,
+            (target, roleId) => `💫 Aramıza hoş geldin <@${target}>! **Furyuna** seninle daha güzel.\n<@&${roleId}>`,
+            (target, roleId) => `✨ **Furyuna**'ya giriş yaptın <@${target}>! İyi eğlenceler dileriz.\n<@&${roleId}>`
+        ]
     }
 };

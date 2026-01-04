@@ -14,8 +14,17 @@ module.exports = (client) => {
                 try {
                     const command = require(filePath);
                     if ('data' in command && 'execute' in command) {
-                        client.commands.set(command.data.name, command);
-                        console.log(`[KOMUT] ${command.data.name} yüklendi.`);
+                        // Çakışmayı önlemek için Context Menu komutlarını farklı kaydediyoruz
+                        // Chat Input (Slash) = Sadece İsim
+                        // User Context (2) = İsim_2
+                        // Message Context (3) = İsim_3
+                        let key = command.data.name;
+                        if (command.data.type && command.data.type !== 1) {
+                            key = `${command.data.name}_${command.data.type}`;
+                        }
+
+                        client.commands.set(key, command);
+                        console.log(`[KOMUT] ${command.data.name} (${key !== command.data.name ? key : 'SLASH'}) yüklendi.`);
                     } else {
                         console.log(`[UYARI] ${filePath} dosyasında 'data' veya 'execute' özelliği eksik.`);
                     }

@@ -4,15 +4,14 @@ module.exports = {
         "1224075999474618368",
         "1327899730860183572",
         "1282278419517931553",
-
         "1394383194282790923",
     ],
 
     // --- KULLANICI ROLLERİ ---
     roles: {
-        verifiedMember: "1447493960669855825", 	// Doğrulanmış Üye
-        newMember: "1447493899735007253",  // Yeni Üye (Kayıtlı sayılır)
-        unregistered: "1447493853467770972",  // Kayıtsız
+        verifiedMember: "1288416311659200522", 	// Doğrulanmış Üye
+        newMember: "1290727316988624897",  // Yeni Üye (Kayıtlı sayılır)
+        unregistered: "1328073702553817169",  // Kayıtsız
     },
 
     // --- KOMUT İSİMLERİ VE PREFİX TAKMA ADLARI ---
@@ -78,6 +77,12 @@ module.exports = {
 
         dogrulamaSilindi: (target, staff) =>
             `🚫 <@${target}> kullanıcısının doğrulaması **Kaldırıldı**.\n` +
-            `👮 **İşlemi Yapan:** <@${staff}>`
-    }
+            `👮 **İşlemi Yapan:** <@${staff}>`,
+
+        kayitVeDogrulamaBasarili: (target, staff) =>
+            `🛡️ <@${target}> kullanıcısının hesabı **Kayıt Edilip Doğrulandı**.\n` +
+            `👮 **Yetkili:** <@${staff}>`
+    },
+
+}
 };

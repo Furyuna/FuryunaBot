@@ -27,9 +27,16 @@ module.exports = {
             return interaction.reply({ content: localConfig.messages.zatenDogrulanmis(targetUser.id, roleName), ephemeral: true });
         }
 
+        const wasUnregistered = targetMember.roles.cache.has(localConfig.roles.unregistered);
+
         await targetMember.roles.remove([localConfig.roles.newMember, localConfig.roles.unregistered]);
         await targetMember.roles.add(localConfig.roles.verifiedMember);
-        await interaction.reply({ content: localConfig.messages.dogrulamaBasarili(targetUser.id, interaction.user.id) });
+
+        if (wasUnregistered) {
+            await interaction.reply({ content: localConfig.messages.kayitVeDogrulamaBasarili(targetUser.id, interaction.user.id) });
+        } else {
+            await interaction.reply({ content: localConfig.messages.dogrulamaBasarili(targetUser.id, interaction.user.id) });
+        }
     },
 
     async executePrefix(message, args) {
@@ -49,8 +56,15 @@ module.exports = {
             return message.reply(localConfig.messages.zatenDogrulanmis(targetUser.id, roleName));
         }
 
+        const wasUnregistered = targetMember.roles.cache.has(localConfig.roles.unregistered);
+
         await targetMember.roles.remove([localConfig.roles.newMember, localConfig.roles.unregistered]);
         await targetMember.roles.add(localConfig.roles.verifiedMember);
-        message.reply(localConfig.messages.dogrulamaBasarili(targetUser.id, message.author.id));
+
+        if (wasUnregistered) {
+            message.reply(localConfig.messages.kayitVeDogrulamaBasarili(targetUser.id, message.author.id));
+        } else {
+            message.reply(localConfig.messages.dogrulamaBasarili(targetUser.id, message.author.id));
+        }
     }
 };

@@ -5,7 +5,14 @@ module.exports = {
 	async execute(interaction) {
 		if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand()) return;
 
-		const command = interaction.client.commands.get(interaction.commandName);
+		let commandKey = interaction.commandName;
+
+		// Eğer Context Menu ise (Sağ Tık), key'i ona göre oluştur (İsim_Type)
+		if (interaction.isContextMenuCommand()) {
+			commandKey = `${interaction.commandName}_${interaction.commandType}`;
+		}
+
+		const command = interaction.client.commands.get(commandKey);
 
 		if (!command) {
 			console.error(`${interaction.commandName} komutu bulunamadı.`);
