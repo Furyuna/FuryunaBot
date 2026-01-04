@@ -43,8 +43,12 @@ module.exports = {
 
             let currentActivity = user.activity_points || 0;
             if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
-                // Sadece "Doğrulanmış Üye" rolü OLANLAR Rank/Aktiflik Puanı kazanabilir.
-                if (member.roles.cache.has(roleConfig.roles.verifiedMember)) {
+                // Sadece "Doğrulanmış Üye", "Yeni Üye" veya "Yetkili" olanlar kazanabilir.
+                const hasVerified = member.roles.cache.has(roleConfig.roles.verifiedMember);
+                const hasNew = member.roles.cache.has(roleConfig.roles.newMember);
+                const isStaff = roleConfig.staffRoles.some(roleId => member.roles.cache.has(roleId));
+
+                if (hasVerified || hasNew || isStaff) {
                     const activityGain = levelConfig.rankSystem.activityPerMessage;
                     db.addActivityPoints(userId, activityGain);
                 }
