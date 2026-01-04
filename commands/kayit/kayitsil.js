@@ -12,7 +12,7 @@ module.exports = {
 
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
             return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
 
         const targetUser = interaction.options.getUser('kullanici');
@@ -21,10 +21,12 @@ module.exports = {
         const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
         if (!targetMember) return interaction.reply({ content: "Kullanıcı bulunamadı/erişilemiyor.", ephemeral: true });
 
-        if (targetMember.roles.cache.has(localConfig.roles.unregistered)) {
-            const roleName = interaction.guild.roles.cache.get(localConfig.roles.unregistered)?.name || "Bilinmiyor";
-            return interaction.reply({ content: localConfig.messages.zatenKayitsiz(targetUser.id, roleName), ephemeral: true });
+        if (!targetMember.roles.cache.has(localConfig.roles.newMember) && !targetMember.roles.cache.has(localConfig.roles.verifiedMember)) {
+            const currentRoleId = targetMember.roles.cache.has(localConfig.roles.unregistered) ? localConfig.roles.unregistered : "Bilinmiyor";
+            //const roleName = interaction.guild.roles.cache.get(currentRoleId)?.name || "Bilinmiyor";
+            return interaction.reply({ content: localConfig.messages.zatenKayitsiz(targetUser.id, "Kayıtsız/Bilinmiyor"), ephemeral: true });
         }
+
 
         await targetMember.roles.remove([localConfig.roles.newMember, localConfig.roles.verifiedMember]);
         await targetMember.roles.add(localConfig.roles.unregistered);
@@ -34,7 +36,7 @@ module.exports = {
 
     async executePrefix(message, args) {
         const memberRoles = message.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator') && !message.member.permissions.has('ManageRoles'))
             return message.reply(localConfig.messages.yetkiYok);
 
         const targetUser = message.mentions.users.first();

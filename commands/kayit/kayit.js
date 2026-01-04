@@ -12,7 +12,7 @@ module.exports = {
 
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
             return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
 
         const targetUser = interaction.options.getUser('kullanici');
@@ -36,7 +36,7 @@ module.exports = {
     async executePrefix(message, args) {
         // !kayıt @user
         const memberRoles = message.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator') && !message.member.permissions.has('ManageRoles'))
             return message.reply(localConfig.messages.yetkiYok);
 
         const targetUser = message.mentions.users.first();

@@ -9,7 +9,7 @@ module.exports = {
 
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
             return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
 
         // MESAJ BAĞLAMI: Mesajın sahibini alıyoruz
