@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
 const db = require('../../utils/database');
 const levelConfig = require('../../commands/level/config.js').levelSystem;
+const { updateRank } = require('../../utils/rankUtils');
 
 // Ses kanallarına giriş zamanlarını tutmak için Map
 // Key: userId, Value: Timestamp
@@ -34,13 +35,23 @@ module.exports = {
                         db.addXp(userId, earningsXP);
                         // db.addMoney(userId, earningsCoin); (Kaldırıldı)
 
+                        // ...
+
                         // Aktiflik Puanı (Rank Sistemi)
                         if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
                             const activityGain = minutes * levelConfig.rankSystem.activityPerVoiceMinute;
                             db.addActivityPoints(userId, activityGain);
 
-                            // Rütbe kontrolü burada yapılmıyor, kullanıcı mesaj atınca veya decay çalışınca güncellenir
-                            // (Performans için her dakika tüm seste olanlara role kontrolü yapmayalım)
+                            // Rütbe Kontrolü (SES İÇİN)
+                            // Kullanıcı aktif olarak sesdeyken level atlayabilir
+                            // Not: oldState.member her zaman doğru olmayabilir, cache'den çekelim
+                            const guild = oldState.guild;
+                            const member = guild.members.cache.get(userId);
+                            if (member) {
+                                // Mevcut puanı çekmemiz lazım çünkü voiceHandler'da 'user' objesi yok
+                                const user = db.getUser(userId);
+                                updateRank(member, user.activity_points);
+                            }
                         }
 
                         // Seviye kontrolü (Ses ile level atlama burada da yapılabilir ama
