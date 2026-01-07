@@ -101,21 +101,21 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setColor(rankColor) // Rengi rütbeye göre ayarla
                 .setAuthor({ name: `${targetUser.username}`, iconURL: targetUser.displayAvatarURL() })
-                .setDescription(`${displayRank} • Seviye ${user.level}`)
+                .setDescription(`**${displayRank} • Seviye ${user.level}**`)
                 .addFields(
                     {
                         name: '🏆 Seviye İlerlemesi',
-                        value: `${levelBar} **%${xpPercentage}**\nXP: **${currentLevelXp} / ${xpPerLevel}**`,
+                        value: `${levelBar} %${xpPercentage}\nXP: ${currentLevelXp} / ${xpPerLevel}`,
                         inline: false
                     },
                     {
                         name: '🎖️ Rütbe İlerlemesi',
-                        value: `${rankBar} **%${rankPercentage}**\nPuan: **${rankProgressText}**\nSonraki: **${nextRankName}**`,
+                        value: `${rankBar} %${rankPercentage}\nPuan: ${rankProgressText}\nSonraki: ${nextRankName}`,
                         inline: false
                     },
                     {
                         name: '👜 Cüzdan',
-                        value: `💸 **${user.money}** Furyuna Coin`,
+                        value: `💸 ${user.money} Furyuna Coin`,
                         inline: false
                     }
                 )
