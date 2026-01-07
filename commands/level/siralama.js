@@ -54,7 +54,7 @@ module.exports = {
                 { name: '📊 Seviye Sıralaması', value: levelRanking, inline: false },
                 { name: '⚡ Aktiflik Sıralaması (Rütbe)', value: activityRanking, inline: false }
             )
-            .setFooter({ text: 'En aktif üyeler' });
+            .setFooter({ text: 'FuryunaBot • En Aktif Üyeler', iconURL: interaction.client.user.displayAvatarURL() });
 
         await interaction.reply({ embeds: [embed] });
     }

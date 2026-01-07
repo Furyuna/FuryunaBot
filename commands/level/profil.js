@@ -17,7 +17,6 @@ module.exports = {
             // Veritabanından çek
             const user = db.getUser(targetUser.id);
 
-
             const { levelRewards, rankSystem } = require('./config.js').levelSystem;
 
             // Rütbe (Rank) Belirleme (YENİ SİSTEM)
@@ -120,7 +119,7 @@ module.exports = {
                     }
                 )
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
-                .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi', iconURL: interaction.client.user.displayAvatarURL() });
+                .setFooter({ text: 'FuryunaBot • Aktiflik ve Ödül Sistemi', iconURL: interaction.client.user.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed] });
 
