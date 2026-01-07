@@ -22,6 +22,18 @@ module.exports = {
         inactivityThreshold: 1000 * 60 * 30, // 30 Dakika hareketsizlik süresi
         checkInterval: 1000 * 60 * 1, // Her 1 dakikada bir kontrol eder
 
+        // ⏳ ETKİNLİK SÜRESİ (HEPSİ İÇİN GEÇERLİ)
+        eventDuration: 30000, // 30 Saniye (ms cinsinden)
+
+        // 📝 SABİT MESAJLAR
+        messages: {
+            quizStart: "⏱️ **{time} saniye** içinde ilk bilen kazanır!",
+            mathStart: "⏱️ **{time} saniye** içinde ilk çözen kazanır!",
+            dropStart: "⏱️ **{time} saniye** içinde ilk yazan kapar!",
+            winner: "🎉 Tebrikler {user}! **{reward} Coin** kazandın! 💸",
+            timeout: "⏰ Süre doldu! Kimse bilemedi..."
+        },
+
         // Etkinliklerin çıkma olasılıkları (Ağırlık)
         weights: {
             quiz: 40,   // %40
@@ -32,7 +44,6 @@ module.exports = {
         // 🧠 Bilgi Yarışması Ayarları
         quiz: {
             reward: 50, // Ödül
-            duration: 30000, // 30 sn süre
             questions: [
                 { q: "Türkiye'nin başkenti neresidir?", a: ["ankara"] },
                 { q: "Su kaç derecede kaynar?", a: ["100"] },
@@ -49,7 +60,6 @@ module.exports = {
         // ➕ Matematik Sorusu Ayarları
         math: {
             reward: 35,
-            duration: 15000, // 15 sn süre
             min: 10,
             max: 99,
             operations: ['+', '-', '*']
@@ -59,7 +69,6 @@ module.exports = {
         drop: {
             minReward: 20,
             maxReward: 100,
-            duration: 30000,
             words: ["furyuna", "para", "kap", "ganimet", "coin"]
         }
     },
