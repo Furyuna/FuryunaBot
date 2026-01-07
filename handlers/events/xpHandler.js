@@ -42,24 +42,22 @@ module.exports = {
             // 7. XP ve Aktivite Puanı Ekle
             db.addXp(userId, earnedXp);
 
-            // 7. XP ve Aktivite Puanı Ekle
+            let currentActivity = user.activity_points || 0;
+            if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
+                // Sadece "Doğrulanmış Üye", "Yeni Üye" veya "Yetkili" olanlar kazanabilir.
+                const hasVerified = member.roles.cache.has(roleConfig.roles.verifiedMember);
+                const hasNew = member.roles.cache.has(roleConfig.roles.newMember);
+                const isStaff = roleConfig.staffRoles.some(roleId => member.roles.cache.has(roleId));
 
-            // ...
+                if (hasVerified || hasNew || isStaff) {
+                    const activityGain = levelConfig.rankSystem.activityPerMessage;
+                    db.addActivityPoints(userId, activityGain);
 
-            // Sadece "Doğrulanmış Üye", "Yeni Üye" veya "Yetkili" olanlar kazanabilir.
-            const hasVerified = member.roles.cache.has(roleConfig.roles.verifiedMember);
-            const hasNew = member.roles.cache.has(roleConfig.roles.newMember);
-            const isStaff = roleConfig.staffRoles.some(roleId => member.roles.cache.has(roleId));
-
-            if (hasVerified || hasNew || isStaff) {
-                const activityGain = levelConfig.rankSystem.activityPerMessage;
-                db.addActivityPoints(userId, activityGain);
-
-                // Rütbe Kontrolü (YENİ)
-                // Puan eklendikten sonra hemen kontrol edilir.
-                updateRank(member, currentActivity + activityGain);
+                    // Rütbe Kontrolü (YENİ)
+                    // Puan eklendikten sonra hemen kontrol edilir.
+                    updateRank(member, currentActivity + activityGain);
+                }
             }
-        }
 
             // --- SÜREKLİ COIN KAZANCI (İPTAL EDİLDİ) ---
             // Sadece Level atlayınca para verilecek.
@@ -67,75 +65,75 @@ module.exports = {
 
             db.updateCooldown(userId, now);
 
-        // ================= SEVİYE ATLAMA MANTIĞI =================
-        const currentLevel = user.level;
-        // ZORLUK YOK: Her seviye için sabit XP gerekir (Örn: Lvl 1->2000, Lvl 2->4000)
-        // Eğer config'de yoksa varsayılan 300 al
-        const xpPerLevel = levelConfig.xpNeededPerLevel || 300;
-        const nextLevelXp = (currentLevel + 1) * xpPerLevel;
+            // ================= SEVİYE ATLAMA MANTIĞI =================
+            const currentLevel = user.level;
+            // ZORLUK YOK: Her seviye için sabit XP gerekir (Örn: Lvl 1->2000, Lvl 2->4000)
+            // Eğer config'de yoksa varsayılan 300 al
+            const xpPerLevel = levelConfig.xpNeededPerLevel || 300;
+            const nextLevelXp = (currentLevel + 1) * xpPerLevel;
 
-        // Not: user objesi eski veriyi tuttuğu için manuel ekliyoruz
-        let newTotalXp = user.xp + earnedXp;
+            // Not: user objesi eski veriyi tuttuğu için manuel ekliyoruz
+            let newTotalXp = user.xp + earnedXp;
 
-        if (newTotalXp >= nextLevelXp) {
-            const newLevel = currentLevel + 1;
-            db.setLevel(userId, newLevel);
+            if (newTotalXp >= nextLevelXp) {
+                const newLevel = currentLevel + 1;
+                db.setLevel(userId, newLevel);
 
-            // Para Ödülü (Bonuslar parayı da etkiler)
-            // Formül: (Level * Çarpan)
-            let totalMoney = newLevel * levelConfig.coinMultiplier;
+                // Para Ödülü (Bonuslar parayı da etkiler)
+                // Formül: (Level * Çarpan)
+                let totalMoney = newLevel * levelConfig.coinMultiplier;
 
-            // BOOST VARSA SEVİYE ÖDÜLÜ DE ARTAR
-            let bonusMoney = 0;
-            if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
-                const multiplier = levelConfig.bonuses.boostCoinMultiplier;
-                bonusMoney = totalMoney * (multiplier - 1); // Eklenen kısım
-                totalMoney *= multiplier; // Toplam para
-            }
+                // BOOST VARSA SEVİYE ÖDÜLÜ DE ARTAR
+                let bonusMoney = 0;
+                if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+                    const multiplier = levelConfig.bonuses.boostCoinMultiplier;
+                    bonusMoney = totalMoney * (multiplier - 1); // Eklenen kısım
+                    totalMoney *= multiplier; // Toplam para
+                }
 
-            db.addMoney(userId, totalMoney);
+                db.addMoney(userId, totalMoney);
 
-            const channel = message.channel;
+                const channel = message.channel;
 
-            // ================= ROL ÖDÜLLERİ =================
-            // Config'de tanımlı seviye ödülü varsa ver
-            if (levelConfig.levelRewards[newLevel]) {
-                const rewardRoleId = levelConfig.levelRewards[newLevel];
-                try {
-                    await member.roles.add(rewardRoleId);
-                    // Rol verildi mesajı eklenebilir
-                } catch (e) {
-                    console.error("Rol ödülü verilemedi:", e);
+                // ================= ROL ÖDÜLLERİ =================
+                // Config'de tanımlı seviye ödülü varsa ver
+                if (levelConfig.levelRewards[newLevel]) {
+                    const rewardRoleId = levelConfig.levelRewards[newLevel];
+                    try {
+                        await member.roles.add(rewardRoleId);
+                        // Rol verildi mesajı eklenebilir
+                    } catch (e) {
+                        console.error("Rol ödülü verilemedi:", e);
+                    }
+                }
+
+                // Normal Level Up Mesajı
+                // Mesaj şablonunu al ve değişkenleri yerleştir
+                let msg = levelConfig.messages.levelUp
+                    .replace(/{user}/g, `<@${userId}>`)
+                    .replace(/{level}/g, newLevel)
+                    .replace(/{money}/g, totalMoney)
+                    .replace(/{bonus}/g, bonusMoney);
+
+                await channel.send(msg);
+
+                // ================= 1. SEVİYE ÖZEL: OTO DOĞRULAMA =================
+                // Level mesajından SONRA gelmesi istendi.
+                if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
+                    try {
+                        await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
+                        await member.roles.add(roleConfig.roles.verifiedMember);
+                        // Resmi doğrulama mesajını kullan (Yetkili = Bot)
+                        const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
+                        await channel.send(verifyMsg);
+                    } catch (error) {
+                        console.error("Oto doğrulama hatası:", error);
+                    }
                 }
             }
-
-            // Normal Level Up Mesajı
-            // Mesaj şablonunu al ve değişkenleri yerleştir
-            let msg = levelConfig.messages.levelUp
-                .replace(/{user}/g, `<@${userId}>`)
-                .replace(/{level}/g, newLevel)
-                .replace(/{money}/g, totalMoney)
-                .replace(/{bonus}/g, bonusMoney);
-
-            await channel.send(msg);
-
-            // ================= 1. SEVİYE ÖZEL: OTO DOĞRULAMA =================
-            // Level mesajından SONRA gelmesi istendi.
-            if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
-                try {
-                    await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
-                    await member.roles.add(roleConfig.roles.verifiedMember);
-                    // Resmi doğrulama mesajını kullan (Yetkili = Bot)
-                    const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
-                    await channel.send(verifyMsg);
-                } catch (error) {
-                    console.error("Oto doğrulama hatası:", error);
-                }
-            }
+        } catch (error) {
+            console.error('[XP HANDLER ERROR]', error);
+            // Bot çökmez, sadece log'a düşer
         }
-    } catch(error) {
-        console.error('[XP HANDLER ERROR]', error);
-        // Bot çökmez, sadece log'a düşer
     }
-}
 };
