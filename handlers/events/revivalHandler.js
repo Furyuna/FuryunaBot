@@ -82,10 +82,16 @@ async function triggerEvent(channel) {
 
     // Sıralı Etkinlik Seçimi
     const eventTypes = ['quiz', 'math', 'drop'];
-    const type = eventTypes[state.nextEventType % eventTypes.length];
 
-    // Sayacı ilerlet ve kaydet
+    // İndeks Güvenliği (Eğer saved state bozuksa veya tür sayısı değiştiyse)
+    if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
+
+    const type = eventTypes[state.nextEventType];
+
+    // Sayacı ilerlet (Wrap around)
     state.nextEventType++;
+    if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
+
     saveState(state);
 
     console.log(`[REVIVAL] Etkinlik Tetiklendi: ${type} (Sıra: ${state.nextEventType})`);
@@ -166,12 +172,19 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
 }
 
 async function startQuiz(channel) {
+    // Liste güvenliği
+    if (config.quiz.questions.length === 0) return;
+
+    // İndeks Güvenliği (Liste küçüldüyse veya sınır aşıldıysa başa dön)
+    if (state.nextQuizIndex >= config.quiz.questions.length) state.nextQuizIndex = 0;
+
     // Sıralı Soru Seçimi
-    const qIndex = state.nextQuizIndex % config.quiz.questions.length;
-    const qData = config.quiz.questions[qIndex];
+    const qData = config.quiz.questions[state.nextQuizIndex];
 
     // İndeksi ilerlet ve kaydet
     state.nextQuizIndex++;
+    if (state.nextQuizIndex >= config.quiz.questions.length) state.nextQuizIndex = 0;
+
     saveState(state);
 
     // Format: 🧠 BİLGİ YARIŞMASI \n [Soru]
@@ -207,12 +220,19 @@ async function startMath(channel) {
 }
 
 async function startDrop(channel) {
+    // Liste güvenliği
+    if (config.drop.words.length === 0) return;
+
+    // İndeks Güvenliği
+    if (state.nextDropIndex >= config.drop.words.length) state.nextDropIndex = 0;
+
     // Sıralı Kelime Seçimi
-    const wIndex = state.nextDropIndex % config.drop.words.length;
-    const word = config.drop.words[wIndex];
+    const word = config.drop.words[state.nextDropIndex];
 
     // İndeksi ilerlet ve kaydet
     state.nextDropIndex++;
+    if (state.nextDropIndex >= config.drop.words.length) state.nextDropIndex = 0;
+
     saveState(state);
 
     // Drop ödülü o an hesaplanır
