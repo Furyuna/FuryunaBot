@@ -33,6 +33,12 @@ require('./utils/database').initDatabase();
 client.on(Events.MessageCreate, async message => {
     if (message.author.bot) return;
 
+    // --- SOHBET CANLANDIRICI ZAMANLAYICI GÜNCELLEME ---
+    const revivalConfig = require('./commands/etkinlik/config.js').chatRevival;
+    if (message.channel && message.channel.id === revivalConfig.channelId && !message.author.bot) {
+        require('./handlers/events/revivalHandler').updateTimestamp();
+    }
+
     // 1. Prefix Kontrolü (Liste Desteği)
     let usedPrefix = null;
     const prefixes = Array.isArray(globalConfig.prefix) ? globalConfig.prefix : [globalConfig.prefix];
