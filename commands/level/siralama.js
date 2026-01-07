@@ -10,27 +10,51 @@ module.exports = {
 
     async execute(interaction) {
         const leaderboard = db.getLeaderboard(10); // İlk 10
+        const activityLeaderboard = db.getActivityLeaderboard(10); // Aktiflik sıralaması
 
-        if (leaderboard.length === 0) {
+        if (leaderboard.length === 0 && activityLeaderboard.length === 0) {
             return interaction.reply('Henüz sıralamada kimse yok. Sohbet etmeye başlayın!');
         }
 
-        const embed = new EmbedBuilder()
+        // Seviye Sıralaması
+        const levelRanking = leaderboard.length > 0
+            ? leaderboard.map((u, index) => {
+                let medal = '';
+                if (index === 0) medal = '🥇';
+                else if (index === 1) medal = '🥈';
+                else if (index === 2) medal = '🥉';
+                else medal = `**${index + 1}.**`;
+
+                return `${medal} <@${u.user_id}> - **Lvl ${u.level}** (${u.xp} XP)`;
+            }).join('\n')
+            : '*Henüz veri yok*';
+
+        // Aktiflik Sıralaması (Rütbe)
+        const activityRanking = activityLeaderboard.length > 0
+            ? activityLeaderboard.map((u, index) => {
+                let medal = '';
+                if (index === 0) medal = '🥇';
+                else if (index === 1) medal = '🥈';
+                else if (index === 2) medal = '🥉';
+                else medal = `**${index + 1}.**`;
+
+                return `${medal} <@${u.user_id}> - **${u.activity_points || 0}** Puan`;
+            }).join('\n')
+            : '*Henüz veri yok*';
+
+        // İki ayrı embed oluştur
+        const levelEmbed = new EmbedBuilder()
             .setColor('#0099ff')
-            .setTitle('🏆 Furyuna Liderlik Tablosu')
-            .setDescription(
-                leaderboard.map((u, index) => {
-                    let medal = '';
-                    if (index === 0) medal = '🥇';
-                    else if (index === 1) medal = '🥈';
-                    else if (index === 2) medal = '🥉';
-                    else medal = `**${index + 1}.**`;
+            .setTitle('📊 Seviye Sıralaması')
+            .setDescription(levelRanking)
+            .setFooter({ text: 'En yüksek seviyeye sahip üyeler' });
 
-                    return `${medal} <@${u.user_id}> - **Lvl ${u.level}** (${u.xp} XP)`;
-                }).join('\n')
-            )
-            .setFooter({ text: 'En çok konuşanlar' });
+        const activityEmbed = new EmbedBuilder()
+            .setColor('#FFD700')
+            .setTitle('⚡ Aktiflik Sıralaması (Rütbe)')
+            .setDescription(activityRanking)
+            .setFooter({ text: 'En aktif üyeler' });
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [levelEmbed, activityEmbed] });
     }
 };
