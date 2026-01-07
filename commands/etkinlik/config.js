@@ -29,7 +29,7 @@ module.exports = {
         // 📝 SABİT MESAJLAR
         messages: {
             quizTitle: "🧠 BİLGİ YARIŞMASI",
-            mathTitle: " ZEKA YARIŞMASI",
+            mathTitle: "🧩 ZEKA YARIŞMASI",
             dropTitle: "⚡ HIZ YARIŞMASI",
             winner: "🎉 Tebrikler {user}! **{reward} Coin** ve **{xp} XP** kazandın! 💸",
             timeout: "⏰ Süre doldu! Kimse bilemedi..."
