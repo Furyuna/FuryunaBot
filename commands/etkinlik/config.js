@@ -26,12 +26,11 @@ module.exports = {
         eventDuration: 30000, // 30 Saniye (ms cinsinden)
 
         // 📝 SABİT MESAJLAR
-        // 📝 SABİT MESAJLAR
         messages: {
             quizTitle: "🧠 BİLGİ YARIŞMASI",
-            mathTitle: "� ZEKA YARIŞMASI",
+            mathTitle: " ZEKA YARIŞMASI",
             dropTitle: "⚡ HIZ YARIŞMASI",
-            winner: "🎉 Tebrikler {user}! **{reward} Coin** kazandın! 💸",
+            winner: "🎉 Tebrikler {user}! **{reward} Coin** ve **{xp} XP** kazandın! 💸",
             timeout: "⏰ Süre doldu! Kimse bilemedi..."
         },
 
@@ -44,7 +43,9 @@ module.exports = {
 
         // 🧠 Bilgi Yarışması Ayarları
         quiz: {
-            reward: 50, // Ödül
+            reward: 50, // Ödül (Coin)
+            xp: 150,    // XP Ödülü (Yüksek)
+            activity: 20, // Aktiflik Puanı (Gizli - Yüksek)
             questions: [
                 { q: "Türkiye'nin başkenti neresidir?", a: ["ankara"] },
                 { q: "Su kaç derecede kaynar?", a: ["100"] },
@@ -61,16 +62,20 @@ module.exports = {
         // ➕ Matematik Sorusu Ayarları
         math: {
             reward: 35,
+            xp: 100,      // XP (Orta)
+            activity: 15, // Aktiflik (Orta)
             min: 10,
             max: 99,
             operations: ['+', '-', '*']
         },
 
-        // 💸 Airdrop (Para Dağıtma) Ayarları
+        // 💸 Airdrop (Kelime Kapmaca) Ayarları
         drop: {
             minReward: 20,
             maxReward: 100,
-            words: ["furyuna", "para", "kap", "ganimet", "coin"]
+            xp: 50,       // XP (Düşük - Çünkü sadece yazma)
+            activity: 10, // Aktiflik (Düşük)
+            words: ["furyuna", "aktiflik", "sohbet", "etkinlik", "para", "coin", "xp", "seviye", "rütbe", "eğlence", "discord", "bot", "yazılım"]
         }
     },
 
