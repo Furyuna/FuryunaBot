@@ -120,7 +120,7 @@ module.exports = {
                     }
                 )
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
-                .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi • bugün saat 13:29', iconURL: interaction.client.user.displayAvatarURL() });
+                .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi', iconURL: interaction.client.user.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed] });
 
