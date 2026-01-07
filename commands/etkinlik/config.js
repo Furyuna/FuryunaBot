@@ -17,9 +17,51 @@ module.exports = {
 
     // --- SOHBET CANLANDIRICI (REVIVAL) - İLERİDE EKLENECEK ---
     chatRevival: {
-        enabled: false,
-        timeoutMinutes: 60, // 60 dakika sessizlik olursa
-        channelId: "1287071155219599525"
+        enabled: true,
+        channelId: "1287071155219599525", // Genel Sohbet
+        inactivityThreshold: 1000 * 60 * 30, // 30 Dakika hareketsizlik süresi
+        checkInterval: 1000 * 60 * 1, // Her 1 dakikada bir kontrol eder
+
+        // Etkinliklerin çıkma olasılıkları (Ağırlık)
+        weights: {
+            quiz: 40,   // %40
+            math: 40,   // %40
+            drop: 20    // %20
+        },
+
+        // 🧠 Bilgi Yarışması Ayarları
+        quiz: {
+            reward: 50, // Ödül
+            duration: 30000, // 30 sn süre
+            questions: [
+                { q: "Türkiye'nin başkenti neresidir?", a: ["ankara"] },
+                { q: "Su kaç derecede kaynar?", a: ["100"] },
+                { q: "Fatih Sultan Mehmet İstanbul'u kaç yılında fethetti?", a: ["1453"] },
+                { q: "Güneş sistemindeki en büyük gezegen hangisidir?", a: ["jupiter", "jüpiter"] },
+                { q: "İstiklal Marşı'nın yazarı kimdir?", a: ["mehmet akif ersoy", "mehmet akif"] },
+                { q: "Futbol maçları kaç dakika sürer?", a: ["90"] },
+                { q: "Hangi hayvan 'Ormanlar Kralı' olarak bilinir?", a: ["aslan"] },
+                { q: "Bir yılda kaç hafta vardır?", a: ["52"] },
+                { q: "Botumuzun adı nedir?", a: ["furyuna", "furyunabot"] }
+            ]
+        },
+
+        // ➕ Matematik Sorusu Ayarları
+        math: {
+            reward: 35,
+            duration: 15000, // 15 sn süre
+            min: 10,
+            max: 99,
+            operations: ['+', '-', '*']
+        },
+
+        // 💸 Airdrop (Para Dağıtma) Ayarları
+        drop: {
+            minReward: 20,
+            maxReward: 100,
+            duration: 30000,
+            words: ["furyuna", "para", "kap", "ganimet", "coin"]
+        }
     },
 
     // --- HOŞ GELDİN MESAJI ---

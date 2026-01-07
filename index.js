@@ -20,6 +20,8 @@ require('./handlers/commandHandler')(client);
 require('./handlers/eventHandler')(client);
 require('./handlers/decaySystem')(client); // Çürüme sistemi
 require('./handlers/autoMessages')(client); // Oto-Mesaj sistemi (YENİ)
+const revivalHandler = require('./handlers/events/revivalHandler'); // Sohbet Canlandırıcı (YENİ)
+revivalHandler.init(client);
 
 // --- VERİTABANI BAŞLAT ---
 require('./utils/database').initDatabase();
