@@ -95,12 +95,16 @@ async function startQuiz(channel) {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
+        // Ödülleri Ver
         db.addMoney(winner.author.id, config.quiz.reward);
+        db.addXp(winner.author.id, config.quiz.xp);
+        db.addActivityPoints(winner.author.id, config.quiz.activity);
 
         // Kazanan mesajı
         const winMsg = config.messages.winner
             .replace('{user}', winner.author)
-            .replace('{reward}', config.quiz.reward);
+            .replace('{reward}', config.quiz.reward)
+            .replace('{xp}', config.quiz.xp);
 
         // Kazanana yanıt ver
         await winner.reply(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
@@ -139,12 +143,16 @@ async function startMath(channel) {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
+        // Ödülleri Ver
         db.addMoney(winner.author.id, config.math.reward);
+        db.addXp(winner.author.id, config.math.xp);
+        db.addActivityPoints(winner.author.id, config.math.activity);
 
         // Kazanan mesajı
         const winMsg = config.messages.winner
             .replace('{user}', winner.author)
-            .replace('{reward}', config.math.reward);
+            .replace('{reward}', config.math.reward)
+            .replace('{xp}', config.math.xp);
 
         // Kazanana yanıt ver
         await winner.reply(`${winMsg}\n*(Cevap: ${answer})*`);
@@ -177,12 +185,16 @@ async function startDrop(channel) {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
+        // Ödülleri Ver
         db.addMoney(winner.author.id, reward);
+        db.addXp(winner.author.id, config.drop.xp);
+        db.addActivityPoints(winner.author.id, config.drop.activity);
 
         // Kazanan mesajı
         const winMsg = config.messages.winner
             .replace('{user}', winner.author)
-            .replace('{reward}', reward);
+            .replace('{reward}', reward)
+            .replace('{xp}', config.drop.xp);
 
         // Kazanana yanıt ver
         await winner.reply(winMsg);
