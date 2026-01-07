@@ -107,7 +107,7 @@ async function startQuiz(channel) {
         await channel.send(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
     }
 
-    isEventActive = false;
+    isEventEventActive = false;
     lastMessageTime = Date.now();
 }
 
@@ -133,8 +133,12 @@ async function startMath(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    // Relaxed matching: Check if message content includes the answer number
-    const filter = m => !m.author.bot && m.content.includes(answer.toString());
+    // Regex matching: Check for whole number match (prevent 14 matching 4)
+    // Matches: "4", "Answer 4", "4 is result"
+    // Rejects: "14", "40", "42"
+    const regex = new RegExp(`(^|\\D)${answer}(\\D|$)`);
+    const filter = m => !m.author.bot && regex.test(m.content);
+
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
@@ -171,8 +175,13 @@ async function startDrop(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    // Relaxed matching: Check if message content includes the word
-    const filter = m => !m.author.bot && m.content.toLowerCase().includes(word);
+    // Regex matching: Check for whole word match (prevent "kat" matching "at")
+    // Use space boundaries or start/end of string. Simple \b might fail with non-ascii in old node versions but let's try robust pattern.
+    // Actually simply using space boundary is safer for chat. 
+    // Matches: "word", "word!", "test word"
+    const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
+    const filter = m => !m.author.bot && regex.test(m.content);
+
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
