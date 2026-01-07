@@ -92,11 +92,6 @@ function getLeaderboard(limit = 10) {
     return db.prepare('SELECT * FROM users ORDER BY level DESC, xp DESC LIMIT ?').all(limit);
 }
 
-// Aktiflik Sıralaması (Rütbe için)
-function getActivityLeaderboard(limit = 10) {
-    return db.prepare('SELECT * FROM users ORDER BY activity_points DESC LIMIT ?').all(limit);
-}
-
 module.exports = {
     initDatabase,
     getUser,
@@ -107,6 +102,5 @@ module.exports = {
     setLevel,
     addMoney,
     updateCooldown,
-    getLeaderboard,
-    getActivityLeaderboard
+    getLeaderboard
 };
