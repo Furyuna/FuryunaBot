@@ -182,8 +182,8 @@ async function startDrop(channel) {
         activity: config.drop.activity
     };
 
-    // Format: ⚡ HIZ YARIŞMASI \n ***[Kelime]*** kelimesini sohbete yaz!
-    const content = `**${config.messages.dropTitle}**\n***${word}*** kelimesini sohbete yaz!`;
+    // Format: ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz!
+    const content = `**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!`;
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Word Match)
