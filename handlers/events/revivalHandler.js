@@ -83,12 +83,16 @@ async function triggerEvent(channel) {
 
 // --- ORTAK CEVAP BEKLEME FONKSİYONU ---
 async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAnswerDisplay) {
-    // 1 Saatlik güvenli üst limit (Sonsuz döngüyü önlemek için)
-    // Amaç: "Sessizlikte bekle, sohbet başlayınca 30s sayaç başlat"
-    const collector = channel.createMessageCollector({
-        filter: m => !m.author.bot,
-        time: 1000 * 60 * 60
-    });
+    // Eğer eventDuration 0 ise SÜRE YOK (Sonsuz), değilse configdeki süre
+    const collectorOptions = {
+        filter: m => !m.author.bot
+    };
+
+    if (config.eventDuration > 0) {
+        collectorOptions.time = config.eventDuration;
+    }
+
+    const collector = channel.createMessageCollector(collectorOptions);
 
     let idleTimer = null;
 
