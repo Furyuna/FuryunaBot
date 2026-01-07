@@ -75,25 +75,35 @@ async function triggerEvent(channel) {
 
 async function startQuiz(channel) {
     const qData = config.quiz.questions[Math.floor(Math.random() * config.quiz.questions.length)];
+    const durationSec = config.eventDuration / 1000;
+
+    // Mesaj formatı: İlk satır sabit, sonra soru
+    const startText = config.messages.quizStart.replace('{time}', durationSec);
+    const description = `${startText}\n\n**Soru: ${qData.q}**`;
 
     const embed = new EmbedBuilder()
         .setColor('#0099ff')
         .setTitle('🧠 Bilgi Yarışması!')
-        .setDescription(`Sohbet çok sessizleşti... Hadi zihinleri açalım!\n\n**Soru:** ${qData.q}\n\n*İlk bilen **${config.quiz.reward} Coin** kazanır!*`)
+        .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
     await channel.send({ embeds: [embed] });
 
     const filter = m => !m.author.bot && qData.a.includes(m.content.toLowerCase());
     try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.quiz.duration, errors: ['time'] });
+        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
         db.addMoney(winner.author.id, config.quiz.reward);
 
-        await channel.send(`🎉 Tebrikler ${winner.author}! Doğru cevap **"${qData.a[0]}"** idi.\nHesabına **${config.quiz.reward} Coin** eklendi! 💸`);
+        // Kazanan mesajı
+        const winMsg = config.messages.winner
+            .replace('{user}', winner.author)
+            .replace('{reward}', config.quiz.reward);
+
+        await channel.send(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
     } catch (e) {
-        await channel.send(`⏰ Süre doldu! Doğru cevap **"${qData.a[0]}"** olacaktı. Belki bir dahaki sefere...`);
+        await channel.send(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
     }
 
     isEventActive = false;
@@ -104,30 +114,39 @@ async function startMath(channel) {
     const n1 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const n2 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const op = config.math.operations[Math.floor(Math.random() * config.math.operations.length)];
+    const durationSec = config.eventDuration / 1000;
 
     let answer;
     if (op === '+') answer = n1 + n2;
     else if (op === '-') answer = n1 - n2;
     else if (op === '*') answer = n1 * n2;
 
+    const startText = config.messages.mathStart.replace('{time}', durationSec);
+    const description = `${startText}\n\n**İşlem: ${n1} ${op} ${n2} = ?**`;
+
     const embed = new EmbedBuilder()
         .setColor('#ff9900')
         .setTitle('➕ Matematik Zamanı!')
-        .setDescription(`Hızlı olan kazanır!\n\n**İşlem:** ${n1} ${op} ${n2} = ?\n\n*İlk çözen **${config.math.reward} Coin** kazanır!*`)
+        .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
     await channel.send({ embeds: [embed] });
 
     const filter = m => !m.author.bot && parseInt(m.content) === answer;
     try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.math.duration, errors: ['time'] });
+        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
         db.addMoney(winner.author.id, config.math.reward);
 
-        await channel.send(`🎉 Tebrikler ${winner.author}! Sonuç **${answer}**.\nHesabına **${config.math.reward} Coin** eklendi! 💸`);
+        // Kazanan mesajı
+        const winMsg = config.messages.winner
+            .replace('{user}', winner.author)
+            .replace('{reward}', config.math.reward);
+
+        await channel.send(`${winMsg}\n*(Cevap: ${answer})*`);
     } catch (e) {
-        await channel.send(`⏰ Süre doldu! Cevap **${answer}** olacaktı. Matematiğinizi geliştirin! 🤓`);
+        await channel.send(`${config.messages.timeout}\n*(Cevap: ${answer})*`);
     }
 
     isEventActive = false;
@@ -137,25 +156,34 @@ async function startMath(channel) {
 async function startDrop(channel) {
     const word = config.drop.words[Math.floor(Math.random() * config.drop.words.length)];
     const reward = Math.floor(Math.random() * (config.drop.maxReward - config.drop.minReward)) + config.drop.minReward;
+    const durationSec = config.eventDuration / 1000;
+
+    const startText = config.messages.dropStart.replace('{time}', durationSec);
+    const description = `${startText}\n\n**Kelime:** \`${word}\``;
 
     const embed = new EmbedBuilder()
         .setColor('#00ff00')
         .setTitle('💸 Gökten Coin Yağıyor!')
-        .setDescription(`Acele et! Aşağıdaki kelimeyi ilk yazan parayı kapar!\n\n**Kelime:** \`${word}\`\n\n*Ödül: **${reward} Coin***`)
+        .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
     await channel.send({ embeds: [embed] });
 
     const filter = m => !m.author.bot && m.content.toLowerCase() === word;
     try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.drop.duration, errors: ['time'] });
+        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
 
         db.addMoney(winner.author.id, reward);
 
-        await channel.send(`🎉 Tebrikler ${winner.author}! **${reward} Coin** kaptın! 🤑`);
+        // Kazanan mesajı
+        const winMsg = config.messages.winner
+            .replace('{user}', winner.author)
+            .replace('{reward}', reward);
+
+        await channel.send(winMsg);
     } catch (e) {
-        await channel.send(`⏰ Kimse parayı kapamadı... Coinler rüzgarda uçup gitti 🍃`);
+        await channel.send(config.messages.timeout);
     }
 
     isEventActive = false;
