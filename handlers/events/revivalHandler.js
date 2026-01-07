@@ -81,43 +81,78 @@ async function triggerEvent(channel) {
     }
 }
 
+// --- ORTAK CEVAP BEKLEME FONKSİYONU ---
+async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAnswerDisplay) {
+    // 1 Saatlik güvenli üst limit (Sonsuz döngüyü önlemek için)
+    // Amaç: "Sessizlikte bekle, sohbet başlayınca 30s sayaç başlat"
+    const collector = channel.createMessageCollector({
+        filter: m => !m.author.bot,
+        time: 1000 * 60 * 60
+    });
+
+    let idleTimer = null;
+
+    collector.on('collect', async (m) => {
+        // 1. Cevap Kontrolü
+        if (checkFn(m.content)) {
+            collector.stop('won'); // Kazanıldı!
+
+            // Timer varsa temizle
+            if (idleTimer) clearTimeout(idleTimer);
+
+            // Ödül İşlemleri
+            db.addMoney(m.author.id, rewardCfg.reward);
+            db.addXp(m.author.id, rewardCfg.xp);
+            db.addActivityPoints(m.author.id, rewardCfg.activity);
+
+            const winMsg = config.messages.winner
+                .replace('{user}', m.author)
+                .replace('{reward}', rewardCfg.reward)
+                .replace('{xp}', rewardCfg.xp);
+
+            await m.reply(`${winMsg}\n*(Cevap: ${correctAnswerDisplay})*`);
+            return;
+        }
+
+        // 2. Yanlış Cevap (Normal Sohbet) -> Sayaç Başlat/Sıfırla
+        // Kullanıcı mantığı: "Bot harici kim yazmaya başlarsa o zaman timeout başlasın (30s)"
+        if (idleTimer) clearTimeout(idleTimer);
+
+        idleTimer = setTimeout(() => {
+            collector.stop('revived_timeout');
+        }, 30000); // 30 Saniye (Sohbet başladıktan sonra verilen süre)
+    });
+
+    collector.on('end', async (collected, reason) => {
+        if (reason === 'won') {
+            // Zaten collect içinde halledildi
+        } else {
+            // Timeout (Süre doldu veya Sohbet başladı ama kimse bilemedi)
+            if (idleTimer) clearTimeout(idleTimer);
+
+            await sentMessage.reply(`${config.messages.timeout}\n*(Cevap: ${correctAnswerDisplay})*`);
+
+            // Sistem Paused moduna geçer
+            isPaused = true;
+            console.log('[REVIVAL] Etkinlik tamamlandı (Kimse bilemedi), sistem uykuya geçti. 💤');
+        }
+
+        isEventActive = false;
+        lastMessageTime = Date.now();
+    });
+}
+
 async function startQuiz(channel) {
     const qData = config.quiz.questions[Math.floor(Math.random() * config.quiz.questions.length)];
 
     // Format: 🧠 BİLGİ YARIŞMASI \n [Soru]
     const content = `**${config.messages.quizTitle}**\n${qData.q}`;
-
     const sentMessage = await channel.send({ content: content });
 
-    // Relaxed matching: Check if message content includes the answer
-    const filter = m => !m.author.bot && qData.a.some(answer => m.content.toLowerCase().includes(answer));
-    try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
-        const winner = collected.first();
+    // Cevap kontrol fonksiyonu (Sentence Match)
+    const checkFn = (text) => qData.a.some(answer => text.toLowerCase().includes(answer));
 
-        // Ödülleri Ver
-        db.addMoney(winner.author.id, config.quiz.reward);
-        db.addXp(winner.author.id, config.quiz.xp);
-        db.addActivityPoints(winner.author.id, config.quiz.activity);
-
-        // Kazanan mesajı
-        const winMsg = config.messages.winner
-            .replace('{user}', winner.author)
-            .replace('{reward}', config.quiz.reward)
-            .replace('{xp}', config.quiz.xp);
-
-        // Kazanana yanıt ver
-        await winner.reply(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
-    } catch (e) {
-        // Timeout: Kendi mesajına yanıt ver
-        await sentMessage.reply(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
-        // Kimse bilmedi, sistemi duraklat
-        isPaused = true;
-        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
-    }
-
-    isEventActive = false;
-    lastMessageTime = Date.now();
+    await waitForAnswer(channel, sentMessage, checkFn, config.quiz, qData.a[0]);
 }
 
 async function startMath(channel) {
@@ -130,82 +165,35 @@ async function startMath(channel) {
     else if (op === '-') answer = n1 - n2;
     else if (op === '*') answer = n1 * n2;
 
-    // Format: 🧠 BİLGİ YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
+    // Format: 🧩 ZEKA YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
     const content = `**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?`;
-
     const sentMessage = await channel.send({ content: content });
 
-    // Regex matching: Check for whole number match (prevent 14 matching 4)
+    // Cevap kontrol fonksiyonu (Regex Number Match)
     const regex = new RegExp(`(^|\\D)${answer}(\\D|$)`);
-    const filter = m => !m.author.bot && regex.test(m.content);
+    const checkFn = (text) => regex.test(text);
 
-    try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
-        const winner = collected.first();
-
-        // Ödülleri Ver
-        db.addMoney(winner.author.id, config.math.reward);
-        db.addXp(winner.author.id, config.math.xp);
-        db.addActivityPoints(winner.author.id, config.math.activity);
-
-        // Kazanan mesajı
-        const winMsg = config.messages.winner
-            .replace('{user}', winner.author)
-            .replace('{reward}', config.math.reward)
-            .replace('{xp}', config.math.xp);
-
-        // Kazanana yanıt ver
-        await winner.reply(`${winMsg}\n*(Cevap: ${answer})*`);
-    } catch (e) {
-        // Timeout: Kendi mesajına yanıt ver
-        await sentMessage.reply(`${config.messages.timeout}\n*(Cevap: ${answer})*`);
-        // Kimse bilmedi, sistemi duraklat
-        isPaused = true;
-        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
-    }
-
-    isEventActive = false;
-    lastMessageTime = Date.now();
+    await waitForAnswer(channel, sentMessage, checkFn, config.math, answer);
 }
 
 async function startDrop(channel) {
     const word = config.drop.words[Math.floor(Math.random() * config.drop.words.length)];
-    const reward = Math.floor(Math.random() * (config.drop.maxReward - config.drop.minReward)) + config.drop.minReward;
+    // Drop ödülü o an hesaplanır, config'den okuyamayız. O yüzden geçici bir obje yapıyoruz.
+    const rewardCoins = Math.floor(Math.random() * (config.drop.maxReward - config.drop.minReward)) + config.drop.minReward;
+
+    const rewardCfg = {
+        reward: rewardCoins,
+        xp: config.drop.xp,
+        activity: config.drop.activity
+    };
 
     // Format: ⚡ HIZ YARIŞMASI \n [Kelime] kelimesini sohbete yaz!
     const content = `**${config.messages.dropTitle}**\n**"${word}"** kelimesini sohbete yaz!`;
-
     const sentMessage = await channel.send({ content: content });
 
-    // Regex matching: Check for whole word match
+    // Cevap kontrol fonksiyonu (Regex Word Match)
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
-    const filter = m => !m.author.bot && regex.test(m.content);
+    const checkFn = (text) => regex.test(text);
 
-    try {
-        const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
-        const winner = collected.first();
-
-        // Ödülleri Ver
-        db.addMoney(winner.author.id, reward);
-        db.addXp(winner.author.id, config.drop.xp);
-        db.addActivityPoints(winner.author.id, config.drop.activity);
-
-        // Kazanan mesajı
-        const winMsg = config.messages.winner
-            .replace('{user}', winner.author)
-            .replace('{reward}', reward)
-            .replace('{xp}', config.drop.xp);
-
-        // Kazanana yanıt ver
-        await winner.reply(winMsg);
-    } catch (e) {
-        // Timeout: Kendi mesajına yanıt ver
-        await sentMessage.reply(config.messages.timeout);
-        // Kimse bilmedi, sistemi duraklat
-        isPaused = true;
-        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
-    }
-
-    isEventActive = false;
-    lastMessageTime = Date.now();
+    await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, word);
 }
