@@ -120,7 +120,7 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
 
         idleTimer = setTimeout(() => {
             collector.stop('revived_timeout');
-        }, 30000); // 30 Saniye (Sohbet başladıktan sonra verilen süre)
+        }, config.activeTimeout); // Config'den gelen süre (Sohbet başladıktan sonra)
     });
 
     collector.on('end', async (collected, reason) => {
