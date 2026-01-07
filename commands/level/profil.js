@@ -105,17 +105,17 @@ module.exports = {
                 .addFields(
                     {
                         name: '🏆 Seviye İlerlemesi',
-                        value: `> ${levelBar} **%${xpPercentage}**\n> XP: **${currentLevelXp} / ${xpPerLevel}**`,
+                        value: `${levelBar} **%${xpPercentage}**\nXP: **${currentLevelXp} / ${xpPerLevel}**`,
                         inline: false
                     },
                     {
                         name: '🎖️ Rütbe İlerlemesi',
-                        value: `> ${rankBar} **%${rankPercentage}**\n> Puan: **${rankProgressText}**\n> Sonraki: **${nextRankName}**`,
+                        value: `${rankBar} **%${rankPercentage}**\nPuan: **${rankProgressText}**\nSonraki: **${nextRankName}**`,
                         inline: false
                     },
                     {
                         name: '👜 Cüzdan',
-                        value: `> 💸 **${user.money}** Furyuna Coin`,
+                        value: `💸 **${user.money}** Furyuna Coin`,
                         inline: false
                     }
                 )
