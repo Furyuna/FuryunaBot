@@ -83,19 +83,11 @@ async function triggerEvent(channel) {
 
 async function startQuiz(channel) {
     const qData = config.quiz.questions[Math.floor(Math.random() * config.quiz.questions.length)];
-    const durationSec = config.eventDuration / 1000;
 
-    // Mesaj formatı: İlk satır sabit, sonra soru
-    const startText = config.messages.quizStart.replace('{time}', durationSec);
-    const description = `${startText}\n\n**Soru: ${qData.q}**`;
+    // Format: 🧠 BİLGİ YARIŞMASI \n [Soru]
+    const content = `**${config.messages.quizTitle}**\n${qData.q}`;
 
-    const embed = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setTitle('🧠 Bilgi Yarışması!')
-        .setDescription(description)
-        .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
-
-    const sentMessage = await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ content: content });
 
     // Relaxed matching: Check if message content includes the answer
     const filter = m => !m.author.bot && qData.a.some(answer => m.content.toLowerCase().includes(answer));
@@ -128,23 +120,16 @@ async function startMath(channel) {
     const n1 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const n2 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const op = config.math.operations[Math.floor(Math.random() * config.math.operations.length)];
-    const durationSec = config.eventDuration / 1000;
 
     let answer;
     if (op === '+') answer = n1 + n2;
     else if (op === '-') answer = n1 - n2;
     else if (op === '*') answer = n1 * n2;
 
-    const startText = config.messages.mathStart.replace('{time}', durationSec);
-    const description = `${startText}\n\n**İşlem: ${n1} ${op} ${n2} = ?**`;
+    // Format: 🧠 BİLGİ YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
+    const content = `**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?`;
 
-    const embed = new EmbedBuilder()
-        .setColor('#ff9900')
-        .setTitle('➕ Matematik Zamanı!')
-        .setDescription(description)
-        .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
-
-    const sentMessage = await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ content: content });
 
     // Regex matching: Check for whole number match (prevent 14 matching 4)
     const regex = new RegExp(`(^|\\D)${answer}(\\D|$)`);
@@ -178,18 +163,11 @@ async function startMath(channel) {
 async function startDrop(channel) {
     const word = config.drop.words[Math.floor(Math.random() * config.drop.words.length)];
     const reward = Math.floor(Math.random() * (config.drop.maxReward - config.drop.minReward)) + config.drop.minReward;
-    const durationSec = config.eventDuration / 1000;
 
-    const startText = config.messages.dropStart.replace('{time}', durationSec);
-    const description = `${startText}\n\n**Kelime:** \`${word}\``;
+    // Format: ⚡ HIZ YARIŞMASI \n [Kelime] kelimesini sohbete yaz!
+    const content = `**${config.messages.dropTitle}**\n**"${word}"** kelimesini sohbete yaz!`;
 
-    const embed = new EmbedBuilder()
-        .setColor('#00ff00')
-        .setTitle('💸 Gökten Coin Yağıyor!')
-        .setDescription(description)
-        .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
-
-    const sentMessage = await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ content: content });
 
     // Regex matching: Check for whole word match
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');

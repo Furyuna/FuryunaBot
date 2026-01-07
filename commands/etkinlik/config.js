@@ -27,9 +27,9 @@ module.exports = {
 
         // 📝 SABİT MESAJLAR
         messages: {
-            quizStart: "⏱️ **{time} saniye** içinde ilk bilen kazanır!",
-            mathStart: "⏱️ **{time} saniye** içinde ilk çözen kazanır!",
-            dropStart: "⏱️ **{time} saniye** içinde ilk yazan kapar!",
+            quizTitle: "🧠 BİLGİ YARIŞMASI",
+            mathTitle: "🧠 BİLGİ YARIŞMASI",
+            dropTitle: "⚡ HIZ YARIŞMASI",
             winner: "🎉 Tebrikler {user}! **{reward} Coin** kazandın! 💸",
             timeout: "⏰ Süre doldu! Kimse bilemedi..."
         },
