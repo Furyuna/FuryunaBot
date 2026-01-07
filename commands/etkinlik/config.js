@@ -26,9 +26,10 @@ module.exports = {
         eventDuration: 30000, // 30 Saniye (ms cinsinden)
 
         // 📝 SABİT MESAJLAR
+        // 📝 SABİT MESAJLAR
         messages: {
             quizTitle: "🧠 BİLGİ YARIŞMASI",
-            mathTitle: "🧠 BİLGİ YARIŞMASI",
+            mathTitle: "� ZEKA YARIŞMASI",
             dropTitle: "⚡ HIZ YARIŞMASI",
             winner: "🎉 Tebrikler {user}! **{reward} Coin** kazandın! 💸",
             timeout: "⏰ Süre doldu! Kimse bilemedi..."
