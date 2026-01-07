@@ -17,23 +17,6 @@ module.exports = {
             // Veritabanından çek
             const user = db.getUser(targetUser.id);
 
-            // TEST: Clan Tag Kontrolü
-            if (targetUser.id === '400346528813940746') {
-                console.log('=== CLAN TAG TEST ===');
-                console.log('User:', targetUser.username);
-                // @ts-ignore
-                console.log('User Clan Object:', targetUser.clan);
-                // @ts-ignore
-                if (targetUser.clan) {
-                    // @ts-ignore
-                    console.log('Tag:', targetUser.clan.tag);
-                    // @ts-ignore
-                    console.log('Identity Guild ID:', targetUser.clan.identityGuildId);
-                } else {
-                    console.log('Clan bilgisi yok (NULL/UNDEFINED)');
-                }
-                console.log('=====================');
-            }
 
             const { levelRewards, rankSystem } = require('./config.js').levelSystem;
 
