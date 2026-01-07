@@ -89,7 +89,7 @@ async function startQuiz(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    const filter = m => !m.author.bot && qData.a.includes(m.content.toLowerCase());
+    const filter = m => !m.author.bot && qData.a.some(answer => m.content.toLowerCase().includes(answer));
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
