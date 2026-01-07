@@ -89,6 +89,7 @@ async function startQuiz(channel) {
 
     await channel.send({ embeds: [embed] });
 
+    // Relaxed matching: Check if message content includes the answer
     const filter = m => !m.author.bot && qData.a.some(answer => m.content.toLowerCase().includes(answer));
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
@@ -132,7 +133,8 @@ async function startMath(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    const filter = m => !m.author.bot && parseInt(m.content) === answer;
+    // Relaxed matching: Check if message content includes the answer number
+    const filter = m => !m.author.bot && m.content.includes(answer.toString());
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
@@ -169,7 +171,8 @@ async function startDrop(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    const filter = m => !m.author.bot && m.content.toLowerCase() === word;
+    // Relaxed matching: Check if message content includes the word
+    const filter = m => !m.author.bot && m.content.toLowerCase().includes(word);
     try {
         const collected = await channel.awaitMessages({ filter, max: 1, time: config.eventDuration, errors: ['time'] });
         const winner = collected.first();
