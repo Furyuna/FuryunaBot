@@ -107,7 +107,7 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
                 .replace('{reward}', rewardCfg.reward)
                 .replace('{xp}', rewardCfg.xp);
 
-            await m.reply(`${winMsg}\n*(Cevap: ${correctAnswerDisplay})*`);
+            await m.reply(winMsg);
             return;
         }
 
