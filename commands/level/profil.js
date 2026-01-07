@@ -96,12 +96,12 @@ module.exports = {
             const rankBar = createProgressBar(rankPercentage, '🟨', '⬛');
 
             // "Yok Üye" yerine daha düzgün bir tabir veya rütbe varsa onu göster
-            const displayRank = (rankName === "Yok" || rankName === "N/A") ? "Yeni Üye" : rankName;
+            const displayRank = (rankName === "Yok" || rankName === "N/A") ? "Rütbesiz" : rankName;
 
             const embed = new EmbedBuilder()
                 .setColor(rankColor) // Rengi rütbeye göre ayarla
                 .setAuthor({ name: `${targetUser.username}`, iconURL: targetUser.displayAvatarURL() })
-                .setDescription(`**${displayRank}** • Seviye ${user.level}`)
+                .setDescription(`${displayRank} • Seviye ${user.level}`)
                 .addFields(
                     {
                         name: '🏆 Seviye İlerlemesi',
@@ -120,8 +120,7 @@ module.exports = {
                     }
                 )
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
-                .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi', iconURL: interaction.client.user.displayAvatarURL() })
-                .setTimestamp();
+                .setFooter({ text: 'FuryunaBot • Aktiflik Ödül Sistemi • bugün saat 13:29', iconURL: interaction.client.user.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed] });
 
