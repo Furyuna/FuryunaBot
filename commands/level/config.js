@@ -3,7 +3,7 @@ module.exports = {
     levelSystem: {
         // ORTAK AYARLAR (Hem Level Hem Rütbe İçin)
         cooldown: 2000,          // Bekleme Süresi (2 Saniye): Hızlı test için düşürüldü.
-        ignoredChannels: [],     // Yoksayılan Kanallar: Burada ne XP ne Rütbe puanı kazanılır.
+        ignoredChannels: [1383056700700885073],     // Yoksayılan Kanallar: Burada ne XP ne Rütbe puanı kazanılır.
 
         // --- SEVİYE SİSTEMİ (XP & PARA) ---
         // XP Gereksinimi (1000 XP):
