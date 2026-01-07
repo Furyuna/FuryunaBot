@@ -75,7 +75,7 @@ async function triggerEvent(channel) {
 }
 
 // --- ORTAK CEVAP BEKLEME FONKSİYONU ---
-async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAnswerDisplay) {
+async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAnswerDisplay, timeoutMsg = config.messages.timeout) {
     // Eğer eventDuration 0 ise SÜRE YOK (Sonsuz), değilse configdeki süre
     const collectorOptions = {
         filter: m => !m.author.bot
@@ -127,7 +127,7 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
             // Timeout (Süre doldu veya Sohbet başladı ama kimse bilemedi)
             if (idleTimer) clearTimeout(idleTimer);
 
-            await sentMessage.reply(`${config.messages.timeout}\n*(Cevap: ${correctAnswerDisplay})*`);
+            await sentMessage.reply(`${timeoutMsg}\n*(Cevap: ${correctAnswerDisplay})*`);
 
             console.log('[REVIVAL] Etkinlik tamamlandı (Kimse bilemedi), yeni döngü bekleniyor.');
         }
@@ -190,5 +190,5 @@ async function startDrop(channel) {
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
     const checkFn = (text) => regex.test(text);
 
-    await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, word);
+    await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, word, config.messages.timeoutDrop);
 }

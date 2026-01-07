@@ -32,7 +32,8 @@ module.exports = {
             mathTitle: "🧩 ZEKA YARIŞMASI",
             dropTitle: "⚡ HIZ YARIŞMASI",
             winner: "🎉 Tebrikler {user}! **{reward} Coin** ve **{xp} XP** kazandın! 💸",
-            timeout: "⏰ Süre doldu! Kimse bilemedi..."
+            timeout: "⏰ Süre doldu! Kimse bilemedi...",
+            timeoutDrop: "⏰ Süre doldu! Kimse yazamadı..."
         },
 
         // Etkinliklerin çıkma olasılıkları (Ağırlık)
