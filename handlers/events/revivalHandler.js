@@ -5,6 +5,7 @@ const config = require('../../commands/etkinlik/config.js').chatRevival;
 // Son mesaj zamanını tutmak için değişken
 let lastMessageTime = Date.now();
 let isEventActive = false; // Aynı anda birden fazla etkinlik olmasın
+let isPaused = false; // Kimse cevap vermezse sistemi duraklat (Spam önleme)
 
 module.exports = {
     /**
@@ -13,6 +14,12 @@ module.exports = {
     updateTimestamp: () => {
         // Eğer etkinlik o kanalda ise zamanı güncelle
         lastMessageTime = Date.now();
+
+        // Eğer sistem duraklatıldıysa (kimse cevap vermediği için uyuduysa) uyandır
+        if (isPaused) {
+            isPaused = false;
+            console.log('[REVIVAL] Sistem tekrar uyandı! (Kullanıcı mesajı tespit edildi) ☀️');
+        }
     },
 
     /**
@@ -26,7 +33,8 @@ module.exports = {
 
         // Belirli aralıklarla kontrol et
         setInterval(async () => {
-            if (isEventActive) return;
+            // Etkinlik varsa veya sistem duraklatıldıysa (kimse yoksa) işlem yapma
+            if (isEventActive || isPaused) return;
 
             const now = Date.now();
             const timeDiff = now - lastMessageTime;
@@ -105,9 +113,12 @@ async function startQuiz(channel) {
         await channel.send(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
     } catch (e) {
         await channel.send(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
+        // Kimse bilmedi, sistemi duraklat
+        isPaused = true;
+        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
     }
 
-    isEventEventActive = false;
+    isEventActive = false;
     lastMessageTime = Date.now();
 }
 
@@ -134,8 +145,6 @@ async function startMath(channel) {
     await channel.send({ embeds: [embed] });
 
     // Regex matching: Check for whole number match (prevent 14 matching 4)
-    // Matches: "4", "Answer 4", "4 is result"
-    // Rejects: "14", "40", "42"
     const regex = new RegExp(`(^|\\D)${answer}(\\D|$)`);
     const filter = m => !m.author.bot && regex.test(m.content);
 
@@ -153,6 +162,9 @@ async function startMath(channel) {
         await channel.send(`${winMsg}\n*(Cevap: ${answer})*`);
     } catch (e) {
         await channel.send(`${config.messages.timeout}\n*(Cevap: ${answer})*`);
+        // Kimse bilmedi, sistemi duraklat
+        isPaused = true;
+        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
     }
 
     isEventActive = false;
@@ -175,10 +187,7 @@ async function startDrop(channel) {
 
     await channel.send({ embeds: [embed] });
 
-    // Regex matching: Check for whole word match (prevent "kat" matching "at")
-    // Use space boundaries or start/end of string. Simple \b might fail with non-ascii in old node versions but let's try robust pattern.
-    // Actually simply using space boundary is safer for chat. 
-    // Matches: "word", "word!", "test word"
+    // Regex matching: Check for whole word match
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
     const filter = m => !m.author.bot && regex.test(m.content);
 
@@ -196,6 +205,9 @@ async function startDrop(channel) {
         await channel.send(winMsg);
     } catch (e) {
         await channel.send(config.messages.timeout);
+        // Kimse bilmedi, sistemi duraklat
+        isPaused = true;
+        console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
     }
 
     isEventActive = false;
