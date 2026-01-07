@@ -17,7 +17,7 @@ module.exports = {
 
     // --- SOHBET CANLANDIRICI (REVIVAL) - İLERİDE EKLENECEK ---
     chatRevival: {
-        enabled: true,
+        enabled: false,
         channelId: "1287071155219599525", // Genel Sohbet
         inactivityThreshold: 1000 * 60 * 30, // 30 Dakika hareketsizlik süresi
         checkInterval: 1000 * 60 * 1, // Her 1 dakikada bir kontrol eder
