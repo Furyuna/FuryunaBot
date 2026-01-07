@@ -95,7 +95,7 @@ async function startQuiz(channel) {
         .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
-    await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ embeds: [embed] });
 
     // Relaxed matching: Check if message content includes the answer
     const filter = m => !m.author.bot && qData.a.some(answer => m.content.toLowerCase().includes(answer));
@@ -110,9 +110,11 @@ async function startQuiz(channel) {
             .replace('{user}', winner.author)
             .replace('{reward}', config.quiz.reward);
 
-        await channel.send(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
+        // Kazanana yanıt ver
+        await winner.reply(`${winMsg}\n*(Doğru cevap: ${qData.a[0]})*`);
     } catch (e) {
-        await channel.send(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
+        // Timeout: Kendi mesajına yanıt ver
+        await sentMessage.reply(`${config.messages.timeout}\n*(Doğru cevap: ${qData.a[0]})*`);
         // Kimse bilmedi, sistemi duraklat
         isPaused = true;
         console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
@@ -142,7 +144,7 @@ async function startMath(channel) {
         .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
-    await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ embeds: [embed] });
 
     // Regex matching: Check for whole number match (prevent 14 matching 4)
     const regex = new RegExp(`(^|\\D)${answer}(\\D|$)`);
@@ -159,9 +161,11 @@ async function startMath(channel) {
             .replace('{user}', winner.author)
             .replace('{reward}', config.math.reward);
 
-        await channel.send(`${winMsg}\n*(Cevap: ${answer})*`);
+        // Kazanana yanıt ver
+        await winner.reply(`${winMsg}\n*(Cevap: ${answer})*`);
     } catch (e) {
-        await channel.send(`${config.messages.timeout}\n*(Cevap: ${answer})*`);
+        // Timeout: Kendi mesajına yanıt ver
+        await sentMessage.reply(`${config.messages.timeout}\n*(Cevap: ${answer})*`);
         // Kimse bilmedi, sistemi duraklat
         isPaused = true;
         console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
@@ -185,7 +189,7 @@ async function startDrop(channel) {
         .setDescription(description)
         .setFooter({ text: 'FuryunaBot • Sohbet Canlandırıcı' });
 
-    await channel.send({ embeds: [embed] });
+    const sentMessage = await channel.send({ embeds: [embed] });
 
     // Regex matching: Check for whole word match
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
@@ -202,9 +206,11 @@ async function startDrop(channel) {
             .replace('{user}', winner.author)
             .replace('{reward}', reward);
 
-        await channel.send(winMsg);
+        // Kazanana yanıt ver
+        await winner.reply(winMsg);
     } catch (e) {
-        await channel.send(config.messages.timeout);
+        // Timeout: Kendi mesajına yanıt ver
+        await sentMessage.reply(config.messages.timeout);
         // Kimse bilmedi, sistemi duraklat
         isPaused = true;
         console.log('[REVIVAL] Kimse cevap vermedi. Sistem duraklatıldı. 💤');
