@@ -23,7 +23,8 @@ module.exports = {
         checkInterval: 1000 * 5, // Her 5 saniyede bir kontrol (TEST)
 
         // ⏳ ETKİNLİK SÜRESİ (HEPSİ İÇİN GEÇERLİ)
-        eventDuration: 1000 * 60 * 60, // 1 Saat (Sonsuz gibi dursun)
+        eventDuration: 1000 * 60 * 60, // 1 Saat (Sessizlikte Bekleme Süresi - Ölü Bekleme)
+        activeTimeout: 1000 * 30,      // 30 Saniye (Sohbet başladıktan sonraki süre - Canlı Bekleme)
 
         // 📝 SABİT MESAJLAR
         messages: {
