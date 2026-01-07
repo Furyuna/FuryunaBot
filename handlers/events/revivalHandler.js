@@ -1,10 +1,39 @@
 const { EmbedBuilder } = require('discord.js');
 const db = require('../../utils/database.js');
 const config = require('../../commands/etkinlik/config.js').chatRevival;
+const fs = require('fs');
+const path = require('path');
+
+// Durum dosyasının yolu
+const STATE_FILE = path.join(__dirname, 'revivalState.json');
 
 // Son mesaj zamanını tutmak için değişken
 let lastMessageTime = Date.now();
 let isEventActive = false; // Aynı anda birden fazla etkinlik olmasın
+
+// --- DURUM YÖNETİMİ (Persistent State) ---
+function loadState() {
+    try {
+        if (fs.existsSync(STATE_FILE)) {
+            return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+        }
+    } catch (e) {
+        console.error('[REVIVAL] State yüklenirken hata:', e);
+    }
+    // Varsayılan
+    return { nextEventType: 0, nextQuizIndex: 0, nextDropIndex: 0 };
+}
+
+function saveState(state) {
+    try {
+        fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+    } catch (e) {
+        console.error('[REVIVAL] State kaydedilirken hata:', e);
+    }
+}
+
+// Durumu yükle
+let state = loadState();
 
 module.exports = {
     /**
@@ -22,7 +51,7 @@ module.exports = {
     init: (client) => {
         if (!config.enabled) return;
 
-        console.log('[REVIVAL] Sohbet Canlandırıcı Aktif!');
+        console.log('[REVIVAL] Sohbet Canlandırıcı Aktif! (Sıralı Mod)');
 
         // Belirli aralıklarla kontrol et
         setInterval(async () => {
@@ -44,23 +73,22 @@ module.exports = {
 };
 
 /**
- * Rastgele bir etkinlik başlatır
+ * Sıradaki etkinliği başlatır (Rotation: Quiz -> Math -> Drop)
  * @param {import('discord.js').TextChannel} channel 
  */
 async function triggerEvent(channel) {
     isEventActive = true;
     lastMessageTime = Date.now(); // Tekrar tetiklenmesin diye zamanı güncelle
 
-    // Ağırlıklı rastgele seçim
-    const rand = Math.random() * 100;
-    let type = 'quiz';
+    // Sıralı Etkinlik Seçimi
+    const eventTypes = ['quiz', 'math', 'drop'];
+    const type = eventTypes[state.nextEventType % eventTypes.length];
 
-    const w = config.weights;
-    if (rand < w.quiz) type = 'quiz';
-    else if (rand < w.quiz + w.math) type = 'math';
-    else type = 'drop';
+    // Sayacı ilerlet ve kaydet
+    state.nextEventType++;
+    saveState(state);
 
-    console.log(`[REVIVAL] Etkinlik Tetiklendi: ${type}`);
+    console.log(`[REVIVAL] Etkinlik Tetiklendi: ${type} (Sıra: ${state.nextEventType})`);
 
     try {
         switch (type) {
@@ -138,7 +166,13 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
 }
 
 async function startQuiz(channel) {
-    const qData = config.quiz.questions[Math.floor(Math.random() * config.quiz.questions.length)];
+    // Sıralı Soru Seçimi
+    const qIndex = state.nextQuizIndex % config.quiz.questions.length;
+    const qData = config.quiz.questions[qIndex];
+
+    // İndeksi ilerlet ve kaydet
+    state.nextQuizIndex++;
+    saveState(state);
 
     // Format: 🧠 BİLGİ YARIŞMASI \n [Soru]
     const content = `**${config.messages.quizTitle}**\n${qData.q}`;
@@ -151,6 +185,7 @@ async function startQuiz(channel) {
 }
 
 async function startMath(channel) {
+    // Matematik işlemi rastgele kalabilir, çünkü milyonlarca kombinasyon var.
     const n1 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const n2 = Math.floor(Math.random() * (config.math.max - config.math.min)) + config.math.min;
     const op = config.math.operations[Math.floor(Math.random() * config.math.operations.length)];
@@ -172,8 +207,15 @@ async function startMath(channel) {
 }
 
 async function startDrop(channel) {
-    const word = config.drop.words[Math.floor(Math.random() * config.drop.words.length)];
-    // Drop ödülü o an hesaplanır, config'den okuyamayız. O yüzden geçici bir obje yapıyoruz.
+    // Sıralı Kelime Seçimi
+    const wIndex = state.nextDropIndex % config.drop.words.length;
+    const word = config.drop.words[wIndex];
+
+    // İndeksi ilerlet ve kaydet
+    state.nextDropIndex++;
+    saveState(state);
+
+    // Drop ödülü o an hesaplanır
     const rewardCoins = Math.floor(Math.random() * (config.drop.maxReward - config.drop.minReward)) + config.drop.minReward;
 
     const rewardCfg = {
