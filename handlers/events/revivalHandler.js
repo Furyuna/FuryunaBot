@@ -5,7 +5,6 @@ const config = require('../../commands/etkinlik/config.js').chatRevival;
 // Son mesaj zamanını tutmak için değişken
 let lastMessageTime = Date.now();
 let isEventActive = false; // Aynı anda birden fazla etkinlik olmasın
-let isPaused = false; // Kimse cevap vermezse sistemi duraklat (Spam önleme)
 
 module.exports = {
     /**
@@ -14,12 +13,6 @@ module.exports = {
     updateTimestamp: () => {
         // Eğer etkinlik o kanalda ise zamanı güncelle
         lastMessageTime = Date.now();
-
-        // Eğer sistem duraklatıldıysa (kimse cevap vermediği için uyuduysa) uyandır
-        if (isPaused) {
-            isPaused = false;
-            console.log('[REVIVAL] Sistem tekrar uyandı! (Kullanıcı mesajı tespit edildi) ☀️');
-        }
     },
 
     /**
@@ -33,8 +26,8 @@ module.exports = {
 
         // Belirli aralıklarla kontrol et
         setInterval(async () => {
-            // Etkinlik varsa veya sistem duraklatıldıysa (kimse yoksa) işlem yapma
-            if (isEventActive || isPaused) return;
+            // Etkinlik varsa işlem yapma
+            if (isEventActive) return;
 
             const now = Date.now();
             const timeDiff = now - lastMessageTime;
@@ -136,9 +129,7 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
 
             await sentMessage.reply(`${config.messages.timeout}\n*(Cevap: ${correctAnswerDisplay})*`);
 
-            // Sistem Paused moduna geçer
-            isPaused = true;
-            console.log('[REVIVAL] Etkinlik tamamlandı (Kimse bilemedi), sistem uykuya geçti. 💤');
+            console.log('[REVIVAL] Etkinlik tamamlandı (Kimse bilemedi), yeni döngü bekleniyor.');
         }
 
         isEventActive = false;
