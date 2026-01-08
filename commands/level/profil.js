@@ -127,7 +127,7 @@ module.exports = {
         } catch (error) {
             console.error(error);
             if (!interaction.replied) {
-                await interaction.reply({ content: '❌ Bir hata oluştu.', ephemeral: true });
+                await interaction.reply({ content: '❌ Bir hata oluştu.', ephemeral: false });
             }
         }
     }

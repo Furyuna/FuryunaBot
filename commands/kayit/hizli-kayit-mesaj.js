@@ -10,12 +10,12 @@ module.exports = {
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
         if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
-            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
+            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: false });
 
         // MESAJ BAĞLAMI: Mesajın sahibini alıyoruz
         if (!interaction.targetMessage) {
             console.log(`[DEBUG] targetMessage is undefined! TargetId: ${interaction.targetId}`);
-            return interaction.reply({ content: "Hata: Mesaj verisine ulaşılamadı.", ephemeral: true });
+            return interaction.reply({ content: "Hata: Mesaj verisine ulaşılamadı.", ephemeral: false });
         }
 
         const targetUserId = interaction.targetMessage.author.id;
@@ -26,8 +26,8 @@ module.exports = {
             return null;
         });
 
-        if (!targetMember) return interaction.reply({ content: `Kullanıcı bulunamadı/erişilemiyor. (ID: ${targetUserId})`, ephemeral: true });
-        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: true });
+        if (!targetMember) return interaction.reply({ content: `Kullanıcı bulunamadı/erişilemiyor. (ID: ${targetUserId})`, ephemeral: false });
+        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: false });
 
         if (targetMember.roles.cache.has(localConfig.roles.newMember) || targetMember.roles.cache.has(localConfig.roles.verifiedMember)) {
             const currentRoleId = targetMember.roles.cache.has(localConfig.roles.verifiedMember) ? localConfig.roles.verifiedMember : localConfig.roles.newMember;

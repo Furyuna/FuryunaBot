@@ -10,17 +10,17 @@ module.exports = {
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
         if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
-            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
+            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: false });
 
         // MESAJ BAĞLAMI
-        if (!interaction.targetMessage) return interaction.reply({ content: "Hata: Mesaj verisine ulaşılamadı.", ephemeral: true });
+        if (!interaction.targetMessage) return interaction.reply({ content: "Hata: Mesaj verisine ulaşılamadı.", ephemeral: false });
         const targetUserId = interaction.targetMessage.author.id;
         console.log(`[DEBUG] Hızlı Kayıt Sil Mesaj: AuthorID=${targetUserId}`);
 
         const targetMember = await interaction.guild.members.fetch(targetUserId).catch(() => null);
 
-        if (!targetMember) return interaction.reply({ content: `Kullanıcı bulunamadı/erişilemiyor. (ID: ${targetUserId})`, ephemeral: true });
-        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: true });
+        if (!targetMember) return interaction.reply({ content: `Kullanıcı bulunamadı/erişilemiyor. (ID: ${targetUserId})`, ephemeral: false });
+        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: false });
 
         if (targetMember.roles.cache.has(localConfig.roles.unregistered)) {
             const roleName = interaction.guild.roles.cache.get(localConfig.roles.unregistered)?.name || "Bilinmiyor";

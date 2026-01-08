@@ -44,7 +44,7 @@ module.exports = {
 
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '⛔ Bu komutu kullanmak için **Yönetici** yetkisine sahip olmalısın.', ephemeral: true });
+            return interaction.reply({ content: '⛔ Bu komutu kullanmak için **Yönetici** yetkisine sahip olmalısın.', ephemeral: false });
         }
 
         const subcommand = interaction.options.getSubcommand();
@@ -116,7 +116,7 @@ module.exports = {
 
         } else if (subcommand === 'puan-ver') {
             const amount = interaction.options.getInteger('miktar');
-            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
+            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: false });
 
             db.addActivityPoints(userId, amount);
 
@@ -157,7 +157,7 @@ module.exports = {
 
         } else if (subcommand === 'puan-sil') {
             const amount = interaction.options.getInteger('miktar');
-            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: true });
+            if (amount <= 0) return interaction.reply({ content: '❌ Pozitif bir miktar girin.', ephemeral: false });
 
             db.removeActivityPoints(userId, amount);
 

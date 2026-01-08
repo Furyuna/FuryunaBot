@@ -10,11 +10,11 @@ module.exports = {
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
         if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
-            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: true });
+            return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: false });
 
         const targetMember = await interaction.guild.members.fetch(interaction.targetId).catch(() => null);
-        if (!targetMember) return interaction.reply({ content: "Kullanıcı bulunamadı/erişilemiyor.", ephemeral: true });
-        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: true });
+        if (!targetMember) return interaction.reply({ content: "Kullanıcı bulunamadı/erişilemiyor.", ephemeral: false });
+        if (targetMember.user.bot) return interaction.reply({ content: localConfig.messages.bot, ephemeral: false });
 
         if (targetMember.roles.cache.has(localConfig.roles.verifiedMember)) {
             const roleName = interaction.guild.roles.cache.get(localConfig.roles.verifiedMember)?.name || "Bilinmiyor";
