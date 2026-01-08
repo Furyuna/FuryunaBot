@@ -1,8 +1,7 @@
 const config = require('../../commands/etkinlik/config.js');
-const schedule = require('node-schedule'); // node-schedule var mı kontrol etmeliyiz, yoksa setTimeout kullanırız. 
-// User environment check showed basic discord.js setup. Assuming typical setTimeout logic is safer if no dependency installed.
-// Ancak "autoMessages" vardı, belki orada schedule kullanıldı. 
-// Neyse, native setTimeout ile yapalım, dependency riskine girmeyelim.
+
+// Native setTimeout kullanıyoruz, harici dependency gerek yok.
+let timer = null;
 
 let timer = null;
 
