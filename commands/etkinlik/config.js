@@ -134,8 +134,8 @@ module.exports = {
     morning: {
         enabled: true,
         channelId: "1366096443160526958", // Genel Sohbet (Aynı kanal)
-        minHour: 8,  // En erken 08:00
-        maxHour: 11, // En geç 11:00 (11:00 dahil değil, 10:59'a kadar)
+        startTime: "07:58", // Başlangıç Saati
+        endTime: "08:50",   // Bitiş Saati
         messages: [
             "☀️ Günaydın Furyuna ahalisi! Güneş doğdu ama asıl güneş sizsiniz. 🦊✨",
             "🌅 Sabahınız xêr olsun! Furyuna ile enerjik bir güne hazır mısınız? ☕",

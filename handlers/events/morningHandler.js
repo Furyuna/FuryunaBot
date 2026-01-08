@@ -21,30 +21,36 @@ function scheduleNextMessage(client) {
     const now = new Date();
     const cfg = config.morning;
 
-    // Hedef Zamanı Belirle
-    let targetTime = new Date();
+    // Ayarlardaki saati parse et (HH:MM)
+    const [startH, startM] = cfg.startTime.split(':').map(Number);
+    const [endH, endM] = cfg.endTime.split(':').map(Number);
 
-    // Rastgele bir dakika/saniye seç (Saat aralığı içinde)
-    // minHour (dahil) ile maxHour (hariç) arasında
-    const randomHour = Math.floor(Math.random() * (cfg.maxHour - cfg.minHour)) + cfg.minHour;
-    const randomMinute = Math.floor(Math.random() * 60);
-    const randomSecond = Math.floor(Math.random() * 60);
+    // Bugün için Başlangıç ve Bitiş zamanlarını oluştur
+    const startWindow = new Date();
+    startWindow.setHours(startH, startM, 0, 0);
 
-    targetTime.setHours(randomHour, randomMinute, randomSecond, 0);
+    const endWindow = new Date();
+    endWindow.setHours(endH, endM, 0, 0);
 
-    // Eğer bugün için belirlenen saat GEÇTİYSE -> YARINA kur
+    // Rastgele bir zaman belirle (Start ile End arasındaki fark kadar saniye ekle)
+    const diffMs = endWindow.getTime() - startWindow.getTime();
+    const randomOffset = Math.floor(Math.random() * diffMs);
+
+    let targetTime = new Date(startWindow.getTime() + randomOffset);
+
+    // Eğer bugün için belirlenen bu rastgele zaman GEÇMİŞSE -> YARINA kur
     if (now > targetTime) {
+        // Yarın aynı saatlerde olacak şekilde ayarla
         targetTime.setDate(targetTime.getDate() + 1);
-        console.log(`[MORNING] Bugünün saati geçti, yarına kuruluyor...`);
+        console.log(`[MORNING] Bugünün şanslı saati (${targetTime.toLocaleTimeString()}) geçti, yarına kuruluyor...`);
     } else {
-        // Eğer henüz geçmediyse, ama şu anki saat pencerenin içindeyse ve targetTime future ise -> BUGÜNE kur
-        // Zaten targetTime > now olduğu için okey.
+        // Hedef gelecek bir zaman, sorun yok.
     }
 
     const timeUntil = targetTime.getTime() - now.getTime();
 
-    // Log (Saat:Dakika formatında göster)
-    const timeStr = targetTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    // Log
+    const timeStr = targetTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     console.log(`[MORNING] Bir sonraki Günaydın mesajı: ${timeStr} (Kalan: ${Math.floor(timeUntil / 1000 / 60)} dk)`);
 
     timer = setTimeout(async () => {
@@ -61,11 +67,7 @@ function scheduleNextMessage(client) {
             }
         }
 
-        // Gönderdikten sonra bir sonraki gün için tekrar kur
-        // Fonksiyon kendini tekrar çağıracağı için targetTime yeniden hesaplanacak (ve now > targetTime olacağı için yarına atacak... 
-        // DİKKAT: Aynı gün içinde tekrar çağırmaması için minik bir delay veya "yarın" garantisi lazım.
-        // targetTime bugün ise, bir sonraki çağrıda "now" hemen hemen aynı olacak.
-        // Ama targetTime geçmişte kalacağı için logic "now > targetTime" olacak ve +1 day yapacak. Doğru çalışır.
+        // Gönderdikten sonra döngüyü devam ettir
         scheduleNextMessage(client);
 
     }, timeUntil);
