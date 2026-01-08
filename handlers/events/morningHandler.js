@@ -1,8 +1,4 @@
-const config = require('../../commands/etkinlik/config.js');
-
 // Native setTimeout kullanıyoruz, harici dependency gerek yok.
-let timer = null;
-
 let timer = null;
 
 module.exports = {
