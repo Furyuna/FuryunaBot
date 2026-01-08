@@ -16,12 +16,14 @@ const client = new Client({
 client.commands = new Collection();
 
 // --- HANDLER YÜKLE ---
+// --- HANDLER YÜKLE ---
 require('./handlers/commandHandler')(client);
 require('./handlers/eventHandler')(client);
 require('./handlers/decaySystem')(client); // Çürüme sistemi
 require('./handlers/autoMessages')(client); // Oto-Mesaj sistemi (YENİ)
 const revivalHandler = require('./handlers/events/revivalHandler'); // Sohbet Canlandırıcı (YENİ)
 revivalHandler.init(client);
+require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (YENİ)
 
 // --- VERİTABANI BAŞLAT ---
 require('./utils/database').initDatabase();

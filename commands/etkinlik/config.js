@@ -130,6 +130,25 @@ module.exports = {
             ]
         }
     },
+    // 📅 SABAH MESAJI AYARLARI (GÜNAYDIN)
+    morning: {
+        enabled: true,
+        channelId: "1366096443160526958", // Genel Sohbet (Aynı kanal)
+        minHour: 8,  // En erken 08:00
+        maxHour: 11, // En geç 11:00 (11:00 dahil değil, 10:59'a kadar)
+        messages: [
+            "☀️ Günaydın Furyuna ahalisi! Güneş doğdu ama asıl güneş sizsiniz. 🦊✨",
+            "🌅 Sabahınız xêr olsun! Furyuna ile enerjik bir güne hazır mısınız? ☕",
+            "🥞 Günaydın! Kahveler içildi mi? Kuyruklar tarandı mı? Güne başlıyoruz! 🐾",
+            "🌍 Dünyanın en iyi sunucusunun en güzel üyelerine GÜNAYDIN! 💎",
+            "☀️ Uyanın! Furyuna'da yeni bir gün, yeni fırsatlar ve bolca eğlence sizi bekliyor. 🎉",
+            "🔔 Ding dong! Sabah oldu! Furyuna yönetimi hepinize musmutlu bir gün diler. ❤️",
+            "💤 Uykucu şirinler kalktı mı? Günaydın FURYUNA! 🐺🔥",
+            "✨ Güneşi kıskandıracak enerjinizle günaydın! Furyuna ailesi uyanıyor...",
+            "🚀 Günaydın! Bugün yine Furry dünyasını sallamaya var mıyız? Tabii ki Furyuna ile! 💪",
+            "🍀 Harika bir gün olsun! Unutmayın, Furyuna varsa hayat var. 🌸"
+        ]
+    },
 
     // --- HOŞ GELDİN MESAJI ---
     welcome: {
