@@ -187,8 +187,9 @@ async function startQuiz(channel) {
 
     saveState(state);
 
-    // Format: 🧠 BİLGİ YARIŞMASI \n [Soru]
-    const content = `**${config.messages.quizTitle}**\n${qData.q}`;
+    // Format: @Rol \n 🧠 BİLGİ YARIŞMASI \n [Soru]
+    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
+    const content = `${ping}\n**${config.messages.quizTitle}**\n${qData.q}`.trim();
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Sentence Match)
@@ -208,8 +209,9 @@ async function startMath(channel) {
     else if (op === '-') answer = n1 - n2;
     else if (op === '*') answer = n1 * n2;
 
-    // Format: 🧩 ZEKA YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
-    const content = `**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?`;
+    // Format: @Rol \n 🧩 ZEKA YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
+    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
+    const content = `${ping}\n**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?`.trim();
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Number Match)
@@ -244,8 +246,9 @@ async function startDrop(channel) {
         activity: config.drop.activity
     };
 
-    // Format: ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz!
-    const content = `**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!`;
+    // Format: @Rol \n ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz!
+    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
+    const content = `${ping}\n**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!`.trim();
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Word Match)
