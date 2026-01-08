@@ -187,9 +187,9 @@ async function startQuiz(channel) {
 
     saveState(state);
 
-    // Format: @Rol \n 🧠 BİLGİ YARIŞMASI \n [Soru]
-    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
-    const content = `${ping}\n**${config.messages.quizTitle}**\n${qData.q}`.trim();
+    // Format: 🧠 BİLGİ YARIŞMASI \n [Soru] \n @Rol
+    const ping = config.pingRoleId ? `\n<@&${config.pingRoleId}>` : '';
+    const content = `**${config.messages.quizTitle}**\n${qData.q}${ping}`;
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Sentence Match)
@@ -209,9 +209,9 @@ async function startMath(channel) {
     else if (op === '-') answer = n1 - n2;
     else if (op === '*') answer = n1 * n2;
 
-    // Format: @Rol \n 🧩 ZEKA YARIŞMASI \n [İşlem] işleminin cevabı kaçtır?
-    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
-    const content = `${ping}\n**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?`.trim();
+    // Format: 🧩 ZEKA YARIŞMASI \n [İşlem] işleminin cevabı kaçtır? \n @Rol
+    const ping = config.pingRoleId ? `\n<@&${config.pingRoleId}>` : '';
+    const content = `**${config.messages.mathTitle}**\n${n1} ${op} ${n2} işleminin cevabı kaçtır?${ping}`;
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Number Match)
@@ -246,9 +246,9 @@ async function startDrop(channel) {
         activity: config.drop.activity
     };
 
-    // Format: @Rol \n ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz!
-    const ping = config.pingRoleId ? `<@&${config.pingRoleId}>` : '';
-    const content = `${ping}\n**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!`.trim();
+    // Format: ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz! \n @Rol
+    const ping = config.pingRoleId ? `\n<@&${config.pingRoleId}>` : '';
+    const content = `**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!${ping}`;
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Word Match)
