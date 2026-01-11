@@ -69,32 +69,55 @@ module.exports = {
                 }
             }
         }, config.checkInterval);
+    },
+
+    /**
+     * Manuel Olarak Etkinlik Başlat
+     * @param {import('discord.js').Client} client 
+     * @param {string} type 'quiz', 'math', 'drop'
+     */
+    forceEvent: async (client, type) => {
+        const channel = client.channels.cache.get(config.channelId);
+        if (channel) {
+            await triggerEvent(channel, type);
+            return true;
+        }
+        return false;
     }
 };
 
 /**
  * Sıradaki etkinliği başlatır (Rotation: Quiz -> Math -> Drop)
  * @param {import('discord.js').TextChannel} channel 
+ * @param {string|null} forcedType Eğer belirtilirse sıradaki yerine bu türü başlatır
  */
-async function triggerEvent(channel) {
+async function triggerEvent(channel, forcedType = null) {
+    // Eğer zaten aktifse ve MANUEL DEĞİLSE başlatma (Manuel ise zorla)
+    if (isEventActive && !forcedType) return;
+
     isEventActive = true;
     lastMessageTime = Date.now(); // Tekrar tetiklenmesin diye zamanı güncelle
 
-    // Sıralı Etkinlik Seçimi
-    const eventTypes = ['quiz', 'math', 'drop'];
+    let type = forcedType;
 
-    // İndeks Güvenliği (Eğer saved state bozuksa veya tür sayısı değiştiyse)
-    if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
+    // Eğer manuel tür yoksa sıradakini seç
+    if (!type) {
+        // Sıralı Etkinlik Seçimi
+        const eventTypes = ['quiz', 'math', 'drop'];
 
-    const type = eventTypes[state.nextEventType];
+        // İndeks Güvenliği (Eğer saved state bozuksa veya tür sayısı değiştiyse)
+        if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
 
-    // Sayacı ilerlet (Wrap around)
-    state.nextEventType++;
-    if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
+        type = eventTypes[state.nextEventType];
 
-    saveState(state);
+        // Sayacı ilerlet (Wrap around)
+        state.nextEventType++;
+        if (state.nextEventType >= eventTypes.length) state.nextEventType = 0;
 
-    console.log(`[REVIVAL] Etkinlik Tetiklendi: ${type} (Sıra: ${state.nextEventType})`);
+        saveState(state);
+    }
+
+    console.log(`[REVIVAL] Etkinlik Tetiklendi: ${type} ${forcedType ? '(MANUEL)' : `(Sıra: ${state.nextEventType})`}`);
 
     try {
         switch (type) {
@@ -129,17 +152,30 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
             collector.stop('won'); // Kazanıldı!
 
             // Timer varsa temizle
+            // Timer varsa temizle
             if (idleTimer) clearTimeout(idleTimer);
 
-            // Ödül İşlemleri
-            db.addMoney(m.author.id, rewardCfg.reward);
-            db.addXp(m.author.id, rewardCfg.xp);
+            // Ödül Hesaplama (Aralık veya Sabit)
+            const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            const finalReward = (rewardCfg.minReward && rewardCfg.maxReward)
+                ? getRandom(rewardCfg.minReward, rewardCfg.maxReward)
+                : (rewardCfg.reward || 0);
+
+            const finalXp = (rewardCfg.minXp && rewardCfg.maxXp)
+                ? getRandom(rewardCfg.minXp, rewardCfg.maxXp)
+                : (rewardCfg.xp || 0);
+
+            // Veritabanı İşlemleri
+            db.addMoney(m.author.id, finalReward);
+            db.addXp(m.author.id, finalXp);
             db.addActivityPoints(m.author.id, rewardCfg.activity);
 
+            // Mesaj Formatlama
             const winMsg = config.messages.winner
                 .replace('{user}', m.author)
-                .replace('{reward}', rewardCfg.reward)
-                .replace('{xp}', rewardCfg.xp);
+                .replace('{reward}', finalReward)
+                .replace('{xp}', finalXp);
 
             await m.reply(winMsg);
             return;
@@ -161,7 +197,8 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
             // Timeout (Süre doldu veya Sohbet başladı ama kimse bilemedi)
             if (idleTimer) clearTimeout(idleTimer);
 
-            await sentMessage.reply(`${timeoutMsg}\n*(Cevap: ${correctAnswerDisplay})*`);
+            const answerText = correctAnswerDisplay ? `\n*(Cevap: ${correctAnswerDisplay})*` : '';
+            await sentMessage.reply(`${timeoutMsg}${answerText}`);
 
             console.log('[REVIVAL] Etkinlik tamamlandı (Kimse bilemedi), yeni döngü bekleniyor.');
         }
@@ -248,12 +285,13 @@ async function startDrop(channel) {
 
     // Format: ⚡ HIZ YARIŞMASI \n ***"Kelime"*** kelimesini sohbete yaz! \n @Rol
     const ping = config.pingRoleId ? `\n<@&${config.pingRoleId}>` : '';
-    const content = `**${config.messages.dropTitle}**\n***"${word}"*** kelimesini sohbete yaz!${ping}`;
+    const content = `**${config.messages.dropTitle}**\n***"${word}"*** cümlesini sohbete yaz!${ping}`;
     const sentMessage = await channel.send({ content: content });
 
     // Cevap kontrol fonksiyonu (Regex Word Match)
     const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
     const checkFn = (text) => regex.test(text);
 
-    await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, word, config.messages.timeoutDrop);
+    // Drop için cevap göstermeye gerek yok (Zaten ekranda yazı) -> null gönderiyoruz
+    await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, null, config.messages.timeoutDrop);
 }

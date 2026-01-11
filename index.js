@@ -23,7 +23,7 @@ require('./handlers/decaySystem')(client); // Çürüme sistemi
 require('./handlers/autoMessages')(client); // Oto-Mesaj sistemi (YENİ)
 const revivalHandler = require('./handlers/events/revivalHandler'); // Sohbet Canlandırıcı (YENİ)
 revivalHandler.init(client);
-require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (YENİ)
+// require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (ESKİ - İPTAL)
 require('./handlers/events/securityHandler').init(client); // Güvenlik Sistemi (Link/Medya Koruması)
 
 // --- VERİTABANI BAŞLAT ---

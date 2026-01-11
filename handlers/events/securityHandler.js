@@ -42,7 +42,7 @@ module.exports = {
                     // Kullanıcıya DM At (Gizli ve Kalıcı)
                     try {
                         await message.author.send({
-                            content: `👋 Selam <@${message.author.id}>! Güvenliğimiz için link ve dosya paylaşımını sadece **Doğrulanmış Üyeler** yapabiliyor. 🦊💖\n\n🔓 **Kilidi Açmak İçin:**\n- Sohbet ederek **1. Seviye** olabilirsin,\n- Veya bir yetkilinin seni doğrulaması için **Kayıt Kanalına** göz atabilirsin.\n\nAnlayışın için teşekkürler! ✨`
+                            content: `👋 Selam <@${message.author.id}>! Güvenliğimiz için link ve dosya paylaşımını sadece **Doğrulanmış Üyeler** yapabiliyor. 💖\n\n🔓 **Kilidi Açmak İçin:**\n- Sohbet ederek **1. Seviye** olabilirsin,\n\n**VEYA**\n\n- **@W4zel** gibi bir yetkiliden seni **manuel olarak doğrulamasını** isteyebilirsin.\n\nAnlayışın için teşekkürler! ✨`
                         });
                     } catch (dmError) {
                         // DM Kapalıysa yapacak bir şey yok, kanalı kirletmeyelim.

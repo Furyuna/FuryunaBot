@@ -5,11 +5,11 @@ module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName(localConfig.commands.dogrulamaSil.menuName)
         .setType(ApplicationCommandType.User)
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
+        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('BanMembers'))
             return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: false });
 
         const targetMember = await interaction.guild.members.fetch(interaction.targetId).catch(() => null);

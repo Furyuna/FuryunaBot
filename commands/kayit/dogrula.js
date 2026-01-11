@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const localConfig = require('./config.js');
 
 module.exports = {
@@ -6,13 +6,13 @@ module.exports = {
         .setName(localConfig.commands.dogrula.slash)
         .setDescription(localConfig.commands.dogrula.description)
         .addUserOption(option => option.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-        .setDefaultMemberPermissions(0),
+        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 
     aliases: localConfig.commands.dogrula.aliases,
 
     async execute(interaction) {
         const memberRoles = interaction.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('ManageRoles'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !interaction.member.permissions.has('Administrator') && !interaction.member.permissions.has('BanMembers'))
             return interaction.reply({ content: localConfig.messages.yetkiYok, ephemeral: false });
 
         const targetUser = interaction.options.getUser('kullanici');
@@ -41,7 +41,7 @@ module.exports = {
 
     async executePrefix(message, args) {
         const memberRoles = message.member.roles.cache;
-        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator') && !message.member.permissions.has('ManageRoles'))
+        if (!localConfig.staffRoles.some(r => memberRoles.has(r)) && !message.member.permissions.has('Administrator') && !message.member.permissions.has('BanMembers'))
             return message.reply(localConfig.messages.yetkiYok);
 
         const targetUser = message.mentions.users.first();

@@ -56,9 +56,19 @@ module.exports = {
             const guild = interaction.guild;
             const members = await guild.members.fetch();
             let updatedCount = 0;
+            let deletedGhostCount = 0;
+
+            // 1. ADIM: HAYALET TEMİZLİĞİ (Banlı/Çıkmışları Sil)
+            const allDbUserIds = db.getAllUserIds();
+            for (const userId of allDbUserIds) {
+                if (!members.has(userId)) {
+                    db.deleteUser(userId);
+                    deletedGhostCount++;
+                }
+            }
 
             if (!levelConfig.rankSystem || !levelConfig.rankSystem.enabled) {
-                return interaction.editReply('❌ Rütbe sistemi aktif değil.');
+                return interaction.editReply(`✅ Hayalet Temizliği: **${deletedGhostCount}** kişi DB'den silindi.\n❌ Rütbe sistemi aktif olmadığı için rol senkronizasyonu yapılmadı.`);
             }
 
             const thresholds = levelConfig.rankSystem.thresholds;
@@ -97,7 +107,7 @@ module.exports = {
                 if (changed) updatedCount++;
             }
 
-            return interaction.editReply(`✅ Senkronizasyon Tamamlandı!\n**${members.size}** üye tarandı, **${updatedCount}** kişinin rolleri düzeltildi.`);
+            return interaction.editReply(`✅ **SENKRONİZASYON TAMAMLANDI!** 🦅\n\n🗑️ **Temizlik:** ${deletedGhostCount} adet 'hayalet' (sunucuda olmayan) kullanıcı silindi.\n🛠️ **Roller:** ${updatedCount} kişinin rütbesi düzeltildi.`);
         }
 
         // Diğer komutlar kullanıcı gerektirir

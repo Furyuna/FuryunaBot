@@ -2,16 +2,17 @@ module.exports = {
     // --- HAYIRLI CUMALAR MESAJI ---
     fridayMessage: {
         enabled: true,                  // Açık mı?
-        time: "11:53",                  // Saat kaçta atılacak? (24 saat formatı)
+        startTime: "11:30",             // Başlangıç Saati
+        endTime: "13:30",               // Bitiş Saati
         channelId: "1287071155219599525", // Mesajın atılacağı kanal ID'si
 
         // Rastgele seçilecek mesajlar
         messages: [
-            "🕌 **Hayırlı Cumalar!** Allah dualarımızı kabul etsin. 🤲",
-            "✨ Cumanız mübarek olsun. Huzurlu ve bereketli bir gün dilerim.",
-            "🌹 **Hayırlı Cumalar!** Gönlünüzden geçen tüm güzellikler kabul olsun.",
-            "🕊️ Bu mübarek günde dualarda buluşalım. **Hayırlı Cumalar.**",
-            "🕋 **Cumanız Mübarek Olsun.** Rabbim bizi affedilenlerden eylesin."
+            "✨ Hayırlı Cumalar! Gönlünüzden geçen tüm güzelliklerin gerçekleşmesi dileğiyle.",
+            "🌹 Cumanız mübarek, gününüz huzurlu olsun. İyi hissettiğiniz bir gün dilerim.",
+            "🕌 Hayırlı Cumalar! Kalbiniz ferah, neşeniz bol olsun.",
+            "🕊️ Dualarınızın kabul olduğu, huzur dolu bir gün olsun. Hayırlı Cumalar!",
+            "🦊 Furyuna ailesinin Cuması mübarek olsun! Herkese kucak dolusu sevgiler."
         ]
     },
 
@@ -25,7 +26,7 @@ module.exports = {
 
         // ⏳ ETKİNLİK SÜRESİ (HEPSİ İÇİN GEÇERLİ)
         eventDuration: 0, // 0 = Sonsuz (Ölü Bekleme Yok), >0 = Süreli
-        activeTimeout: 1000 * 30,      // 30 Saniye (Sohbet başladıktan sonraki süre - Canlı Bekleme)
+        activeTimeout: 1000 * 60 * 5,  // 5 Dakika (Sohbet başladıktan sonraki süre - Canlı Bekleme)
 
         // 📝 SABİT MESAJLAR
         messages: {
@@ -37,35 +38,31 @@ module.exports = {
             timeoutDrop: "⏰ Süre doldu! Kimse yazamadı..."
         },
 
-        // Etkinliklerin çıkma olasılıkları (Ağırlık)
-        weights: {
-            quiz: 40,   // %40
-            math: 40,   // %40
-            drop: 20    // %20
-        },
+
 
         // 🧠 Bilgi Yarışması Ayarları
         quiz: {
-            reward: 50, // Ödül (Coin)
-            xp: 150,    // XP Ödülü (Yüksek)
+            minReward: 40, maxReward: 60, // Ödül Aralığı (Coin)
+            minXp: 250, maxXp: 350,       // XP Aralığı
             activity: 20, // Aktiflik Puanı (Gizli - Yüksek)
             questions: [
+                { q: "Türkiye Cumhuriyeti'nin kurucusu kimdir?", a: ["atatürk", "mustafa kemal atatürk"] },
+                { q: "Türkiye Cumhuriyeti kaç yılında kurulmuştur?", a: ["1923"] },
                 { q: "Türkiye'nin başkenti neresidir?", a: ["ankara"] },
-                { q: "Su kaç derecede kaynar?", a: ["100"] },
+                { q: "Su deniz seviyesinde (1 atmosfer basınçta) kaç derecede kaynar?", a: ["100"] },
                 { q: "Fatih Sultan Mehmet İstanbul'u kaç yılında fethetti?", a: ["1453"] },
                 { q: "Güneş sistemindeki en büyük gezegen hangisidir?", a: ["jupiter", "jüpiter"] },
                 { q: "İstiklal Marşı'nın yazarı kimdir?", a: ["mehmet akif ersoy", "mehmet akif"] },
-                { q: "Futbol maçları kaç dakika sürer?", a: ["90"] },
-                { q: "Hangi hayvan 'Ormanlar Kralı' olarak bilinir?", a: ["aslan"] },
                 { q: "Bir yılda kaç hafta vardır?", a: ["52"] },
-                { q: "Botumuzun adı nedir?", a: ["furyuna", "furyunabot"] }
+                { q: "Milli Mücadele hangi yılda başlamıştır?", a: ["1919"] },
+                { q: "Işığın saniyedeki hızı yaklaşık kaç kilometredir?", a: ["300000", "300.000", "300 000"] }
             ]
         },
 
         // ➕ Matematik Sorusu Ayarları
         math: {
-            reward: 35,
-            xp: 100,      // XP (Orta)
+            minReward: 25, maxReward: 45,
+            minXp: 80, maxXp: 120, // XP Aralığı (Orta)
             activity: 15, // Aktiflik (Orta)
             min: 10,
             max: 99,
@@ -76,78 +73,64 @@ module.exports = {
         drop: {
             minReward: 20,
             maxReward: 100,
-            xp: 50,       // XP (Düşük - Çünkü sadece yazma)
+            minXp: 40, maxXp: 60, // XP Aralığı (Düşük)
             activity: 10, // Aktiflik (Düşük)
             words: [
-                "En İyi Furry Sunucusu Furyuna",
+                "Furyuna En İyi Furry Sunucusu",
                 "Furyuna Asla Yanılmaz",
                 "Şanlı Furyuna Çok Yaşa",
-                "Türkiye'nin Bir Numarası Furyuna",
                 "Furyuna Her Zaman Haklıdır",
-                "Yüceler Yücesi Liderimiz Furyuna",
-                "Furry Dünyasının Lideri Furyuna",
+                "Furyuna Yüceler Yücesi Liderimiz",
+                "Furyuna Furry Dünyasının Lideri",
                 "Furyuna Mükemmelliğin Tanımıdır",
-                "Tek Yol Furyuna",
-                "Kalitenin Tek Adresi Furyuna",
-                "Furyuna Kusursuzdur",
-                "Güneşimiz Furyuna",
-                "Evrenin En İyi Sunucusu Furyuna",
+                "Furyuna Tek Yol",
+                "Furyuna Kalitenin Tek Adresi",
+                "Furyuna Evrenin En İyi Sunucusu",
                 "Furyuna Sonsuz Pozitifliktir",
                 "Her Şey Furyuna İçin",
-                "Kainatın Hakimi Furyuna",
+                "Furyuna Kainatın Hakimi",
                 "Furyuna Mutluluğun Kaynağıdır",
-                "Sadakatimiz Sonsuz Furyuna",
+                "Furyuna Sadakatimiz Sonsuz",
                 "Furyuna Furry Aleminin Yılıdızıdır",
-                "Furyuna Hata Yapmaz",
-                "Zafer Furyunanındır",
                 "Furyuna Her Şeyin En İyisidir",
-                "Büyük Önder Furyuna",
-                "Furyuna Daima İleri Gider",
+                "Furyuna Büyük Sunucu",
                 "Furyuna Bizim Her Şeyimiz",
-                "Furyuna Asla Pes Etmez",
-                "Kudretli Lider Furyuna",
+                "Furyuna Kudretli Lider",
                 "Furyuna Güneş Gibi Doğar",
                 "Furyuna İle Sonsuza",
                 "Furyuna Karanlıkları Aydınlatır",
-                "Canımız Feda Furyuna",
                 "Furyuna Sevginin Adresidir",
-                "Yaşasın Yüce Furyuna Yönetimi",
+                "Yaşasın Furyuna Yönetimi",
                 "Furyuna Varsa Sorun Yoktur",
                 "Kalbimiz Furyuna İçin Atıyor",
-                "Furyuna Çözümün Kendisidir",
                 "Furyuna Düşmanlarına Geçit Yok",
                 "Furyuna Rakipsizdir",
                 "Furyuna Yoksa Biz De Yokuz",
                 "Furyuna Zirvenin Sahibidir",
                 "Söz Konusu Furyuna İse Gerisi Teferruattır",
-                "Furyuna Eşsizdir",
-                "Furyuna İle Yürüyoruz Geleceğe",
                 "Furyuna Her Zaman Kazanır",
                 "Furyuna Furry Dünyasının Güneşidir",
                 "Furyuna Varsa Hayat Var",
-                "Furyuna Cennetin Yeryüzündeki Şubesidir",
-                "Furyuna Demek Mutluluk Demek",
-                "Bütün Yollar Furyunaya Çıkar"
             ]
         }
     },
     // 📅 SABAH MESAJI AYARLARI (GÜNAYDIN)
     morning: {
         enabled: true,
-        channelId: "1366096443160526958", // Genel Sohbet (Aynı kanal)
+        channelId: "1287071155219599525", // Genel Sohbet (Aynı kanal)
         startTime: "07:58", // Başlangıç Saati
         endTime: "08:50",   // Bitiş Saati
         messages: [
             "☀️ Günaydın Furyuna ahalisi! Güneş doğdu ama asıl güneş sizsiniz. 🦊✨",
-            "🌅 Sabahınız xêr olsun! Furyuna ile enerjik bir güne hazır mısınız? ☕",
+            "🌅 Sabahınız hayrolsun! Furyuna ile enerjik bir güne hazır mısınız? ☕",
             "🥞 Günaydın! Kahveler içildi mi? Kuyruklar tarandı mı? Güne başlıyoruz! 🐾",
             "🌍 Dünyanın en iyi sunucusunun en güzel üyelerine GÜNAYDIN! 💎",
-            "☀️ Uyanın! Furyuna'da yeni bir gün, yeni fırsatlar ve bolca eğlence sizi bekliyor. 🎉",
-            "🔔 Ding dong! Sabah oldu! Furyuna yönetimi hepinize musmutlu bir gün diler. ❤️",
+            "☀️ Günaydın! Uyanın! Furyuna'da yeni bir gün, yeni fırsatlar ve bolca eğlence sizi bekliyor. 🎉",
+            "🔔 Ding dong! Günaydın! Furyuna yönetimi hepinize musmutlu bir gün diler. ❤️",
             "💤 Uykucu şirinler kalktı mı? Günaydın FURYUNA! 🐺🔥",
             "✨ Güneşi kıskandıracak enerjinizle günaydın! Furyuna ailesi uyanıyor...",
             "🚀 Günaydın! Bugün yine Furry dünyasını sallamaya var mıyız? Tabii ki Furyuna ile! 💪",
-            "🍀 Harika bir gün olsun! Unutmayın, Furyuna varsa hayat var. 🌸"
+            "🍀 Günaydın, harika bir gün olsun! Unutmayın, Furyuna varsa hayat var. 🌸"
         ]
     },
 

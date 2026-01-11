@@ -21,3 +21,5 @@ Thumbs.db
 
 # Valid Database
 database.sqlite
+data/scheduledEvents.json
+data/revivalState.json

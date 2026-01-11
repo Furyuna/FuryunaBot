@@ -97,6 +97,17 @@ function getActivityLeaderboard(limit = 10) {
     return db.prepare('SELECT * FROM users ORDER BY activity_points DESC LIMIT ?').all(limit);
 }
 
+// TÜM Kullanıcıları Getir (ID Listesi)
+function getAllUserIds() {
+    const rows = db.prepare('SELECT user_id FROM users').all();
+    return rows.map(r => r.user_id);
+}
+
+// Kullanıcıyı Sil (Ban/Kick Temizliği için)
+function deleteUser(userId) {
+    db.prepare('DELETE FROM users WHERE user_id = ?').run(userId);
+}
+
 module.exports = {
     initDatabase,
     getUser,
@@ -108,5 +119,7 @@ module.exports = {
     addMoney,
     updateCooldown,
     getLeaderboard,
-    getActivityLeaderboard
+    getActivityLeaderboard,
+    getAllUserIds,
+    deleteUser
 };

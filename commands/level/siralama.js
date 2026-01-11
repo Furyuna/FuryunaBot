@@ -9,20 +9,17 @@ module.exports = {
         .setDescription('En yüksek seviyeye sahip üyeleri gösterir.'),
 
     async execute(interaction) {
-        const leaderboard = db.getLeaderboard(10); // İlk 10
-        const activityLeaderboard = db.getActivityLeaderboard(10); // Aktiflik sıralaması
+        // Doğrudan veritabanından çek (Filtre Yok)
+        const leaderboard = db.getLeaderboard(10);
+        const activityLeaderboard = db.getActivityLeaderboard(10);
 
-        // 0'dan büyük olanları filtrele
-        const filteredLevel = leaderboard.filter(u => u.xp > 0);
-        const filteredActivity = activityLeaderboard.filter(u => (u.activity_points || 0) > 0);
-
-        if (filteredLevel.length === 0 && filteredActivity.length === 0) {
-            return interaction.reply('Henüz sıralamada kimse yok. Sohbet etmeye başlayın!');
+        if (leaderboard.length === 0 && activityLeaderboard.length === 0) {
+            return interaction.reply('Henüz sıralamada kimse yok.');
         }
 
         // Seviye Sıralaması
-        const levelRanking = filteredLevel.length > 0
-            ? filteredLevel.map((u, index) => {
+        const levelRanking = leaderboard.length > 0
+            ? leaderboard.map((u, index) => {
                 let medal = '';
                 if (index === 0) medal = '🥇';
                 else if (index === 1) medal = '🥈';
@@ -34,8 +31,8 @@ module.exports = {
             : '*Henüz veri yok*';
 
         // Aktiflik Sıralaması (Rütbe)
-        const activityRanking = filteredActivity.length > 0
-            ? filteredActivity.map((u, index) => {
+        const activityRanking = activityLeaderboard.length > 0
+            ? activityLeaderboard.map((u, index) => {
                 let medal = '';
                 if (index === 0) medal = '🥇';
                 else if (index === 1) medal = '🥈';
