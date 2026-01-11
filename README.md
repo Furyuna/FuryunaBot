@@ -129,8 +129,8 @@ pm2 save
 *   `commands/`: Komutlar (Kayıt, Level, Etkinlik, Yetkili).
 *   `handlers/`: XP, Ses, Hoşgeldin, Güvenlik sistemleri.
 *   `events/`: Discord olay dinleyicileri.
-*   `data/`: `scheduledEvents.json` ve `revivalState.json` burada tutulur (Git'e atılmaz).
-*   `database.sqlite`: Üye veritabanı (Git'e atılmaz).
+*   `data/`: `scheduledEvents.json` ve `revivalState.json` burada tutulur.
+*   `database.sqlite`: Üye veritabanı.
 
 ---
 *Developed by W4zel & Furyuna Team* 🚀
