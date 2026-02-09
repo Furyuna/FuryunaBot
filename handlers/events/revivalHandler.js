@@ -279,7 +279,8 @@ async function startDrop(channel) {
 
     const rewardCfg = {
         reward: rewardCoins,
-        xp: config.drop.xp,
+        minXp: config.drop.minXp,
+        maxXp: config.drop.maxXp,
         activity: config.drop.activity
     };
 

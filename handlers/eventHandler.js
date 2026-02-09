@@ -33,7 +33,7 @@ module.exports = (client) => {
                 } else {
                     client.on(event.name, (...args) => event.execute(...args));
                 }
-                console.log(`[EVENT] Handler/Event ${file} yüklendi.`);
+                console.log(`[EVENT] Handler/Event ${file} yüklendi. (Event: ${event.name})`);
             } catch (error) {
                 console.error(`[HATA] ${filePath} yüklenirken hata:`, error);
             }

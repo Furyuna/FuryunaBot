@@ -39,18 +39,23 @@ module.exports = {
 
                         // Aktiflik Puanı (Rank Sistemi)
                         if (levelConfig.rankSystem && levelConfig.rankSystem.enabled) {
-                            const activityGain = minutes * levelConfig.rankSystem.activityPerVoiceMinute;
-                            db.addActivityPoints(userId, activityGain);
-
-                            // Rütbe Kontrolü (SES İÇİN)
-                            // Kullanıcı aktif olarak sesdeyken level atlayabilir
-                            // Not: oldState.member her zaman doğru olmayabilir, cache'den çekelim
                             const guild = oldState.guild;
                             const member = guild.members.cache.get(userId);
                             if (member) {
-                                // Mevcut puanı çekmemiz lazım çünkü voiceHandler'da 'user' objesi yok
-                                const user = db.getUser(userId);
-                                updateRank(member, user.activity_points);
+                                // Check if the member has an approved role (if configured)
+                                const isApprovedRole = !levelConfig.rankSystem.requiredRoles || levelConfig.rankSystem.requiredRoles.some(roleId => member.roles.cache.has(roleId));
+
+                                if (isApprovedRole) {
+                                    const activityGain = minutes * levelConfig.rankSystem.activityPerVoiceMinute;
+                                    const maxPoints = levelConfig.rankSystem.maxPoints || 1000000; // Default maxPoints if not specified
+                                    db.addActivityPoints(userId, activityGain, maxPoints);
+
+                                    // Rütbe Kontrolü (Ses için de şart)
+                                    // Mevcut puanı çekmemiz lazım çünkü voiceHandler'da 'user' objesi yok
+                                    const user = db.getUser(userId);
+                                    updateRank(member, user.activity_points || 0);
+                                    // console.log(`[SES XP] ${member.user.tag} +${xpGain} XP, +${activityGain} AP kazandı.`);
+                                }
                             }
                         }
 

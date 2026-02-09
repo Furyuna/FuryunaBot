@@ -121,7 +121,7 @@ module.exports = {
             if (moneyAmount > 0) db.addMoney(userId, moneyAmount);
 
             await interaction.reply({
-                content: `✅ <@${userId}> kullanıcısına **${xpAmount} XP** ve **${moneyAmount} Coin** verildi!\n(Not: Seviye atlama işlemi bir sonraki mesajında gerçekleşir).`
+                content: `✅ <@${userId}> kullanıcısına **${xpAmount} XP** ve **${moneyAmount} FCoin** verildi!\n(Not: Seviye atlama işlemi bir sonraki mesajında gerçekleşir).`
             });
 
         } else if (subcommand === 'puan-ver') {

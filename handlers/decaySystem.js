@@ -2,103 +2,96 @@ const db = require('../utils/database');
 const { levelSystem } = require('../commands/level/config.js');
 
 module.exports = (client) => {
-    // 24 Saatte bir çalışacak (86400000 ms)
-    const DECAY_INTERVAL = 24 * 60 * 60 * 1000;
+    // Hedef Saat: Her gece 04:00
+    const TARGET_HOUR = 4;
 
-    setInterval(async () => {
+    function scheduleDailyDecay() {
+        const now = new Date();
+        let nextRun = new Date(now);
+
+        // Saat 04:00'e ayarla
+        nextRun.setHours(TARGET_HOUR, 0, 0, 0);
+
+        // Eğer saat zaten 04:00'ü geçtiyse, yarına at
+        if (now >= nextRun) {
+            nextRun.setDate(now.getDate() + 1);
+        }
+
+        const timeUntilNextRun = nextRun - now;
+
+        console.log(`[ZAMANLAYICI] Gece temizliği (Decay) ${nextRun.toLocaleString('tr-TR')} zamanına ayarlandı. (${Math.floor(timeUntilNextRun / 1000 / 60)} dakika sonra)`);
+
+        setTimeout(async () => {
+            await runDecayTask();
+            // İşlem bitince bir sonraki gün için tekrar kur
+            scheduleDailyDecay();
+        }, timeUntilNextRun);
+    }
+
+    async function runDecayTask() {
         if (!levelSystem.rankSystem.enabled) return;
 
-        console.log('[SİSTEM] Günlük Aktiflik Çürümesi (Decay) Başladı...');
+        console.log('[SİSTEM] Günlük Aktiflik Çürümesi (Decay) ve Rütbe Kontrolü Başladı...');
 
-        // 1. Herkesin puanını düşür (%5) - Ama sadece 24 saattir mesaj atmayanlarınkini!
-        const decayRate = levelSystem.rankSystem.decayRate || 0.05;
+        try {
+            // 1. Herkesin puanını düşür (%5) - Ama sadece 24 saattir mesaj atmayanlarınkini!
+            const decayRate = levelSystem.rankSystem.decayRate || 0.05;
+            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
 
-        // Şu andan 24 saat (veya 1 gün) öncesi
-        const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+            db.decayActivity(decayRate, oneDayAgo);
 
-        db.decayActivity(decayRate, oneDayAgo);
+            // 2. Rolleri Kontrol Et (Düşmesi gerekenleri düşür)
+            const guiidIds = client.guilds.cache.map(g => g.id);
 
-        // 2. Rolleri Kontrol Et (Düşmesi gerekenleri düşür)
-        // Sunucudaki üyeleri tarayalım
-        const guiidIds = client.guilds.cache.map(g => g.id);
+            for (const guildId of guiidIds) {
+                const guild = client.guilds.cache.get(guildId);
+                if (!guild) continue;
 
-        for (const guildId of guiidIds) {
-            const guild = client.guilds.cache.get(guildId);
-            if (!guild) continue;
-
-            const members = await guild.members.fetch();
-            const thresholds = levelSystem.rankSystem.thresholds;
-            // Puanı en yüksekten düşüğe sırala ki en yüksek hak ettiği rolü bulalım
-            const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
-
-            for (const [memberId, member] of members) {
-                if (member.user.bot) continue;
-
-                const user = db.getUser(memberId);
-                const points = user.activity_points || 0;
-
-                // Hak ettiği en yüksek rolü bul
-                let eligibleRoleId = null;
-                for (const threshold of sortedPoints) {
-                    if (points >= threshold) {
-                        eligibleRoleId = thresholds[threshold];
-                        break;
-                    }
-                }
-
-                // Mevcut rütbe rollerini kontrol et
+                const members = await guild.members.fetch();
+                const thresholds = levelSystem.rankSystem.thresholds;
+                const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
                 const allRankRoles = Object.values(thresholds);
 
-                // Eğer hak ettiği bir rol varsa
-                if (eligibleRoleId) {
-                    // O role sahip değilse ver (YENİ RÜTBE KAZANDI)
-                    if (!member.roles.cache.has(eligibleRoleId)) {
-                        await member.roles.add(eligibleRoleId).then(() => {
-                            // Bildirim Gönder (Ping yok, DisplayName var)
-                            // Sadece config'de açıksa gönder
-                            if (levelSystem.rankSystem.announceRankUp) {
-                                const channel = guild.systemChannel || guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(guild.members.me).has('SendMessages'));
-                                if (channel) {
-                                    const roleName = guild.roles.cache.get(eligibleRoleId)?.name || "Yeni Rütbe";
-                                    let msg = levelConfig.rankSystem.messages?.rankUp || "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀";
+                for (const [memberId, member] of members) {
+                    if (member.user.bot) continue;
 
-                                    // Ana config'den çekmeyi dene (yapı biraz karışık olduğu için fallbackli)
-                                    if (levelConfig.messages && levelConfig.messages.rankUp) {
-                                        msg = levelConfig.messages.rankUp;
-                                    }
+                    const user = db.getUser(memberId);
+                    const points = user.activity_points || 0;
 
-                                    msg = msg.replace(/{user}/g, member.displayName)
-                                        .replace(/{role}/g, roleName);
-
-                                    channel.send(msg);
-                                }
-                            }
-                        }).catch(e => console.error(`Rol verme hatası: ${e}`));
-                    }
-
-                    // Diğer düşük/yüksek rütbe rollerini al
-                    // Veya "yüksek olan düşükleri de kapsar" mantığı değilse:
-                    // Genelde discord'da "Gold" olan "Silver" rolünü de taşımaz, yenisi gelince eskisi gider.
-                    // O yüzden diğer rank rollerini silelim.
-                    for (const roleId of allRankRoles) {
-                        if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
-                            await member.roles.remove(roleId).catch(e => console.error(`Rol alma hatası: ${e}`));
-                            // console.log(`${member.user.tag} eski rütbesi alındı.`);
+                    let eligibleRoleId = null;
+                    for (const threshold of sortedPoints) {
+                        if (points >= threshold) {
+                            eligibleRoleId = thresholds[threshold];
+                            break;
                         }
                     }
-                } else {
-                    // Hiçbir rütbeyi hak etmiyor (Puanı < 100)
-                    // Üzerindeki tüm rank rollerini al
-                    for (const roleId of allRankRoles) {
-                        if (member.roles.cache.has(roleId)) {
-                            await member.roles.remove(roleId).catch(e => console.error(`Rol alma hatası (Puan yetersiz): ${e}`));
+
+                    if (eligibleRoleId) {
+                        if (!member.roles.cache.has(eligibleRoleId)) {
+                            await member.roles.add(eligibleRoleId).catch(e => console.error(`Rol ekleme hatası: ${e}`));
+                        }
+
+                        for (const roleId of allRankRoles) {
+                            if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
+                                await member.roles.remove(roleId).catch(e => console.error(`Rol silme hatası: ${e}`));
+                            }
+                        }
+                    } else {
+                        // Puanı yetmeyenlerin rütbelerini al
+                        for (const roleId of allRankRoles) {
+                            if (member.roles.cache.has(roleId)) {
+                                await member.roles.remove(roleId).catch(e => console.error(`Rol silme (yetersiz puan) hatası: ${e}`));
+                            }
                         }
                     }
                 }
             }
+            console.log('[SİSTEM] Günlük Decay ve Rütbe Kontrolü Tamamlandı.');
+        } catch (error) {
+            console.error('[HATA] Decay işlemi sırasında hata:', error);
         }
+    }
 
-        console.log('[SİSTEM] Günlük Decay ve Rütbe Kontrolü Tamamlandı.');
-
-    }, DECAY_INTERVAL);
+    // İlk başlatma
+    scheduleDailyDecay();
 };

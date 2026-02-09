@@ -37,18 +37,18 @@ module.exports = {
         // --- DİNAMİK RÜTBE SİSTEMİ (RANK SYSTEM) ---
         rankSystem: {
             enabled: true,
-            activityPerMessage: 5,        // Mesaj başı aktiflik puanı
             activityPerVoiceMinute: 5,    // Ses dakika başı aktiflik puanı
-            decayRate: 0.05,              // Günlük silinme oranı (%5)
+            decayRate: 0.11,              // Günlük silinme oranı (%11 - 2 gün girmeyen Elmas düşer)
+            maxPoints: 1500,              // MAKSİMUM PUAN SINIRI (Hoarding engellemek için)
             announceRankUp: false,    // Rütbe atlama mesajı gönderilsin mi? (Spam olmaması için kapalı)
 
             // Aktiflik Puanı Hedefleri (Puan -> Rol ID)
             thresholds: {
-                100: "1457051809511374898",   // Bronz
-                150: "1457051860119851243",   // Gümüş
-                200: "1457052073458794697",   // Altın
-                250: "1457051906265448764",   // Platin
-                300: "1457051986074534050"    // Elmas
+                200: "1457051809511374898",   // Bronz
+                400: "1457051860119851243",   // Gümüş
+                600: "1457052073458794697",   // Altın
+                800: "1457051906265448764",   // Platin
+                1000: "1457051986074534050"   // Elmas
             }
         },
 
@@ -67,7 +67,7 @@ module.exports = {
         // --- MESAJLAR (Özelleştirilebilir) ---
         messages: {
             // {user} = Kullanıcı, {level} = Yeni Level, {money} = Toplam Para, {bonus} = Bonus Para
-            levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** Furyuna Coin kazandın. (Boost Bonusu: +{bonus})",
+            levelUp: "🎉 Tebrikler {user}! **Seviye {level}** oldun!\n💸 **{money}** FCoin kazandın. (Boost Bonusu: +{bonus})",
 
             // {user} = Kullanıcı (Display Name), {role} = Yeni Rütbe
             rankUp: "🎉 Tebrikler **{user}**! Aktifliğin sayesinde **{role}** rütbesini kazandın! 🚀"

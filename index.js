@@ -25,6 +25,10 @@ const revivalHandler = require('./handlers/events/revivalHandler'); // Sohbet Ca
 revivalHandler.init(client);
 // require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (ESKİ - İPTAL)
 require('./handlers/events/securityHandler').init(client); // Güvenlik Sistemi (Link/Medya Koruması)
+// require('./handlers/events/gifWelcomeHandler').execute(member); // Eski (İptal)
+// Yeni Resimli Hoş Geldin Sistemi (Otomatik Event Handler tarafından yüklenir ama manuel init gerekebilir)
+// Event Handler zaten 'events' klasöründeki dosyaları yüklüyor mu?
+// handlers/eventHandler.js dosyasına bakmak lazım. Eğer otomatik yüklüyorsa buraya eklemeye gerek yok.
 
 // --- VERİTABANI BAŞLAT ---
 require('./utils/database').initDatabase();
@@ -85,7 +89,6 @@ client.on(Events.MessageCreate, async message => {
     }
 });
 
-const decaySystem = require('./handlers/decaySystem.js');
-decaySystem(client);
+
 
 client.login(process.env.BOT_TOKEN);

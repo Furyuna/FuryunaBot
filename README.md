@@ -29,22 +29,37 @@ Sunucu aktifliğini ödüllendiren dinamik bir sistem.
 *   **Boost Bonusu:** Sunucuya Boost basan üyeler **2 KAT** daha fazla para ve ödül kazanır.
 *   **Görsel Profil:** `/profil` komutu ile level, rütbe, ve yüzdelik ilerleme durumunuzu estetik bir kartta görün.
 
-### 🎭 3. Chat Revival (Sohbet Canlandırma) Sistemi
+### 🎨 3. Görsel Karşılama (Image Welcome) - YENİ!
+Sunucuya katılan ve ayrılan üyeler için **tamamen özelleştirilebilir** görsel kartlar oluşturur.
+*   **Glassmorphism Tasarım:** Arka plan ne olursa olsun şık duran "Buzlu Cam" paneli.
+*   **Detaylı Bilgi:** Kullanıcının profil resmi, **takma adı (Display Name)** ve motive edici mesajlar içerir.
+*   **Performans:** `Canvas` teknolojisi ile anlık oluşturulur, diskte yer kaplamaz.
+
+### 🆙 4. Gelişmiş Bump & Hatırlatma Sistemi
+Disboard veya benzeri botlarla sunucuyu öne çıkardığınızda devreye girer.
+*   **Otomatik Algılama:** "Bump başarılı" mesajını gördüğü an 2 saatlik sayacı başlatır.
+*   **Kanal Adı Yönetimi (YENİ):** Kanal ismini duruma göre değiştirir:
+    *   🟢 **Hazır:** `「🤖」bot-komut-🟢`
+    *   ⏳ **Beklemede:** `「🤖」bot-komut-⏳`
+*   **Ödül Sistemi:** Bump atan kişiye anında **Coin, XP ve Aktiflik Puanı** verir.
+*   **Akıllı Hatırlatma:** Süre dolduğunda son bump atanı etiketler (veya isteğe göre etiketlemez). Bot yeniden başlatılsa bile süreyi hatırlar ve çift bildirim yapmaz.
+
+### 🎭 5. Chat Revival (Sohbet Canlandırma) Sistemi
 Sohbet durduğunda (30 dakika sessizlik), bot otomatik olarak devreye girer ve ortamı şenlendirir.
 *   **Sıralı Mod:** Sırasıyla **Quiz -> Matematik -> Kelime Düşürme (Drop)** etkinlikleri yapar.
 *   **Kelime Düşürme (Drop):** "Cümleyi ilk yazan kazanır" etkinliği.
 *   **Dinamik Ödüller:** Kazananlar rastgele aralıklarla **Coin** ve **XP** kazanır.
-*   **Akıllı Süre (YENİ):** Bir etkinlik başladığında, kimse cevap vermese bile **5 DAKİKA** boyunca aktif kalır (Önceki 30 saniye idi).
-*   **Aktiflik Pingi:** Etkinlik başladığında `@Aktiflik Pingi` rolünü etiketler (Config'den kapatılabilir).
+*   **Akıllı Süre:** Bir etkinlik başladığında, kimse cevap vermese bile **5 DAKİKA** boyunca aktif kalır.
 
-### ☀️ 4. Otomatik Mesajlar
+### ☀️ 6. Otomatik Mesajlar
 *   **Günaydın Sistemi:** Her sabah **07:58 - 08:50** arasında rastgele bir saatte "Günaydın" mesajı atar.
 *   **Hayırlı Cumalar:** Her Cuma **11:30 - 13:30** arasında Cuma mesajı atar.
 *   **Akıllı Telafi:** Bot kapalıyken saati kaçırırsa, açıldığı an otomatik olarak atar (Günde 1 kereden fazla atmaz).
 
-### 🧹 5. Gece Temizliği & Ghost Busting
+### 🧹 7. Gece Temizliği & Ghost Busting
 *   **Veritabanı Senkronizasyonu:** Her gece **04:00'te** otomatik çalışır.
-*   **Ghost-Busting:** Sunucudan çıkmış veya banlanmış kullanıcıları veritabanından kalıcı olarak siler, gereksiz yükü atar.
+*   **Ghost-Busting:** Sunucudan çıkmış veya banlanmış kullanıcıları veritabanından kalıcı olarak siler.
+*   **Aktiflik Çürümesi (Decay):** Kullanıcı aktif olmazsa, her gece puanlarının **%11'i silinir**. (Eski: %5). Bu sayede rütbeler daha rekabetçi hale gelir.
 *   **Manuel Tetikleme:** `/level-yonet senkronize-et` komutuyla istediğiniz an temizlik yapabilirsiniz.
 
 ---

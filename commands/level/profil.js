@@ -115,7 +115,7 @@ module.exports = {
                     },
                     {
                         name: '👜 Cüzdan',
-                        value: `💸 ${user.money} Furyuna Coin`,
+                        value: `💸 ${user.money} FCoin`,
                         inline: false
                     }
                 )

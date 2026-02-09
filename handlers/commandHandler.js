@@ -13,20 +13,23 @@ module.exports = (client) => {
                 const filePath = path.join(folderPath, file);
                 try {
                     const command = require(filePath);
+
+                    // 1. SLASH COMMANDS (veya Context Menu)
                     if ('data' in command && 'execute' in command) {
-                        // Çakışmayı önlemek için Context Menu komutlarını farklı kaydediyoruz
-                        // Chat Input (Slash) = Sadece İsim
-                        // User Context (2) = İsim_2
-                        // Message Context (3) = İsim_3
                         let key = command.data.name;
                         if (command.data.type && command.data.type !== 1) {
                             key = `${command.data.name}_${command.data.type}`;
                         }
-
                         client.commands.set(key, command);
                         console.log(`[KOMUT] ${command.data.name} (${key !== command.data.name ? key : 'SLASH'}) yüklendi.`);
-                    } else {
-                        console.log(`[UYARI] ${filePath} dosyasında 'data' veya 'execute' özelliği eksik.`);
+                    }
+                    // 2. PREFIX COMMANDS (Sadece ! komutları)
+                    else if ('name' in command && 'executePrefix' in command) {
+                        client.commands.set(command.name, command);
+                        console.log(`[KOMUT] ${command.name} (PREFIX) yüklendi.`);
+                    }
+                    else {
+                        console.log(`[UYARI] ${filePath} dosyasında gerekli özellikler eksik.`);
                     }
                 } catch (error) {
                     console.error(`[HATA] ${filePath} yüklenirken hata oluştu:`, error);

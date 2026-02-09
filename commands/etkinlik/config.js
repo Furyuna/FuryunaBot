@@ -55,7 +55,8 @@ module.exports = {
                 { q: "İstiklal Marşı'nın yazarı kimdir?", a: ["mehmet akif ersoy", "mehmet akif"] },
                 { q: "Bir yılda kaç hafta vardır?", a: ["52"] },
                 { q: "Milli Mücadele hangi yılda başlamıştır?", a: ["1919"] },
-                { q: "Işığın saniyedeki hızı yaklaşık kaç kilometredir?", a: ["300000", "300.000", "300 000"] }
+                { q: "Işığın saniyedeki hızı yaklaşık kaç kilometredir?", a: ["300000", "300.000", "300 000"] },
+                { q: "Türkiye Cumhuriyetinin ilk cumhurbaşkanı kimdir?", a: ["atatürk", "mustafa kemal atatürk"] }
             ]
         },
 
@@ -134,6 +135,19 @@ module.exports = {
         ]
     },
 
+    // --- OTO CEVAP SİSTEMİ (SA/AS) ---
+    autoReply: {
+        enabled: true,
+        triggers: ["sa", "selamın aleyküm", "selamun aleyküm", "s.a.", "s.a", "selaminaleykum", "selamin aleykum"],
+        responses: [
+            "Aleyküm Selam",
+            "Aleyküm Selam.",
+            "As.",
+            "Aleyküm Selam canım, hoş geldin.",
+            "Ve Aleyküm Selam."
+        ]
+    },
+
     // --- HOŞ GELDİN MESAJI ---
     welcome: {
         enabled: true,
@@ -146,5 +160,56 @@ module.exports = {
             (target, roleId) => `💫 Aramıza hoş geldin <@${target}>! **Furyuna** seninle daha güzel.\n<@&${roleId}>`,
             (target, roleId) => `✨ **Furyuna**'ya giriş yaptın <@${target}>! İyi eğlenceler dileriz.\n<@&${roleId}>`
         ]
+    },
+    // --- KUMAR SİSTEMİ (SLOT & BLACKJACK) ---
+    gambling: {
+        enabled: true,
+        allowedChannelId: "1465051241162739938", // Sadece bu kanalda çalışır
+        minBet: 10,
+        maxBet: 50000,
+        // Slot Oranları
+        slot: {
+            emojis: ["🍒", "🍋", "🍇", "🍉", "💎", "7️⃣"],
+            win3: 5,   // 3 tanesi aynı (x5)
+            win2: 2,   // 2 tanesi aynı (x2)
+            jackpot: 10 // Hepsi 7 veya Elmas ise (x10) - (Hardcoded in logic)
+        }
+    },
+    // --- RESİMLİ HOŞ GELDİN PENCERESİ (CANVAS) ---
+    gifWelcome: {
+        enabled: true,
+        channelId: "1465051241162739938", // Test Kanalı
+        // gifUrl satırı artık kullanılmıyor, lokal dosya kullanılıyor.
+        width: 800,  // Çıktı genişliği (Resim boyutu)
+        height: 450, // Çıktı yüksekliği
+        backgroundColor: "#000000", // GIF yüklenemezse arka plan rengi
+        quality: 10, // GIF Kalitesi (1-20, 1 en iyi, 20 en hızlı)
+
+        // Profil Fotoğrafı (Avatar) Ayarları
+        avatar: {
+            x: 50,      // X koordinatı (Sol üst köşe)
+            y: 50,      // Y koordinatı (Sol üst köşe)
+            size: 150,  // Çapı (Yuvarlak)
+            border: 5,  // Çerçeve kalınlığı
+            borderColor: "#ffffff" // Çerçeve rengi
+        },
+
+        // İsim (Username) Ayarları
+        username: {
+            text: "{username}", // {username} yerine kullanıcı adı gelir
+            x: 220,     // X koordinatı
+            y: 120,     // Y koordinatı
+            font: "bold 40px sans-serif",
+            color: "#ffffff"
+        },
+
+        // Hoş Geldin Mesajı
+        title: {
+            text: "HOŞ GELDİN!",
+            x: 220,
+            y: 70,
+            font: "bold 30px sans-serif",
+            color: "#FFD700" // Sarı
+        }
     }
 };

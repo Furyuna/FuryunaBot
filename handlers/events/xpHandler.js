@@ -51,7 +51,8 @@ module.exports = {
 
                 if (hasVerified || hasNew || isStaff) {
                     const activityGain = levelConfig.rankSystem.activityPerMessage;
-                    db.addActivityPoints(userId, activityGain);
+                    const maxPoints = levelConfig.rankSystem.maxPoints || 1000000;
+                    db.addActivityPoints(userId, activityGain, maxPoints);
 
                     // Rütbe Kontrolü (YENİ)
                     // Puan eklendikten sonra hemen kontrol edilir.
