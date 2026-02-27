@@ -20,9 +20,13 @@ client.commands = new Collection();
 require('./handlers/commandHandler')(client);
 require('./handlers/eventHandler')(client);
 require('./handlers/decaySystem')(client); // Çürüme sistemi
+// --- GÜNLÜK BACKUP SİSTEMİ (YENİ) ---
+const backupSystem = require('./handlers/backupSystem')(client);
+client.backupSystem = backupSystem; // Manuel erişim için client'a ekle
 require('./handlers/autoMessages')(client); // Oto-Mesaj sistemi (YENİ)
 const revivalHandler = require('./handlers/events/revivalHandler'); // Sohbet Canlandırıcı (YENİ)
 revivalHandler.init(client);
+require('./handlers/wordGameHandler')(client); // Kelime Oyunu (YENİ)
 // require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (ESKİ - İPTAL)
 require('./handlers/events/securityHandler').init(client); // Güvenlik Sistemi (Link/Medya Koruması)
 // require('./handlers/events/gifWelcomeHandler').execute(member); // Eski (İptal)

@@ -10,40 +10,32 @@ let activeTimeout = null;
 let nagInterval = null;
 let lastBumpMessage = null; // Son onay mesajını tutmak için
 
-const thankMessages = [
-    "Harikasın {user}! Kalbimizi çaldın. 💖",
-    "Ayy {user} süpersin! Sunucuyu şenlendirdin. 🥰",
-    "Sen bir tanesin {user}! Çok tatlısın, teşekkürler! 🌸",
-    "Canımsın {user}! İyi ki varsın, sunucu seninle güzel. ✨",
-    "Yerim seni {user}! Sayende herkes seni konuşuyor. 🍬"
+// 1. BAŞARILI BUMP MESAJLARI (Teşekkür + Onay)
+const successMessages = [
+    { title: "Harikasın {user}! 💖", body: "Sayacı kurdum, 2 saat sonra sendeyim." },
+    { title: "Eline sağlık {user}! 🚀", body: "Sunucu seninle yükseliyor. 2 saat sonra görüşürüz." },
+    { title: "Süpersin {user}! ✨", body: "Notumu aldım, 2 saat dolunca haber vereceğim." },
+    { title: "Kralsın {user}! 👑", body: "Bump başarıyla atıldı. 2 saat sonra hatırlatırım." },
+    { title: "Teşekkürler {user}! 🌸", body: "Sen bu işi biliyorsun. 2 saat sonra buradayım." },
+    { title: "Harika iş çıkardın {user}! 🔥", body: "2 saatlik geri sayım başladı." },
+    { title: "Mükemmelsin {user}! 💎", body: "Sunucuya can verdin. 2 saat sonra hatırlatacağım." },
+    { title: "Çok iyisin {user}! 🍬", body: "Bump için teşekkürler, 2 saat sonra görüşmek üzere." },
+    { title: "Asilsin {user}! 🦁", body: "2 saat sonra sana seslenirim." },
+    { title: "Büyüksün {user}! ⚡", body: "Enerjine hayranız. 2 saat sonra hatırlatma gelir." }
 ];
 
-// Rastgele Mesajlar (Hatırlatma)
-// Rastgele Mesajlar (Hatırlatma)
+// 2. HATIRLATMA MESAJLARI (Zaman Doldu)
 const reminderMessages = [
-    "🔔 **BUMP VAKTİ!** Hadi `/bump` yazarak sunucuyu şahlandır!",
-    "⏰ **Zaman Doldu!** Sıra sende, `/bump` komutunu yapıştır!",
-    "🚀 **Uçuşa Hazırız!** Tekrar öne çıkmak için `/bump` komutunu kullan.",
-    "💎 **Destek Zamanı!** Hemen `/bump` yazıp bizi yukarı taşı.",
-    "📢 **Duyduk duymadık demeyin!** `/bump` atma vakti geldi çattı!"
-];
-
-// Rastgele Hatırlatma Onay Mesajları
-const reminderConfirmationMessages = [
-    "Merak etme, **2 saat sonra** sana haber vereceğim! 🫡",
-    "Sayacı başlattım, **2 saat sonra** görüşürüz. ⏱️",
-    "Hatırlatma kuruldu, **2 saat** sonra sendeyim. 🤙",
-    "Tam **2 saat sonra** buradayım, söz! 🤞",
-    "Notumu aldım, **2 saat sonra** seni dürterim. 📝"
-];
-
-// Rastgele "Hemen Yap" Mesajları (Hatırlatma - Satır 2)
-const immediateActionMessages = [
-    "Bu mesajı görüyorsan sakın bekleme, hemen patlat! 💥",
-    "Hiç vakit kaybetme, klavyene kuvvet! 💪",
-    "Sunucu seni bekliyor, hadi göreyim seni! 👀",
-    "En hızlı sen ol, puanları topla! 🏆",
-    "Durma, bas tuşlara ve bizi uçur! ✈️"
+    { title: "Hey {user}, **Bump Zamanı!** ⏰", body: "Hadi komutu yapıştır ve bizi öne çıkar!" },
+    { title: "{user} Geri sayım bitti! 🚀", body: "Sahne senin, `/bump` ile şovunu yap." },
+    { title: "Uyan {user}! 🔔", body: "Bump sırası geldi, sunucu seni bekliyor!" },
+    { title: "{user} tatlım, süre doldu! ✨", body: "Hadi sihirli parmaklarını konuştur: `/bump`" },
+    { title: "Dikkat {user}! ⚠️", body: "Bump vakti geldi çattı. Görevin: Sunucuyu uçurmak!" },
+    { title: "{user} Neredesin? 👀", body: "Bump sırası geldi, hadi bizi zirveye taşı!" },
+    { title: "Hadi {user}, göster gücünü! 💪", body: "**Bump zamanı!** Bekletme bizi." },
+    { title: "{user} Duyduk duymadık demeyin! 📢", body: "Bump vakti! Yapıştır komutu." },
+    { title: "Vakit tamam {user}! ⏳", body: "Şimdi `/bump` atıp ödülleri kapma zamanı." },
+    { title: "{user} Asil majesteleri, tahtınız sizi bekliyor! 🦁", body: "**Bump** zamanı!" }
 ];
 
 module.exports = {
@@ -111,11 +103,7 @@ async function handleBumpSuccess(message) {
     // Önceki döngüden kalanlar varsa silinmeli mi? Evet. Yeni döngü için yeniden kayıt olunmalı.
     db.clearBumpQueue();
 
-    // Teşekkür Mesajı Oluştur
-    const randomMsg = thankMessages[Math.floor(Math.random() * thankMessages.length)];
-    const randomConfirmMsg = reminderConfirmationMessages[Math.floor(Math.random() * reminderConfirmationMessages.length)];
-
-    // Kullanıcı Adı (Ping YOK - Sadece İsim)
+    // 4. Kullanıcı Adı Belirleme (Ping YOK - Sadece İsim)
     let userName = "Birisi";
     if (bumperUser) {
         // Mesajın geldiği sunucudaki üye kaydını bulmaya çalış
@@ -131,6 +119,13 @@ async function handleBumpSuccess(message) {
         }
         userName = member ? member.displayName : bumperUser.username;
     }
+
+    // 5. MESAJ İÇERİĞİ OLUŞTURMA (Gelişmiş Format)
+    // 10 farklı başarı mesajından birini seç (Obje yapısı)
+    const randomSuccessObj = successMessages[Math.floor(Math.random() * successMessages.length)];
+    const titleMsg = randomSuccessObj.title.replace('{user}', `**${userName}**`);
+    // Kullanıcı isteği: "/bump" yazan yerler kalın olsun
+    const bodyMsg = randomSuccessObj.body.replace(/\/bump/g, '**/bump**');
 
     // TIMESTAMP: Şu an + 2 Saat
     const targetTime = Math.floor((Date.now() + REMINDER_DURATION) / 1000);
@@ -158,15 +153,18 @@ async function handleBumpSuccess(message) {
         }
     }
 
-    // Mesaj İçeriği (Plain Text)
-    // İstenen Format:
-    // 1. Teşekkür
-    // 2. Ödül
-    // 3. Onay
-    // 4. Timer
-    const textContent = `${randomMsg.replace('{user}', `**${userName}**`)}\n` +
-        `\n${rewardText}\n` +
-        `${randomConfirmMsg}\n\n` +
+    // Mesaj İçeriği (Plain Text - İstenen Format)
+    // Satır 1: Başlık (Harikasın {user}! 💖)
+    // Satır 2: (Boş)
+    // Satır 3: Ödül Bilgisi (💰 ... ödülün verildi!)
+    // Satır 4: Gövde (Sayacı kurdum...)
+    // Satır 5: (Boş)
+    // Satır 6: Zamanlayıcı (⏰ Bir Sonraki Bump...)
+
+    // Not: rewardText varsa 3. satıra gelir, yoksa orası boş kalır (ama kullanıcı "3. satırda ödül vardı" dediği için vardur herhalde)
+    const textContent = `${titleMsg}\n\n` +
+        (rewardText ? `${rewardText}\n` : "") +
+        `${bodyMsg}\n\n` +
         `⏰ **Bir Sonraki Bump:** <t:${targetTime}:R> (<t:${targetTime}:T>)`;
 
     // Butonlar
@@ -199,7 +197,6 @@ async function handleBumpSuccess(message) {
     lastBumpMessage = await message.channel.send({ content: textContent, components: [row] });
 
     // DB'ye Global Durumu Kaydet (KALICILIK)
-    // lastBumpMessage.id'yi kaydediyoruz ki restart sonrası o mesajı bulup editleyebilelim.
     db.setBumpGlobalState(targetTime * 1000, bumperUser ? bumperUser.id : null, lastBumpMessage.id, message.channel.id);
 
     // Zamanlayıcıyı Başlat
@@ -219,76 +216,88 @@ const BUMP_ROLE_ID = '1469300216854351966';
 
 // Fonksiyon: Hatırlatma Gönder
 async function sendReminder(channel, lastBumperId) {
-    // ÖNCEKİ MESAJI DÜZENLE (Estetik Düzeltme)
-    if (lastBumpMessage && lastBumpMessage.editable) {
-        try {
-            const oldContent = lastBumpMessage.content;
-            // Sadece ilgili satırı değiştir
-            const newContent = oldContent.replace('⏰ **Bir Sonraki Bump:**', '⏰ **Bump Sırası Geldi:**');
-            await lastBumpMessage.edit(newContent);
-        } catch (e) {
-            console.log("Eski mesaj düzenlenirken hata:", e);
+    try {
+        // ÖNCEKİ MESAJI DÜZENLE (Estetik Düzeltme)
+        if (lastBumpMessage && lastBumpMessage.editable) {
+            try {
+                const oldContent = lastBumpMessage.content;
+                // Sadece ilgili satırı değiştir
+                const newContent = oldContent.replace('⏰ **Bir Sonraki Bump:**', '⏰ **Bump Sırası Geldi:**');
+                await lastBumpMessage.edit(newContent);
+            } catch (e) {
+                console.log("Eski mesaj düzenlenirken hata:", e);
+            }
         }
-    }
 
-    let reminderText = "";
-    const row = new ActionRowBuilder();
+        const row = new ActionRowBuilder();
 
-    // 1. Son Bump Atan Kişiyi Kontrol Et
-    if (lastBumperId) {
-        const settings = db.getBumpSettings(lastBumperId);
+        // 1. Son Bump Atan Kişiyi Kontrol Et
+        let userTarget = "Kullanıcı";
+        if (lastBumperId) {
+            const settings = db.getBumpSettings(lastBumperId);
 
-        let bumperName = "Kullanıcı";
-        try {
-            const member = channel.guild ? await channel.guild.members.fetch(lastBumperId) : null;
-            bumperName = member ? member.displayName : "Kullanıcı";
-        } catch (e) { }
+            if (settings.ping_on_bump_action) {
+                userTarget = `<@${lastBumperId}>`;
+                // Ping Kapatma Butonu
+                row.addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`bump_toggle_ping_off_${lastBumperId}`)
+                        .setLabel('🔕 Beni Etiketlemeyi Kapat')
+                        .setStyle(ButtonStyle.Danger)
+                );
+            } else {
+                // Ping KAPALI -> İsim bul
+                let bumperName = "Kullanıcı";
+                try {
+                    const member = channel.guild ? await channel.guild.members.fetch(lastBumperId) : null;
+                    bumperName = member ? member.displayName : "Kullanıcı";
+                } catch (e) { }
+                userTarget = `**${bumperName}**`;
 
-        if (settings.ping_on_bump_action) {
-            reminderText += `Hey <@${lastBumperId}>, bump zamanı geldi! 👋\n`;
-            row.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`bump_toggle_ping_off_${lastBumperId}`)
-                    .setLabel('🔕 Beni Etiketlemeyi Kapat')
-                    .setStyle(ButtonStyle.Danger)
-            );
+                // Ping Açma Butonu
+                row.addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`bump_toggle_ping_on_${lastBumperId}`)
+                        .setLabel('🔔 Beni Etiketlemeyi Aç')
+                        .setStyle(ButtonStyle.Success)
+                );
+            }
         } else {
-            reminderText += `**${bumperName}**'in bump zamanı geldi (kendisi pinglenmek istemiyor... 🙄)\n`;
-            row.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`bump_toggle_ping_on_${lastBumperId}`)
-                    .setLabel('🔔 Beni Etiketlemeyi Aç')
-                    .setStyle(ButtonStyle.Success)
-            );
+            userTarget = "Maceracı";
         }
-    } else {
-        reminderText += "Bump zamanı geldi! Kim patlatacak? 💥\n";
+
+        // 2. Rastgele Mesaj Seç (Obje Yapısı)
+        const randomObj = reminderMessages[Math.floor(Math.random() * reminderMessages.length)];
+        const titleMsg = randomObj.title.replace('{user}', userTarget);
+        const bodyMsg = randomObj.body;
+
+        // 3. Mesajı Birleştir (Mesaj + Rol)
+        // Format: Başlık \n\n Gövde \n\n Rol
+        let reminderText = `${titleMsg}\n\n${bodyMsg}\n\n<@&${BUMP_ROLE_ID}>`;
+
+        console.log(`[BUMP] Hatırlatma gönderiliyor. Hedef: ${channel.name}`);
+
+        // Mesajı Gönder (Butonlu)
+        if (row.components.length > 0) {
+            await channel.send({ content: reminderText, components: [row] });
+        } else {
+            await channel.send({ content: reminderText });
+        }
+
+        // DB'ye Hatırlatma Atıldığını İşle (Kalıcılık)
+        db.markReminderSent();
+
+        // Kuyruğu Temizle (Kullanılmıyor ama temiz kalsın)
+        db.clearBumpQueue();
+
+    } catch (error) {
+        console.error("[BUMP] Hatırlatma gönderirken CRITICAL hata:", error);
+    } finally {
+        // Kanal Adını GÜNCELLE -> AKTİF (Hata olsa bile çalışır)
+        setChannelNameUnlocked(channel);
+
+        if (nagInterval) clearInterval(nagInterval);
     }
-
-    const randomMsg = reminderMessages[Math.floor(Math.random() * reminderMessages.length)];
-    const randomActionMsg = immediateActionMessages[Math.floor(Math.random() * immediateActionMessages.length)];
-
-    // Mesaj İçeriği
-    reminderText += `\n**${randomMsg}**\n`;
-    reminderText += `${randomActionMsg}`;
-
-    // 2. Rolü En Sona Ekle
-    reminderText += `\n\n<@&${BUMP_ROLE_ID}>`;
-
-    // Mesajı Gönder
-    if (row.components.length > 0) {
-        await channel.send({ content: reminderText, components: [row] });
-    } else {
-        await channel.send({ content: reminderText });
-    }
-
-    // Kuyruğu Temizle
-    db.clearBumpQueue();
-
-    // Kanal Adını GÜNCELLE -> AKTİF
-    setChannelNameUnlocked(channel);
-
-    if (nagInterval) clearInterval(nagInterval);
 }
 
 // BAŞLANGIÇTA ÇALIŞACAK FONKSİYON (Restore State & Catch-up)
@@ -381,10 +390,12 @@ async function initialize(client) {
 
             if (myLastMessage) {
                 const content = myLastMessage.content.toLowerCase();
-                const keywords = ["bump vakti", "zaman doldu", "uçuşa hazırız", "destek zamanı", "bump zamanı geldi"];
-                const isReminder = keywords.some(k => content.includes(k));
+                const keywords = ["Bump Zamanı", "Geri sayım bitti", "Bump sırası geldi", "süre doldu", "vakti geldi çattı", "Vakit tamam", "Asil majesteleri"];
+                const isReminder = keywords.some(k => content.includes(k.toLowerCase()));
+                // Success Mesajları "2 saat sonra" içerir. Hatırlatma mesajları içermez.
+                const isSuccessMsg = content.includes("2 saat sonra");
 
-                if (isReminder) {
+                if (isReminder && !isSuccessMsg) {
                     console.log("[BUMP] Zaten son mesaj olarak hatırlatma atılmış. Tekrar atılmıyor. 🛑");
                     return;
                 }

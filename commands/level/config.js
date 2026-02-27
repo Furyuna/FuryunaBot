@@ -37,6 +37,7 @@ module.exports = {
         // --- DİNAMİK RÜTBE SİSTEMİ (RANK SYSTEM) ---
         rankSystem: {
             enabled: true,
+            activityPerMessage: 1,        // Mesaj başına aktiflik puanı (EKSİK OLAN AYAR)
             activityPerVoiceMinute: 5,    // Ses dakika başı aktiflik puanı
             decayRate: 0.11,              // Günlük silinme oranı (%11 - 2 gün girmeyen Elmas düşer)
             maxPoints: 1500,              // MAKSİMUM PUAN SINIRI (Hoarding engellemek için)

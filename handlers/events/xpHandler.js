@@ -30,6 +30,61 @@ module.exports = {
 
             // 5. Cooldown Kontrolü
             if (now - user.last_message_turn < levelConfig.cooldown) {
+                // COOLDOWN İÇİNDE BİLE OLSA:
+                // Eğer bu mesaj HEDEF KANALDA ise ve BEKLEYEN TEBRİK varsa -> İŞLEMİ TAMAMLA
+                if (message.channel.id === '1287071155219599525' && user.pending_level_up > 0) {
+                    const pendingLevel = user.pending_level_up;
+
+                    // 1. SEVİYEYİ GÜNCELLE (Artık kesinleşti)
+                    db.setLevel(userId, pendingLevel);
+
+                    // 2. ÖDÜLLERİ HESAPLA VE VER
+                    let totalMoney = pendingLevel * levelConfig.coinMultiplier;
+                    const isBooster = member.premiumSince || false;
+                    let bonusMoney = 0;
+                    if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+                        const multiplier = levelConfig.bonuses.boostCoinMultiplier;
+                        bonusMoney = totalMoney * (multiplier - 1);
+                        totalMoney *= multiplier;
+                    }
+
+                    db.addMoney(userId, totalMoney);
+
+                    // Rol Ödülleri
+                    if (levelConfig.levelRewards[pendingLevel]) {
+                        const rewardRoleId = levelConfig.levelRewards[pendingLevel];
+                        try {
+                            await member.roles.add(rewardRoleId);
+                        } catch (e) {
+                            console.error("Rol ödülü verilemedi (Pending):", e);
+                        }
+                    }
+
+                    // 3. MESAJI GÖNDER
+                    let msg = levelConfig.messages.levelUp
+                        .replace(/{user}/g, `<@${userId}>`)
+                        .replace(/{level}/g, pendingLevel)
+                        .replace(/{money}/g, totalMoney)
+                        .replace(/{bonus}/g, bonusMoney);
+
+                    await message.channel.send(msg);
+
+                    // 4. OTO DOĞRULAMA (Eğer Gerekliyse)
+                    if (pendingLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
+                        try {
+                            await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
+                            await member.roles.add(roleConfig.roles.verifiedMember);
+                            const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
+                            await message.channel.send(verifyMsg);
+                        } catch (error) {
+                            console.error("Oto doğrulama hatası (Pending):", error);
+                        }
+                    }
+
+                    // Flag'i temizle
+                    db.setPendingLevelUp(userId, 0);
+                    return; // Mesajı attık, işimiz bitti.
+                }
                 return;
             }
 
@@ -77,61 +132,126 @@ module.exports = {
             let newTotalXp = user.xp + earnedXp;
 
             if (newTotalXp >= nextLevelXp) {
+                const TARGET_CHANNEL_ID = '1287071155219599525';
                 const newLevel = currentLevel + 1;
-                db.setLevel(userId, newLevel);
 
-                // Para Ödülü (Bonuslar parayı da etkiler)
-                // Formül: (Level * Çarpan)
-                let totalMoney = newLevel * levelConfig.coinMultiplier;
+                if (message.channel.id === TARGET_CHANNEL_ID) {
+                    // HEDEF KANALDAYSAK -> HEMEN GÜNCELLE VE ÖDÜL VER
+                    db.setLevel(userId, newLevel);
 
-                // BOOST VARSA SEVİYE ÖDÜLÜ DE ARTAR
-                let bonusMoney = 0;
-                if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
-                    const multiplier = levelConfig.bonuses.boostCoinMultiplier;
-                    bonusMoney = totalMoney * (multiplier - 1); // Eklenen kısım
-                    totalMoney *= multiplier; // Toplam para
-                }
-
-                db.addMoney(userId, totalMoney);
-
-                const channel = message.channel;
-
-                // ================= ROL ÖDÜLLERİ =================
-                // Config'de tanımlı seviye ödülü varsa ver
-                if (levelConfig.levelRewards[newLevel]) {
-                    const rewardRoleId = levelConfig.levelRewards[newLevel];
-                    try {
-                        await member.roles.add(rewardRoleId);
-                        // Rol verildi mesajı eklenebilir
-                    } catch (e) {
-                        console.error("Rol ödülü verilemedi:", e);
+                    // Para Ödülü
+                    let totalMoney = newLevel * levelConfig.coinMultiplier;
+                    let bonusMoney = 0;
+                    if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+                        const multiplier = levelConfig.bonuses.boostCoinMultiplier;
+                        bonusMoney = totalMoney * (multiplier - 1); // Eklenen kısım
+                        totalMoney *= multiplier; // Toplam para
                     }
-                }
+                    db.addMoney(userId, totalMoney);
 
-                // Normal Level Up Mesajı
-                // Mesaj şablonunu al ve değişkenleri yerleştir
-                let msg = levelConfig.messages.levelUp
-                    .replace(/{user}/g, `<@${userId}>`)
-                    .replace(/{level}/g, newLevel)
-                    .replace(/{money}/g, totalMoney)
-                    .replace(/{bonus}/g, bonusMoney);
+                    // Rol Ödülleri
+                    if (levelConfig.levelRewards[newLevel]) {
+                        const rewardRoleId = levelConfig.levelRewards[newLevel];
+                        try {
+                            await member.roles.add(rewardRoleId);
+                            // Rol verildi mesajı eklenebilir
+                        } catch (e) {
+                            console.error("Rol ödülü verilemedi:", e);
+                        }
+                    }
 
-                await channel.send(msg);
+                    // Mesaj
+                    let msg = levelConfig.messages.levelUp
+                        .replace(/{user}/g, `<@${userId}>`)
+                        .replace(/{level}/g, newLevel)
+                        .replace(/{money}/g, totalMoney)
+                        .replace(/{bonus}/g, bonusMoney);
 
-                // ================= 1. SEVİYE ÖZEL: OTO DOĞRULAMA =================
-                // Level mesajından SONRA gelmesi istendi.
-                if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
-                    try {
-                        await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
-                        await member.roles.add(roleConfig.roles.verifiedMember);
-                        // Resmi doğrulama mesajını kullan (Yetkili = Bot)
-                        const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
-                        await channel.send(verifyMsg);
-                    } catch (error) {
-                        console.error("Oto doğrulama hatası:", error);
+                    await message.channel.send(msg);
+
+                    // Oto Doğrulama
+                    if (newLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
+                        try {
+                            await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
+                            await member.roles.add(roleConfig.roles.verifiedMember);
+                            const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
+                            await message.channel.send(verifyMsg);
+                        } catch (error) {
+                            console.error("Oto doğrulama hatası:", error);
+                        }
+                    }
+
+                    // KORUMA: Eğer bekleyen bir level varsa onu temizle ve local user nesnesini güncelle
+                    // Böylece aşağıdaki "check" bloğu tekrar çalışmaz.
+                    db.setPendingLevelUp(userId, 0);
+                    user.pending_level_up = 0;
+
+                } else {
+                    // YANLIŞ KANALDAYSAK -> SADECE NOT AL (Level/Para/Rol VERME)
+                    // Eğer zaten bekleyen bir level varsa (örn: 2 level birden atladıysa), onu güncelle
+                    // Ama şu anlık +1 mantığıyla gidiyoruz.
+                    // KORUMA: Eğer zaten pending_level_up > newLevel ise güncelleme (Geri gitmesin)
+                    if (user.pending_level_up < newLevel) {
+                        db.setPendingLevelUp(userId, newLevel);
+                        console.log(`[XP] ${member.user.tag} için level artışı ertelendi. (Hedef: ${newLevel}, Kanal: ${message.channel.name})`);
                     }
                 }
             }
+
+            // ACIKTAKİ PENDING LEVEL CHECK (Cooldown dışı durumlar için)
+            // Eğer cooldown yoksa ve XP kazanılmışsa buraya geliriz.
+            // Ama XP kazanılan mesaj AYNI zamanda Hedef Kanal olabilir.
+            // O yüzden burada da bir kontrol yapmalıyız.
+            if (message.channel.id === '1287071155219599525' && user.pending_level_up > 0) {
+                const pendingLevel = user.pending_level_up;
+
+                // 1. SEVİYEYİ GÜNCELLE
+                db.setLevel(userId, pendingLevel);
+
+                // 2. ÖDÜLLER
+                let totalMoney = pendingLevel * levelConfig.coinMultiplier;
+                const isBooster = member.premiumSince || false;
+                let bonusMoney = 0;
+                if (isBooster && levelConfig.bonuses.boostCoinMultiplier) {
+                    const multiplier = levelConfig.bonuses.boostCoinMultiplier;
+                    bonusMoney = totalMoney * (multiplier - 1);
+                    totalMoney *= multiplier;
+                }
+                db.addMoney(userId, totalMoney);
+
+                // Rol
+                if (levelConfig.levelRewards[pendingLevel]) {
+                    const rewardRoleId = levelConfig.levelRewards[pendingLevel];
+                    try {
+                        await member.roles.add(rewardRoleId);
+                    } catch (e) {
+                        console.error("Rol ödülü verilemedi (Pending-Late):", e);
+                    }
+                }
+
+                let msg = levelConfig.messages.levelUp
+                    .replace(/{user}/g, `<@${userId}>`)
+                    .replace(/{level}/g, pendingLevel)
+                    .replace(/{money}/g, totalMoney)
+                    .replace(/{bonus}/g, bonusMoney);
+
+                await message.channel.send(msg);
+
+                // Oto Doğrulama
+                if (pendingLevel >= 1 && member.roles.cache.has(roleConfig.roles.newMember)) {
+                    try {
+                        await member.roles.remove([roleConfig.roles.newMember, roleConfig.roles.unregistered]);
+                        await member.roles.add(roleConfig.roles.verifiedMember);
+                        const verifyMsg = roleConfig.messages.dogrulamaBasarili(userId, message.client.user.id);
+                        await message.channel.send(verifyMsg);
+                    } catch (error) {
+                        console.error("Oto doğrulama hatası (Pending-Late):", error);
+                    }
+                }
+
+                db.setPendingLevelUp(userId, 0);
+            }
+
         } catch (error) {
             console.error('[XP HANDLER ERROR]', error);
             // Bot çökmez, sadece log'a düşer

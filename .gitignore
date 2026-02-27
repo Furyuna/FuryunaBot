@@ -19,7 +19,12 @@ Thumbs.db
 *.swo
 
 
+
 # Valid Database
 database.sqlite
 data/scheduledEvents.json
 data/revivalState.json
+
+# Backups
+backups/
+backups/*.sqlite

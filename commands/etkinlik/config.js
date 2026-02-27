@@ -21,7 +21,7 @@ module.exports = {
         enabled: true,
         channelId: "1287071155219599525", // Genel Sohbet
         pingRoleId: "1425518927274053775", // Aktiflik Pingi Rolü
-        inactivityThreshold: 1000 * 60 * 60 * 3, // 3 Saat (Sessizlik Süresi)
+        inactivityThreshold: 1000 * 60 * 60 * 4, // 4 Saat (Sessizlik Süresi)
         checkInterval: 1000 * 60, // Her 1 dakikada bir kontrol (Performans için artırıldı)
 
         // ⏳ ETKİNLİK SÜRESİ (HEPSİ İÇİN GEÇERLİ)

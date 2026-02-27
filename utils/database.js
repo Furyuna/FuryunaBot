@@ -6,7 +6,7 @@ const db = new Database(path.join(__dirname, '../database.sqlite'));
 
 // Tabloları Başlat
 function initDatabase() {
-    // Kullanıcılar Tablosu: ID, XP, Seviye, Para, SonMesajZamanı, AktiflikPuanı
+    // Kullanıcılar Tablosu: ID, XP, Seviye, Para, SonMesajZamanı,            // Kullanıcı Tablosu
     db.prepare(`
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
@@ -14,16 +14,45 @@ function initDatabase() {
             level INTEGER DEFAULT 0,
             money INTEGER DEFAULT 0,
             last_message_turn INTEGER DEFAULT 0,
-            activity_points INTEGER DEFAULT 0
+            activity_points INTEGER DEFAULT 0,
+            pending_level_up INTEGER DEFAULT 0 -- Yeni: Bekleyen Tebrik Mesajı (Level)
         )
     `).run();
+
+
+
+    // Kelime Oyunu: Geçmiş (Bu turda kullanılan kelimeler)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS word_game_history (
+            word TEXT PRIMARY KEY,
+            user_id TEXT,
+            timestamp INTEGER
+        )
+    `).run();
+
+    // Kelime Oyunu: Durum (Oyunun şu anki hali)
+    db.prepare(`
+        CREATE TABLE IF NOT EXISTS word_game_state (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            last_word TEXT,
+            last_user_id TEXT,
+            last_letter TEXT
+        )
+    `).run();
+
+    // Başlangıç durumu yoksa oluştur (id=1)
+    db.prepare(`INSERT OR IGNORE INTO word_game_state (id, last_word, last_letter) VALUES (1, 'Furyuna', 'a')`)
+        .run();
 
     // Eğer tablo eski ise 'activity_points' sütununu eklemeye çalış (Hata verirse zaten vardır)
     try {
         db.prepare('ALTER TABLE users ADD COLUMN activity_points INTEGER DEFAULT 0').run();
-    } catch (err) {
-        // Sütun zaten varsa buraya düşer, sorun yok.
-    }
+    } catch (err) { }
+
+    // Eğer tablo eski ise 'pending_level_up' sütununu eklemeye çalış
+    try {
+        db.prepare('ALTER TABLE users ADD COLUMN pending_level_up INTEGER DEFAULT 0').run();
+    } catch (err) { }
 
     // BUMP SİSTEMİ İÇİN YENİ TABLOLAR VE FONKSİYONLAR
 
@@ -84,7 +113,7 @@ function addActivityPoints(userId, amount, maxPoints = 1500) {
 }
 
 function removeActivityPoints(userId, amount) {
-    const stmt = db.prepare('UPDATE users SET activity_points = CASE WHEN activity_points - ? < 0 THEN 0 ELSE activity_points - ? END WHERE user_id = ?');
+    const stmt = db.prepare('UPDATE users SET activity_points = CASE WHEN COALESCE(activity_points, 0) - ? < 0 THEN 0 ELSE COALESCE(activity_points, 0) - ? END WHERE user_id = ?');
     stmt.run(amount, amount, userId);
 }
 
@@ -105,7 +134,7 @@ function addXp(userId, amount) {
 
 // Aktiflik Puanı Ekle (YENİ)
 function addActivity(userId, amount) {
-    db.prepare('UPDATE users SET activity_points = activity_points + ? WHERE user_id = ?').run(amount, userId);
+    db.prepare('UPDATE users SET activity_points = COALESCE(activity_points, 0) + ? WHERE user_id = ?').run(amount, userId);
 }
 
 // Aktiflik Puanlarını Çürüt (Decay) (YENİ - Koşullu)
@@ -116,7 +145,7 @@ function decayActivity(rate, cutoffTimestamp) {
 
     db.prepare(`
         UPDATE users 
-        SET activity_points = CAST(activity_points * ? AS INTEGER) 
+        SET activity_points = CAST(COALESCE(activity_points, 0) * ? AS INTEGER) 
         WHERE last_message_turn < ? AND activity_points > 0
     `).run(keepRate, cutoffTimestamp);
 }
@@ -124,6 +153,11 @@ function decayActivity(rate, cutoffTimestamp) {
 // Seviye Güncelle
 function setLevel(userId, newLevel) {
     db.prepare('UPDATE users SET level = ? WHERE user_id = ?').run(newLevel, userId);
+}
+
+// Bekleyen Level Mesajını Ayarla (YENİ)
+function setPendingLevelUp(userId, level) {
+    db.prepare('UPDATE users SET pending_level_up = ? WHERE user_id = ?').run(level, userId);
 }
 
 // Para Ekle/Çıkar
@@ -223,6 +257,7 @@ function getBumpGlobalState() {
 }
 
 module.exports = {
+    _db: db, // Raw DB access for advanced queries
     initDatabase,
     getUser,
     addXp,
@@ -230,6 +265,7 @@ module.exports = {
     removeActivityPoints,
     decayActivity,
     setLevel,
+    setPendingLevelUp,
     addMoney,
     updateCooldown,
     getLeaderboard,
@@ -243,10 +279,7 @@ module.exports = {
     removeFromBumpQueue,
     getBumpQueue,
     clearBumpQueue,
-    getBumpQueue,
-    clearBumpQueue,
     getInfinitePingers,
-    // Global Persistence
     // Global Persistence
     setBumpGlobalState,
     getBumpGlobalState,
