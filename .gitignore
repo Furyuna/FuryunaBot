@@ -24,6 +24,7 @@ Thumbs.db
 database.sqlite
 data/scheduledEvents.json
 data/revivalState.json
+handlers/events/revivalState.json
 
 # Backups
 backups/

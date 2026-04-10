@@ -30,9 +30,9 @@ module.exports = {
 
                 // Cevap ver (Reply)
                 await message.reply(randomResponse);
-
-            } catch (error) {
-                console.error('[AUTO REPLY ERROR]', error);
             }
+        } catch (error) {
+            console.error('[AUTO REPLY ERROR]', error);
         }
+    }
 };

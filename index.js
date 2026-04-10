@@ -95,4 +95,12 @@ client.on(Events.MessageCreate, async message => {
 
 
 
+client.on('error', error => {
+    console.error('[DISCORD CLIENT ERROR]', error);
+});
+
+process.on('unhandledRejection', error => {
+    console.error('[UNHANDLED REJECTION]', error);
+});
+
 client.login(process.env.BOT_TOKEN);

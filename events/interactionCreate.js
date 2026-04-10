@@ -97,6 +97,48 @@ module.exports = {
 					await interaction.followUp({ content: 'Süper! Artık hatırlatmalarda seni etiketleyeceğim. 🔔', ephemeral: true });
 				}
 
+				// 4. İTİRAF SİSTEMİ - Ana Modal Açıcı
+				else if (customId === 'btn_confess') {
+					const modal = new ModalBuilder()
+						.setCustomId('modal_confess')
+						.setTitle('Gizli İtiraf');
+
+					const confessionInput = new TextInputBuilder()
+						.setCustomId('input_confession')
+						.setLabel("İtirafın nedir?")
+						.setPlaceholder("İçini dök... Her şey aramızda kalacak.")
+						.setStyle(TextInputStyle.Paragraph)
+						.setMinLength(3)
+						.setMaxLength(3000)
+						.setRequired(true);
+
+					const actionRow = new ActionRowBuilder().addComponents(confessionInput);
+					modal.addComponents(actionRow);
+
+					await interaction.showModal(modal);
+				}
+
+				// 4.5 İTİRAF SİSTEMİ - Yanıt Modal Açıcı
+				else if (customId === 'btn_reply_confess') {
+					const modal = new ModalBuilder()
+						.setCustomId(`modal_reply_confess:${interaction.message.id}`)
+						.setTitle('Anonim Yanıt');
+
+					const replyInput = new TextInputBuilder()
+						.setCustomId('input_reply')
+						.setLabel("Yanıtın nedir?")
+						.setPlaceholder("Cevabını yaz. Her şey gizli.")
+						.setStyle(TextInputStyle.Paragraph)
+						.setMinLength(3)
+						.setMaxLength(3000)
+						.setRequired(true);
+
+					const actionRow = new ActionRowBuilder().addComponents(replyInput);
+					modal.addComponents(actionRow);
+
+					await interaction.showModal(modal);
+				}
+
 			} catch (error) {
 				console.error("Buton Hatası:", error);
 				await interaction.reply({ content: 'Bir hata oluştu.', ephemeral: true }).catch(() => { });
@@ -121,18 +163,15 @@ module.exports = {
 				try {
 					const payload = { content: content };
 
-					// Yanıt verilecek ID kontrolü
 					if (replyIdInput && replyIdInput.length > 10) {
 						try {
 							const targetMsg = await channel.messages.fetch(replyIdInput.trim());
 							if (targetMsg) await targetMsg.reply(payload);
 							else await channel.send(payload);
 						} catch (e) {
-							// Mesaj bulunamazsa düz at
 							await channel.send(payload);
 						}
 					} else {
-						// Normal gönder
 						await channel.send(payload);
 					}
 
@@ -157,15 +196,141 @@ module.exports = {
 
 				db.setBumpSetting(interaction.user.id, 'nag_limit', count);
 
-				// Geri bildirim ve Menüye Dönüş
 				const settings = db.getBumpSettings(interaction.user.id);
-
-				// Yeni ayarları göstermek için basit bir cevap verelim, menüyü tekrar elle açmaları daha temiz olabilir 
-				// ya da direkt menüyü ephemeral olarak tekrar atabiliriz.
-				// Modal cevabı olarak reply kullanmak en iyisi.
 				await interaction.deferReply({ ephemeral: true });
-				await showBumpSettingsMenu(interaction, settings, false); // Yeni mesaj olarak at
+				await showBumpSettingsMenu(interaction, settings, false);
+				return;
 			}
+
+			// İTİRAF SİSTEMİ - Ana Modal Gönderimi
+			if (interaction.customId === 'modal_confess') {
+				await interaction.deferUpdate().catch(() => { });
+
+				const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+				const confessionText = interaction.fields.getTextInputValue('input_confession');
+				const targetChannelId = '1490335418426589427';
+				const targetChannel = interaction.client.channels.cache.get(targetChannelId);
+
+				if (!targetChannel) return;
+
+				const embed = new EmbedBuilder()
+					.setTitle('💭 Yeni Bir İtiraf Geldi!')
+					.setDescription(`"${confessionText}"`)
+					.setColor('#ff4757');
+
+				// Resim eklentisi (varsa)
+				const imageRegex = /https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp)(\?.*)?/i;
+				const match = confessionText.match(imageRegex);
+				if (match) {
+					embed.setImage(match[0]);
+				}
+
+				const row = new ActionRowBuilder().addComponents(
+					new ButtonBuilder()
+						.setCustomId('btn_confess')
+						.setLabel('Yeni İtiraf 🤫')
+						.setStyle(ButtonStyle.Primary)
+						.setEmoji('✉️'),
+					new ButtonBuilder()
+						.setCustomId('btn_reply_confess')
+						.setLabel('Yanıtla 💬')
+						.setStyle(ButtonStyle.Secondary)
+				);
+
+				const sentMessage = await targetChannel.send({ embeds: [embed], components: [row] }).catch(console.error);
+
+				// Log Sistemi (Adminler İçin)
+				const logChannelId = '1462555623328710907';
+				const logChannel = interaction.client.channels.cache.get(logChannelId);
+				if (logChannel && sentMessage) {
+					const logEmbed = new EmbedBuilder()
+						.setTitle('🚨 Yeni İtiraf Logu')
+						.setColor('#2b2d31')
+						.setDescription(`**Mesaj İçeriği:**\n\`\`\`text\n${confessionText}\n\`\`\``)
+						.setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) });
+
+					// Sadece Metin/Link Olarak Tespit Edilen Görseli Alt Başlığa Yaz (Logun içinde renderlanmaz)
+					if (match) logEmbed.addFields({ name: '🖼️ Tespit Edilen Görsel', value: match[0], inline: false });
+
+					logEmbed.addFields(
+						{ name: '👤 Gönderen', value: `<@${interaction.user.id}> (\`${interaction.user.id}\`)`, inline: false },
+						{ name: '📄 İşlem Tipi', value: 'Yeni İtiraf', inline: false },
+						{ name: '🔗 İtiraf Linki', value: `[Mesaja Git](${sentMessage.url})`, inline: false }
+					).setTimestamp();
+
+					await logChannel.send({ embeds: [logEmbed] }).catch(console.error);
+				}
+
+				return;
+			}
+
+			// İTİRAF SİSTEMİ - Yanıt (Reply) Modal Gönderimi
+			if (interaction.customId.startsWith('modal_reply_confess:')) {
+				await interaction.deferUpdate().catch(() => { });
+
+				const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+				const messageId = interaction.customId.split(':')[1];
+				const replyText = interaction.fields.getTextInputValue('input_reply');
+				const targetChannelId = '1490335418426589427';
+				const targetChannel = interaction.client.channels.cache.get(targetChannelId);
+
+				if (!targetChannel) return;
+
+				const replyEmbed = new EmbedBuilder()
+					.setTitle('💬 İtirafa Yanıt Geldi!')
+					.setDescription(`"${replyText}"`)
+					.setColor('#3498db');
+
+				// Resim eklentisi (varsa)
+				const imageRegex = /https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp)(\?.*)?/i;
+				const match = replyText.match(imageRegex);
+				if (match) {
+					replyEmbed.setImage(match[0]);
+				}
+
+				const row = new ActionRowBuilder().addComponents(
+					new ButtonBuilder()
+						.setCustomId('btn_confess')
+						.setLabel('Yeni İtiraf 🤫')
+						.setStyle(ButtonStyle.Primary)
+						.setEmoji('✉️'),
+					new ButtonBuilder()
+						.setCustomId('btn_reply_confess')
+						.setLabel('Yanıtla 💬')
+						.setStyle(ButtonStyle.Secondary)
+				);
+
+				const sentMessage = await targetChannel.send({
+					embeds: [replyEmbed],
+					components: [row],
+					reply: { messageReference: messageId }
+				}).catch(console.error);
+
+				// Log Sistemi (Adminler İçin)
+				const logChannelId = '1462555623328710907';
+				const logChannel = interaction.client.channels.cache.get(logChannelId);
+				if (logChannel && sentMessage) {
+					const logEmbed = new EmbedBuilder()
+						.setTitle('🚨 İtiraf Yanıt Logu')
+						.setColor('#3498db')
+						.setDescription(`**Mesaj İçeriği:**\n\`\`\`text\n${replyText}\n\`\`\``)
+						.setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) });
+
+					// Sadece Metin/Link Olarak Tespit Edilen Görseli Alt Başlığa Yaz (Logun içinde renderlanmaz)
+					if (match) logEmbed.addFields({ name: '🖼️ Tespit Edilen Görsel', value: match[0], inline: false });
+
+					logEmbed.addFields(
+						{ name: '👤 Gönderen', value: `<@${interaction.user.id}> (\`${interaction.user.id}\`)`, inline: false },
+						{ name: '📄 İşlem Tipi', value: `Yanıt (Hedef Mesaj: \`${messageId}\`)`, inline: false },
+						{ name: '🔗 İtiraf Linki', value: `[Mesaja Git](${sentMessage.url})`, inline: false }
+					).setTimestamp();
+
+					await logChannel.send({ embeds: [logEmbed] }).catch(console.error);
+				}
+
+				return;
+			}
+
 			return;
 		}
 
@@ -174,10 +339,6 @@ module.exports = {
 
 		let commandKey = interaction.commandName;
 
-		// Özel Durum: Kayıt Komutu Context Menu olarak da gelebilir ama slash olarak da var
-		// Eğer slash ise direkt commandName ile alıyoruz
-
-		// Eğer Context Menu ise (Sağ Tık), key'i ona göre oluştur (İsim_Type)
 		if (interaction.isContextMenuCommand()) {
 			commandKey = `${interaction.commandName}_${interaction.commandType}`;
 		}
