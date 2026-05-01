@@ -28,12 +28,16 @@ module.exports = (client) => {
             const filePath = path.join(specializedEventsPath, file);
             try {
                 const event = require(filePath);
-                if (event.once) {
-                    client.once(event.name, (...args) => event.execute(...args));
-                } else {
-                    client.on(event.name, (...args) => event.execute(...args));
+                
+                // Sadece event yapısına uyan dosyaları discord.js event'i olarak kaydet
+                if (event.name && event.execute) {
+                    if (event.once) {
+                        client.once(event.name, (...args) => event.execute(...args));
+                    } else {
+                        client.on(event.name, (...args) => event.execute(...args));
+                    }
+                    console.log(`[EVENT] Handler/Event ${file} yüklendi. (Event: ${event.name})`);
                 }
-                console.log(`[EVENT] Handler/Event ${file} yüklendi. (Event: ${event.name})`);
             } catch (error) {
                 console.error(`[HATA] ${filePath} yüklenirken hata:`, error);
             }

@@ -143,7 +143,7 @@ module.exports = (client) => {
         const cleanupHour = now.getHours();
         const cleanupMin = now.getMinutes();
 
-        if (cleanupHour === 4 && cleanupMin === 0) {
+        if (cleanupHour === 4 && cleanupMin === 5) {
             const todayDateString = now.toLocaleDateString('tr-TR');
 
             // Durum dosyasını oku

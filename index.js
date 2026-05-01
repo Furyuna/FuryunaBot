@@ -101,6 +101,7 @@ client.on('error', error => {
 
 process.on('unhandledRejection', error => {
     console.error('[UNHANDLED REJECTION]', error);
+    process.exit(1);
 });
 
 client.login(process.env.BOT_TOKEN);
