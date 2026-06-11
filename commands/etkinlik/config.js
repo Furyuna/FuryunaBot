@@ -26,7 +26,8 @@ module.exports = {
 
         // ⏳ ETKİNLİK SÜRESİ (HEPSİ İÇİN GEÇERLİ)
         eventDuration: 0, // 0 = Sonsuz (Ölü Bekleme Yok), >0 = Süreli
-        activeTimeout: 1000 * 60 * 5,  // 5 Dakika (Sohbet başladıktan sonraki süre - Canlı Bekleme)
+        activeTimeout: 1000 * 60 * 5,  // 5 Dakika (Geçerlilik süresi - bu süre kadar yeni mesaj gelmezse soru kapanır)
+        messagesBeforeTimeout: 3, // Geçerlilik süresi (activeTimeout) KAÇINCI mesajdan sonra başlasın? (Eskiden 1'di -> ilk mesaj)
 
         // 📝 SABİT MESAJLAR
         messages: {
@@ -35,7 +36,21 @@ module.exports = {
             dropTitle: "⚡ HIZ YARIŞMASI",
             winner: "🎉 Tebrikler {user}! **{reward} Coin** ve **{xp} XP** kazandın! 💸",
             timeout: "⏰ Süre doldu! Kimse bilemedi...",
-            timeoutDrop: "⏰ Süre doldu! Kimse yazamadı..."
+            timeoutDrop: "⏰ Süre doldu! Kimse yazamadı...",
+
+            // 😜 SORUYU "YANITLA" İLE YANLIŞ CEVAPLAYANLARLA DALGA GEÇME MESAJLARI (Rastgele seçilir)
+            wrongReplyTeases: [
+                "😂 Cidden bu cevaba mı güvendin? Yanına bile yaklaşamadın!",
+                "🤡 Hahah... hayır. O tuşlara biraz daha bas bakalım.",
+                "💀 Bu kadar mı? Yanlış, hem de fena halde yanlış!",
+                "🙃 Yok yok, o değil. Ama denemen çok tatlıydı.",
+                "📉 O özgüvenle yanlış cevap vermek de ayrı bir yetenek bravo.",
+                "🦊 Furyuna senden utandı şu an. Yanlış!",
+                "❌ Pat diye yanlış. Acele etme, biraz düşünsen?",
+                "🤭 O cevabı nereden buldun, çöp kutusundan mı?",
+                "😹 Olmadı canım, hiç olmadı. Tekrar dene (ya da deneme).",
+                "🫠 Yaklaştın bile diyemem. Tamamen ışınlandın yanlışa."
+            ]
         },
 
 

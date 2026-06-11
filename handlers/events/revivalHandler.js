@@ -145,6 +145,7 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
     const collector = channel.createMessageCollector(collectorOptions);
 
     let idleTimer = null;
+    let messageCount = 0; // Soru atıldıktan sonra gelen (yanlış) mesaj sayısı
 
     collector.on('collect', async (m) => {
         // 1. Cevap Kontrolü
@@ -181,13 +182,31 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
             return;
         }
 
-        // 2. Yanlış Cevap (Normal Sohbet) -> Sayaç Başlat/Sıfırla
-        // Kullanıcı mantığı: "Bot harici kim yazmaya başlarsa o zaman timeout başlasın (30s)"
-        if (idleTimer) clearTimeout(idleTimer);
+        // 2. YANLIŞ CEVAP
 
-        idleTimer = setTimeout(() => {
-            collector.stop('revived_timeout');
-        }, config.activeTimeout); // Config'den gelen süre (Sohbet başladıktan sonra)
+        // 2a. DALGA GEÇME: Mesaj, sorunun kendisine "yanıtla" (reply) ile atıldıysa
+        // ve cevap da yanlışsa -> rastgele alaycı bir cümleyle yanlış olduğunu belli et. 😜
+        if (m.reference && m.reference.messageId === sentMessage.id) {
+            const teases = config.messages.wrongReplyTeases;
+            if (teases && teases.length > 0) {
+                const tease = teases[Math.floor(Math.random() * teases.length)];
+                await m.reply(tease).catch(() => { });
+            }
+        }
+
+        // 2b. GEÇERLİLİK SÜRESİ SAYACI
+        // Kullanıcı mantığı: Sayaç ilk mesajda değil, "messagesBeforeTimeout" kadar
+        // mesaj atıldıktan SONRA başlasın. O eşiğe ulaşınca her yeni mesaj süreyi sıfırlar.
+        messageCount++;
+
+        const threshold = config.messagesBeforeTimeout || 1;
+        if (messageCount >= threshold) {
+            if (idleTimer) clearTimeout(idleTimer);
+
+            idleTimer = setTimeout(() => {
+                collector.stop('revived_timeout');
+            }, config.activeTimeout); // Config'den gelen geçerlilik süresi
+        }
     });
 
     collector.on('end', async (collected, reason) => {
