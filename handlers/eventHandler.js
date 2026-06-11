@@ -28,7 +28,13 @@ module.exports = (client) => {
             const filePath = path.join(specializedEventsPath, file);
             try {
                 const event = require(filePath);
-                
+
+                // KORUMA: 'init' desenli handler'lar (security/revival/morning) index.js'de
+                // elle yükleniyor. Bunlar name/execute içermediği için zaten atlanır; ama biri
+                // yanlışlıkla ikisini birden eklerse event'in ÇİFT kayıt olmasını (çift XP/mesaj)
+                // önlemek için init varsa burada atlıyoruz.
+                if (event.init) continue;
+
                 // Sadece event yapısına uyan dosyaları discord.js event'i olarak kaydet
                 if (event.name && event.execute) {
                     if (event.once) {
