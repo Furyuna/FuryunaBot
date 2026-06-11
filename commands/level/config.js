@@ -4,6 +4,7 @@ module.exports = {
         // ORTAK AYARLAR (Hem Level Hem Rütbe İçin)
         cooldown: 2000,          // Bekleme Süresi (2 Saniye): Hızlı test için düşürüldü.
         ignoredChannels: [1383056700700885073, 1294987333698981969],     // Yoksayılan Kanallar: Burada ne XP ne Rütbe puanı kazanılır.
+        levelUpChannelId: "1287071155219599525", // Seviye atlama tebriklerinin atılacağı kanal (Genel Sohbet)
 
         // --- SEVİYE SİSTEMİ (XP & PARA) ---
         // XP Gereksinimi (1000 XP):
