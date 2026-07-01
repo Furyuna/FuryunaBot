@@ -113,6 +113,11 @@ module.exports = {
         // Diğer komutlar kullanıcı gerektirir
         if (!userId) return; // (Teorik olarak setRequired true ama güvenlik olsun)
 
+        // KRİTİK: Kullanıcı DB'de yoksa oluştur.
+        // addXp/setLevel/addMoney düz UPDATE çalıştırdığı için satır yoksa sessizce
+        // hiçbir şey yapmaz ("adama xp/level veremiyorum" bug'ının sebebi buydu).
+        db.getUser(userId);
+
         if (subcommand === 'xp-ver') {
             const xpAmount = interaction.options.getInteger('miktar');
             const moneyAmount = interaction.options.getInteger('para') || 0;
