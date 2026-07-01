@@ -186,9 +186,12 @@ async function waitForAnswer(channel, sentMessage, checkFn, rewardCfg, correctAn
 
         // 2a. DALGA GEÇME: Mesaj, sorunun kendisine "yanıtla" (reply) ile atıldıysa
         // ve cevap da yanlışsa -> rastgele alaycı bir cümleyle yanlış olduğunu belli et. 😜
+        // İSTİSNA: Yanıtın içinde herhangi bir etiketleme (kullanıcı/rol/@everyone/@here)
+        // varsa alay etme -> muhtemelen soruya cevap değil, birine sesleniyor.
         if (m.reference && m.reference.messageId === sentMessage.id) {
+            const hasMention = /<@!?\d+>|<@&\d+>|@everyone|@here/.test(m.content);
             const teases = config.messages.wrongReplyTeases;
-            if (teases && teases.length > 0) {
+            if (!hasMention && teases && teases.length > 0) {
                 const tease = teases[Math.floor(Math.random() * teases.length)];
                 await m.reply(tease).catch(() => { });
             }
