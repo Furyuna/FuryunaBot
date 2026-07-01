@@ -1,4 +1,37 @@
 const levelConfig = require('../commands/level/config.js').levelSystem;
+const db = require('./database.js');
+
+// Bir üyenin rütbe rolünü DB'deki güncel aktiflik puanına göre düzeltir:
+// hak ettiği rütbeyi ekler, diğer tüm rütbe rollerini (hak etmediklerini) siler.
+// puan-ver / puan-sil / senkronize komutlarında tek yerden kullanılır.
+async function syncRankRole(member) {
+    if (!levelConfig.rankSystem || !levelConfig.rankSystem.enabled) return;
+
+    const user = db.getUser(member.id);
+    const points = user.activity_points || 0;
+
+    const thresholds = levelConfig.rankSystem.thresholds;
+    const sortedPoints = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
+
+    let eligibleRoleId = null;
+    for (const threshold of sortedPoints) {
+        if (points >= threshold) {
+            eligibleRoleId = thresholds[threshold];
+            break;
+        }
+    }
+
+    if (eligibleRoleId && !member.roles.cache.has(eligibleRoleId)) {
+        await member.roles.add(eligibleRoleId).catch(() => { });
+    }
+
+    // Hak edilmeyen diğer rütbe rollerini temizle (puan düşerse rütbe de düşsün)
+    for (const roleId of Object.values(thresholds)) {
+        if (roleId !== eligibleRoleId && member.roles.cache.has(roleId)) {
+            await member.roles.remove(roleId).catch(() => { });
+        }
+    }
+}
 
 async function updateRank(member, currentPoints) {
     if (!levelConfig.rankSystem.enabled) return;
@@ -61,4 +94,4 @@ async function updateRank(member, currentPoints) {
     }
 }
 
-module.exports = { updateRank };
+module.exports = { updateRank, syncRankRole };
