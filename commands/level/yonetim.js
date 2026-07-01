@@ -5,41 +5,55 @@ const levelConfig = require('./config.js').levelSystem;
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(levelConfig.commands.management || 'level-yonet')
-        .setDescription('Kullanıcıların seviye ve XP verilerini yönetir (Sadece Yetkililer).')
+        .setDescription('Kullanıcıların seviye ve rütbe verilerini yönetir (Sadece Yetkililer).')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .addSubcommand(sub =>
-            sub.setName('xp-ver')
-                .setDescription('Bir kullanıcıya XP ve Para verir.')
-                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-                .addIntegerOption(opt => opt.setName('miktar').setDescription('XP Miktarı').setRequired(true))
-                .addIntegerOption(opt => opt.setName('para').setDescription('Para Miktarı (Opsiyonel)').setRequired(false))
+
+        // ===== 📊 SEVİYE / XP GRUBU =====
+        .addSubcommandGroup(group =>
+            group.setName('seviye')
+                .setDescription('Seviye, XP ve para işlemleri')
+                .addSubcommand(sub =>
+                    sub.setName('xp-ver')
+                        .setDescription('Bir kullanıcıya XP ve Para verir.')
+                        .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                        .addIntegerOption(opt => opt.setName('miktar').setDescription('XP Miktarı').setRequired(true))
+                        .addIntegerOption(opt => opt.setName('para').setDescription('Para Miktarı (Opsiyonel)').setRequired(false))
+                )
+                .addSubcommand(sub =>
+                    sub.setName('ayarla')
+                        .setDescription('Bir kullanıcının seviyesini doğrudan ayarlar.')
+                        .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                        .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni Seviye').setRequired(true))
+                )
         )
-        .addSubcommand(sub =>
-            sub.setName('level-ayarla')
-                .setDescription('Bir kullanıcının seviyesini doğrudan ayarlar.')
-                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-                .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni Seviye').setRequired(true))
+
+        // ===== 🎖️ RÜTBE / AKTİFLİK GRUBU =====
+        .addSubcommandGroup(group =>
+            group.setName('rutbe')
+                .setDescription('Rütbe ve aktiflik puanı işlemleri')
+                .addSubcommand(sub =>
+                    sub.setName('puan-ver')
+                        .setDescription('Bir kullanıcıya Rütbe/Aktiflik Puanı verir.')
+                        .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                        .addIntegerOption(opt => opt.setName('miktar').setDescription('Puan Miktarı').setRequired(true))
+                )
+                .addSubcommand(sub =>
+                    sub.setName('puan-sil')
+                        .setDescription('Bir kullanıcıdan Rütbe/Aktiflik Puanı siler.')
+                        .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
+                        .addIntegerOption(opt => opt.setName('miktar').setDescription('Silinecek Miktar').setRequired(true))
+                )
+                .addSubcommand(sub =>
+                    sub.setName('senkronize')
+                        .setDescription('Tüm sunucu üyelerinin rollerini puanlarına göre düzeltir.')
+                )
         )
+
+        // ===== ♻️ GENEL (her iki sistemi de etkiler) =====
         .addSubcommand(sub =>
             sub.setName('sifirla')
-                .setDescription('Bir kullanıcının tüm verilerini (XP, Level, Para) sıfırlar.')
+                .setDescription('Bir kullanıcının TÜM verilerini (XP, Level, Para, Aktiflik) sıfırlar.')
                 .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-        )
-        .addSubcommand(sub =>
-            sub.setName('senkronize-et')
-                .setDescription('Tüm sunucu üyelerinin rollerini puanlarına göre düzeltir.')
-        )
-        .addSubcommand(sub =>
-            sub.setName('puan-ver')
-                .setDescription('Bir kullanıcıya Rütbe/Aktiflik Puanı verir.')
-                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-                .addIntegerOption(opt => opt.setName('miktar').setDescription('Puan Miktarı').setRequired(true))
-        )
-        .addSubcommand(sub =>
-            sub.setName('puan-sil')
-                .setDescription('Bir kullanıcıdan Rütbe/Aktiflik Puanı siler.')
-                .addUserOption(opt => opt.setName('kullanici').setDescription('Kullanıcı').setRequired(true))
-                .addIntegerOption(opt => opt.setName('miktar').setDescription('Silinecek Miktar').setRequired(true))
         ),
 
     async execute(interaction) {
@@ -51,7 +65,7 @@ module.exports = {
         const targetUser = interaction.options.getUser('kullanici');
         const userId = targetUser ? targetUser.id : null;
 
-        if (subcommand === 'senkronize-et') {
+        if (subcommand === 'senkronize') {
             await interaction.deferReply();
             const guild = interaction.guild;
             const members = await guild.members.fetch();
@@ -211,7 +225,7 @@ module.exports = {
                 content: `📉 <@${userId}> kullanıcısından **${amount} Aktiflik Puanı** silindi ve rolleri güncellendi.`
             });
 
-        } else if (subcommand === 'level-ayarla') {
+        } else if (subcommand === 'ayarla') {
             const newLevel = interaction.options.getInteger('seviye');
             db.setLevel(userId, newLevel);
             await interaction.reply({
