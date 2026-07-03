@@ -220,8 +220,8 @@ module.exports = {
         enabled: true,
         channelId: "1465051241162739938", // Test Kanalı
         // gifUrl satırı artık kullanılmıyor, lokal dosya kullanılıyor.
-        width: 800,  // Çıktı genişliği (Resim boyutu)
-        height: 450, // Çıktı yüksekliği
+        width: 1000, // Çıktı genişliği (Yatay banner)
+        height: 340, // Çıktı yüksekliği
         backgroundColor: "#000000", // GIF yüklenemezse arka plan rengi
         quality: 10, // GIF Kalitesi (1-20, 1 en iyi, 20 en hızlı)
 
