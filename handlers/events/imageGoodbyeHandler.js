@@ -1,5 +1,4 @@
 const { Events, AttachmentBuilder } = require('discord.js');
-const path = require('path');
 const config = require('../../commands/etkinlik/config.js');
 const { generateWelcomeImage } = require('../../utils/imageGenerator');
 
@@ -14,15 +13,14 @@ module.exports = {
             if (!channel) return;
 
             const avatarUrl = member.displayAvatarURL({ extension: 'png', size: 512, forceStatic: true });
-            const bgPath = path.join(__dirname, '../../assets/cardbackround.png');
 
             const imageBuffer = await generateWelcomeImage({
                 userName: member.displayName,
                 avatarUrl: avatarUrl,
                 mainText: "GÜLE GÜLE",
                 subText: "Kendine çok iyi bak!",
-                backgroundPath: bgPath,
-                titleColor: "#ff6b6b", // Çıkış mesajı için kırmızı tonda
+                titleColor: "#FF6B6B", // kırmızı
+                accent2: "#C86BFF",    // mor (alacakaranlık aurora/degrade)
                 width: config.gifWelcome.width || 800,
                 height: config.gifWelcome.height || 450
             });

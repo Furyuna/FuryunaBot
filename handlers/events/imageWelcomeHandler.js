@@ -1,5 +1,4 @@
 const { Events, AttachmentBuilder } = require('discord.js');
-const path = require('path');
 const config = require('../../commands/etkinlik/config.js');
 const kayitConfig = require('../../commands/kayit/config.js');
 const { generateWelcomeImage } = require('../../utils/imageGenerator');
@@ -13,15 +12,14 @@ async function sendWelcomeCard(member) {
     if (!channel) return;
 
     const avatarUrl = member.displayAvatarURL({ extension: 'png', size: 512, forceStatic: true });
-    const bgPath = path.join(__dirname, '../../assets/cardbackround.png');
 
     const imageBuffer = await generateWelcomeImage({
         userName: member.displayName,
         avatarUrl: avatarUrl,
         mainText: config.gifWelcome.title?.text || 'HOŞ GELDİN',
         subText: 'Aramıza katıldığın için çok mutluyuz!',
-        backgroundPath: bgPath,
-        titleColor: '#FFD700',
+        titleColor: '#FFD86B', // sıcak altın
+        accent2: '#FF8A5B',    // mercan (aurora/degrade)
         footerText: `${member.guild.memberCount}. üyemiz`,
         width: config.gifWelcome.width || 800,
         height: config.gifWelcome.height || 450
