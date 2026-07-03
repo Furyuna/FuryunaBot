@@ -9,12 +9,25 @@ module.exports = {
         .setDescription('En yüksek seviyeye sahip üyeleri gösterir.'),
 
     async execute(interaction) {
-        // Doğrudan veritabanından çek (Filtre Yok)
-        const leaderboard = db.getLeaderboard(10);
-        const activityLeaderboard = db.getActivityLeaderboard(10);
+        await interaction.deferReply();
+
+        // Sunucudaki üyeleri çek: DB'de kalan ama sunucudan çıkmış 'hayalet'
+        // kayıtları sıralamadan elemek için. (Hayaletler artık otomatik silinmiyor.)
+        let memberIds = null;
+        try {
+            const members = await interaction.guild.members.fetch();
+            memberIds = new Set(members.keys());
+        } catch (e) {
+            console.error('[SIRALAMA] Üye listesi alınamadı, filtre uygulanmadı:', e);
+        }
+        const inGuild = (u) => !memberIds || memberIds.has(u.user_id);
+
+        // Geniş bir havuz çek, sunucuda olmayanları ele, ilk 10'u al.
+        const leaderboard = db.getLeaderboard(1000).filter(inGuild).slice(0, 10);
+        const activityLeaderboard = db.getActivityLeaderboard(1000).filter(inGuild).slice(0, 10);
 
         if (leaderboard.length === 0 && activityLeaderboard.length === 0) {
-            return interaction.reply('Henüz sıralamada kimse yok.');
+            return interaction.editReply('Henüz sıralamada kimse yok.');
         }
 
         // Seviye Sıralaması
@@ -53,6 +66,6 @@ module.exports = {
             )
             .setFooter({ text: 'FuryunaBot • En Aktif Üyeler', iconURL: interaction.client.user.displayAvatarURL() });
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
     }
 };
