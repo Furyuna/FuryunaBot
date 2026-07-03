@@ -13,16 +13,13 @@ module.exports = {
             const channel = member.guild.channels.cache.get(config.gifWelcome.channelId);
             if (!channel) return;
 
-            let displayName = member.displayName.toUpperCase();
-            if (displayName.length > 20) displayName = displayName.substring(0, 18) + "...";
-
             const avatarUrl = member.displayAvatarURL({ extension: 'png', size: 512, forceStatic: true });
             const bgPath = path.join(__dirname, '../../assets/cardbackround.png');
 
             const imageBuffer = await generateWelcomeImage({
-                userName: displayName,
+                userName: member.displayName,
                 avatarUrl: avatarUrl,
-                mainText: "GÜLE GÜLE... 🥺",
+                mainText: "GÜLE GÜLE",
                 subText: "Kendine çok iyi bak!",
                 backgroundPath: bgPath,
                 titleColor: "#ff6b6b", // Çıkış mesajı için kırmızı tonda
