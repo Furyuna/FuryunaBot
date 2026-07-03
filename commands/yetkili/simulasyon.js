@@ -35,7 +35,9 @@ module.exports = {
 
         if (commandName === 'gir') {
             await message.reply(`▶️ **${targetMember.user.tag}** için GİRİŞ simülasyonu başlatılıyor...`);
-            await welcomeHandler.execute(targetMember);
+            // Not: execute() artık (oldMember, newMember) bekliyor (kayıt event'i).
+            // Simülasyon kayıt kontrolünü atlayıp kartı doğrudan üretsin diye sendWelcomeCard kullanıyoruz.
+            await welcomeHandler.sendWelcomeCard(targetMember);
         }
         else if (commandName === 'çık' || commandName === 'cik') {
             await message.reply(`◀️ **${targetMember.user.tag}** için ÇIKIŞ simülasyonu başlatılıyor...`);
