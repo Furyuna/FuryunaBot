@@ -311,9 +311,17 @@ async function startDrop(channel) {
     const content = `**${config.messages.dropTitle}**\n***"${word}"*** cümlesini sohbete yaz!${ping}`;
     const sentMessage = await channel.send({ content: content });
 
-    // Cevap kontrol fonksiyonu (Regex Word Match)
-    const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
-    const checkFn = (text) => regex.test(text);
+    // Cevap kontrol fonksiyonu (Normalleştirilmiş Eşleşme)
+    // Tırnak/noktalama, fazla boşluk ve büyük/küçük harf (Türkçe dahil) farklarını
+    // yok sayar. Eskiden regex sınırı yüzünden "..." gibi tırnaklı yazımlar kabul
+    // edilmiyordu (kullanıcı botun gösterdiği tırnakları da kopyalayabiliyor).
+    const normalize = (str) => str
+        .toLocaleLowerCase('tr')
+        .replace(/[^\p{L}\p{N}\s]/gu, ' ') // harf/rakam dışını (tırnak vb.) boşluğa çevir
+        .replace(/\s+/g, ' ')
+        .trim();
+    const target = normalize(word);
+    const checkFn = (text) => normalize(text).includes(target);
 
     // Drop için cevap göstermeye gerek yok (Zaten ekranda yazı) -> null gönderiyoruz
     await waitForAnswer(channel, sentMessage, checkFn, rewardCfg, null, config.messages.timeoutDrop);
