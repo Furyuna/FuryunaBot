@@ -138,51 +138,11 @@ module.exports = (client) => {
             }
         }
 
-        // --- 3. GECE TEMİZLİĞİ (DATABASE CLEANUP - 04:00) ---
-        // Her gece saat 04:00'te sunucudan çıkan/banlanan kişileri DB'den siler.
-        const cleanupHour = now.getHours();
-        const cleanupMin = now.getMinutes();
-
-        if (cleanupHour === 4 && cleanupMin === 5) {
-            const todayDateString = now.toLocaleDateString('tr-TR');
-
-            // Durum dosyasını oku
-            let state = {};
-            try {
-                state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
-            } catch (e) { }
-
-            if (state.lastCleanupDate !== todayDateString) {
-                console.log('[CLEANUP] Gece temizliği başlıyor...');
-                const db = require('../utils/database');
-
-                // Ana sunucuyu bul
-                const mainChannel = client.channels.cache.get(config.fridayMessage.channelId);
-                const guild = mainChannel ? mainChannel.guild : client.guilds.cache.first();
-
-                if (guild) {
-                    // Sunucu üyelerini yenile
-                    guild.members.fetch().then(async () => {
-                        const allDbUserIds = db.getAllUserIds();
-                        let deletedCount = 0;
-
-                        for (const userId of allDbUserIds) {
-                            if (!guild.members.cache.has(userId)) {
-                                db.deleteUser(userId);
-                                deletedCount++;
-                            }
-                        }
-
-                        console.log(`[CLEANUP] Temizlik tamamlandı. ${deletedCount} adet hayalet kullanıcı silindi. 🧹`);
-
-                        // Durumu Kaydet
-                        state.lastCleanupDate = todayDateString;
-                        fs.writeFileSync(stateFile, JSON.stringify(state, null, 4));
-
-                    }).catch(err => console.error('[CLEANUP] Üye listesi alınamadı:', err));
-                }
-            }
-        }
+        // --- 3. GECE TEMİZLİĞİ (İPTAL EDİLDİ) ---
+        // Eskiden her gece 04:05'te sunucuda olmayanların verisi otomatik siliniyordu.
+        // Çıkıp ertesi gün geri girenler tüm verilerini (XP/level/aktiflik) kaybettiği
+        // için kapatıldı. Hayalet temizliği artık YALNIZCA manuel /senkronize komutuyla,
+        // yetkili bilerek çalıştırdığında yapılır.
     }, 60000); // 1 Dakika arayla çalışır
 
     console.log('[SİSTEM] Oto-Mesaj Servisi Başlatıldı. 🕒');
