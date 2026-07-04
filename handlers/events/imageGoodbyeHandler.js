@@ -21,12 +21,14 @@ module.exports = {
                 subText: "Kendine çok iyi bak!",
                 titleColor: "#FF6B6B", // kırmızı
                 accent2: "#C86BFF",    // mor (alacakaranlık aurora/degrade)
+                // memberCount ayrılışta zaten azalmış olur; +1 ile "kaçıncı üyeydi" gösterilir
+                footerText: `${member.guild.memberCount + 1}. üyemizdi`,
                 width: config.gifWelcome.width || 800,
                 height: config.gifWelcome.height || 450
             });
 
             const attachment = new AttachmentBuilder(imageBuffer, { name: 'goodbye-image.png' });
-            await channel.send({ content: `${member.user.tag} sunucudan ayrıldı.`, files: [attachment] });
+            await channel.send({ content: `<@${member.id}> aramızdan ayrıldı. 🥺`, files: [attachment] });
 
         } catch (error) {
             console.error('[IMAGE GOODBYE ERROR]', error);
