@@ -1,13 +1,22 @@
-const { Events, PermissionsBitField } = require('discord.js');
+const { Events } = require('discord.js');
 const config = require('../../commands/etkinlik/config.js').trapChannel;
+const kayitConfig = require('../../commands/kayit/config.js');
 
 // Aynı anda işlenen kullanıcıları takip et (spam burst'te tek uyarı, tek işlem)
 const pending = new Set();
 
 // Cezayı uygula, uygulanan işlemin etiketini döndür
 async function applyAction(member) {
-    const action = config.action || 'timeout';
+    const action = config.action || 'unregister';
     const reason = 'Tuzak kanala yazdı (honeypot)';
+
+    if (action === 'unregister') {
+        // Kaydı düşür: Yeni Üye + Doğrulanmış Üye rollerini al, Kayıtsız rolünü ekle
+        // (commands/kayit/kayitsil.js ile aynı mantık)
+        await member.roles.remove([kayitConfig.roles.newMember, kayitConfig.roles.verifiedMember]).catch(() => { });
+        await member.roles.add(kayitConfig.roles.unregistered, reason);
+        return 'kaydı düşürüldü (Kayıtsız)';
+    }
 
     if (action === 'kick') {
         await member.kick(reason);
@@ -82,12 +91,18 @@ module.exports = {
                 // Ceza zamanı: mesajı sil + işlem uygula
                 await message.delete().catch(() => { });
 
-                let label;
+                let label, actionOk = true;
                 try {
                     label = await applyAction(member);
                 } catch (e) {
+                    actionOk = false;
                     console.error('[TUZAK] Ceza uygulanamadı (yetki/hiyerarşi?):', e.message);
                     label = 'işlenemedi (yetki hatası)';
+                }
+
+                // Kişiye DM: neden kaydının düştüğü (DM'i kapalıysa sessizce geçilir)
+                if (actionOk && config.dmEnabled && config.dmMessage) {
+                    await message.author.send(config.dmMessage).catch(() => { });
                 }
 
                 // Yetkili bildirimi

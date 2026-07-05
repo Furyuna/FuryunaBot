@@ -304,7 +304,7 @@ module.exports = {
         enabled: true,
         channelId: "1512168020548780154",
         graceSeconds: 10,          // Kişi bu sürede mesajını silerse ceza YOK (yanlışlıkla yazan korunur)
-        action: "kick",            // "timeout" | "quarantine" | "kick"
+        action: "unregister",      // "unregister" | "timeout" | "quarantine" | "kick"
         timeoutDays: 7,            // action="timeout" ise susturma süresi (gün)
         quarantineRoleId: "",      // action="quarantine" ise verilecek rol ID'si
         removeRolesOnQuarantine: true, // Karantinada kişinin diğer rolleri kaldırılsın mı?
@@ -313,7 +313,11 @@ module.exports = {
         // {user}=etiket, {seconds}=süre
         warnMessage: "⚠️ {user} burası bir **tuzak kanal**, buraya yazmak yasak! **{seconds} saniye** içinde mesajını silmezsen işleme alınacaksın.",
         // {user}=etiket, {action}=uygulanan ceza
-        alertMessage: "🚨 {user} tuzak kanala yazdı ve silmedi → **{action}**. Hesabı ele geçirilmiş olabilir, kontrol edin!"
+        alertMessage: "🚨 {user} tuzak kanala yazdı ve silmedi → **{action}**. Hesabı ele geçirilmiş olabilir, kontrol edin!",
+
+        // Cezalandırılan kişiye neden kaydının düştüğünü anlatan DM
+        dmEnabled: true,
+        dmMessage: "⚠️ **Furyuna** sunucusunda **tuzak kanala** yazdığın için kaydın düşürüldü ve **Kayıtsız**'a alındın.\n\nO kanala normalde kimse yazmaz; oraya yazılması genelde hesabın **ele geçirildiğine** (token çalınması / virüs) işaret eder — spam yazılımları o kanala da otomatik yazar.\n\n👉 Yapman gerekenler:\n• Discord şifreni **hemen değiştir**\n• Bilgisayarında **virüs taraması** yap\n• Ayarlar → Yetkili Uygulamalar / Oturumlar'dan **şüpheli olanları kaldır**\n\nGüvenceye aldıysan tekrar kayıt olabilirsin. 💜"
     },
 
     // --- HOŞ GELDİN MESAJI ---
