@@ -304,7 +304,7 @@ module.exports = {
         enabled: true,
         channelId: "1512168020548780154",
         graceSeconds: 10,          // Kişi bu sürede mesajını silerse ceza YOK (yanlışlıkla yazan korunur)
-        action: "timeout",         // "timeout" | "quarantine" | "kick"
+        action: "kick",            // "timeout" | "quarantine" | "kick"
         timeoutDays: 7,            // action="timeout" ise susturma süresi (gün)
         quarantineRoleId: "",      // action="quarantine" ise verilecek rol ID'si
         removeRolesOnQuarantine: true, // Karantinada kişinin diğer rolleri kaldırılsın mı?
