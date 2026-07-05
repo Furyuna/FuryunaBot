@@ -297,6 +297,25 @@ module.exports = {
         ]
     },
 
+    // --- TUZAK KANAL (HONEYPOT) ---
+    // Buraya kimse yazmamalı. Yazan (ve süresinde silmeyen) cezalandırılır.
+    // Amaç: token'ı çalınmış / virüslü hesapların otomatik spam'ini yakalamak.
+    trapChannel: {
+        enabled: true,
+        channelId: "1512168020548780154",
+        graceSeconds: 10,          // Kişi bu sürede mesajını silerse ceza YOK (yanlışlıkla yazan korunur)
+        action: "timeout",         // "timeout" | "quarantine" | "kick"
+        timeoutDays: 7,            // action="timeout" ise susturma süresi (gün)
+        quarantineRoleId: "",      // action="quarantine" ise verilecek rol ID'si
+        removeRolesOnQuarantine: true, // Karantinada kişinin diğer rolleri kaldırılsın mı?
+        alertChannelId: "",        // Yetkili bildirim kanalı (boşsa sadece konsola loglar)
+        exemptRoleIds: [],         // Bu rollere sahip olanlar cezalandırılmaz (güvenilir/yetkili roller)
+        // {user}=etiket, {seconds}=süre
+        warnMessage: "⚠️ {user} burası bir **tuzak kanal**, buraya yazmak yasak! **{seconds} saniye** içinde mesajını silmezsen işleme alınacaksın.",
+        // {user}=etiket, {action}=uygulanan ceza
+        alertMessage: "🚨 {user} tuzak kanala yazdı ve silmedi → **{action}**. Hesabı ele geçirilmiş olabilir, kontrol edin!"
+    },
+
     // --- HOŞ GELDİN MESAJI ---
     welcome: {
         enabled: true,
