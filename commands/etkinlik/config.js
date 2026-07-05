@@ -265,13 +265,14 @@ module.exports = {
         enabled: true,
         roleId: "1234560409386881126",      // Takviyecilere verilen rol
         channelId: "1287071155219599525",   // Mesajın atılacağı kanal (Genel Sohbet)
+        announceDelaySeconds: 2,            // Discord toplam takviye sayısını tazelesin diye duyuru gecikmesi
         // {user} = kişi etiketi, {count} = sunucudaki toplam takviye sayısı
         // {count} = sunucudaki TOPLAM aktif takviye sayısı (kaçıncı kişi/seviye DEĞİL)
         messages: [
             "🎉 {user} takviye bastı ve sunucumuzu toplam {count} takviyeye ulaştırdı! Teşekkürler! 💜",
             "💜 {user} sayesinde toplam takviyemiz {count} oldu! Desteğin için minnettarız! 🚀",
             "✨ {user} takviye bastı! Sunucumuz artık {count} takviyede! Furyuna'ya güç kattın! 🦊💜",
-            "🚀 Yeni takviye {user}'dan! Toplam {count} takviyeye ulaştık! Kocaman teşekkürler! 💜",
+            "🚀 {user} yeni bir takviye bastı! Toplam {count} takviyeye ulaştık! Kocaman teşekkürler! 💜",
             "🥳 Alkışlar {user} için! Takviyesiyle {count} takviyeye çıktık! Sağ ol! 💜",
             "🎊 {user} takviye bastı! Furyuna şu an {count} takviyede — sen harikasın! 💜",
             "🌟 {user} bizi destekledi, takviye sayımız {count} oldu! Minnettarız! 💜"

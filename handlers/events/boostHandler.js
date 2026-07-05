@@ -26,6 +26,10 @@ module.exports = {
                 // Rol EKLENDİ -> takviye teşekkürü
                 const msgs = config.messages || [];
                 if (msgs.length === 0) return;
+                // Discord toplam takviye sayısını (premiumSubscriptionCount) ayrı bir
+                // sinyalle güncelliyor; {count} taze olsun diye kısa bir gecikme koyuyoruz.
+                const delayMs = (config.announceDelaySeconds ?? 2) * 1000;
+                if (delayMs > 0) await new Promise(r => setTimeout(r, delayMs));
                 await channel.send(format(msgs[Math.floor(Math.random() * msgs.length)]));
             } else if (had && !has && config.endEnabled) {
                 // Rol KALKTI -> takviye bitiş mesajı (opsiyonel)
