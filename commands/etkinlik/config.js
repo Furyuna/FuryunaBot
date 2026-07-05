@@ -96,7 +96,66 @@ module.exports = {
                 { q: "Bir yılda kaç hafta vardır?", a: ["52"] },
                 { q: "Milli Mücadele hangi yılda başlamıştır?", a: ["1919"] },
                 { q: "Işığın saniyedeki hızı yaklaşık kaç kilometredir?", a: ["300000", "300.000", "300 000"] },
-                { q: "Türkiye Cumhuriyetinin ilk cumhurbaşkanı kimdir?", a: ["atatürk", "mustafa kemal atatürk"] }
+                { q: "Türkiye Cumhuriyetinin ilk cumhurbaşkanı kimdir?", a: ["atatürk", "mustafa kemal atatürk"] },
+
+                // --- Coğrafya ---
+                { q: "Afrika'daki, dünyanın en uzun nehirlerinden biri olan nehir hangisidir?", a: ["nil"] },
+                { q: "Türkiye'nin en kalabalık şehri hangisidir?", a: ["istanbul"] },
+                { q: "Dünyanın en yüksek dağı hangisidir?", a: ["everest"] },
+                { q: "Türkiye'nin en yüksek dağı hangisidir?", a: ["ağrı dağı", "ağrı"] },
+                { q: "'Kara Kıta' olarak bilinen kıta hangisidir?", a: ["afrika"] },
+                { q: "Dünyanın en büyük okyanusu hangisidir?", a: ["pasifik"] },
+                { q: "İtalya'nın başkenti neresidir?", a: ["roma"] },
+                { q: "Fransa'nın başkenti neresidir?", a: ["paris"] },
+                { q: "Japonya'nın başkenti neresidir?", a: ["tokyo"] },
+                { q: "Türkiye'nin kuzeyindeki deniz hangisidir?", a: ["karadeniz"] },
+
+                // --- Bilim ---
+                { q: "Suyun kimyasal formülü nedir?", a: ["h2o"] },
+                { q: "İnsan vücudundaki en büyük organ hangisidir?", a: ["deri", "cilt"] },
+                { q: "Kanı vücuda pompalayan organ hangisidir?", a: ["kalp"] },
+                { q: "Görelilik teorisini geliştiren bilim insanı kimdir?", a: ["einstein", "albert einstein"] },
+                { q: "Yerçekimi yasasıyla tanınan bilim insanı kimdir?", a: ["newton", "isaac newton"] },
+                { q: "Suyun donma sıcaklığı kaç derecedir?", a: ["0", "sıfır"] },
+                { q: "Solunumda yaşamak için aldığımız gaz hangisidir?", a: ["oksijen"] },
+                { q: "Ampulüyle tanınan ünlü mucit kimdir?", a: ["edison", "thomas edison"] },
+                { q: "İnsan iskeletinde yaklaşık kaç kemik vardır?", a: ["206"] },
+                { q: "Kana kırmızı rengini veren madde nedir?", a: ["hemoglobin"] },
+                { q: "Dünya, Güneş çevresindeki turunu yaklaşık kaç günde tamamlar?", a: ["365"] },
+
+                // --- Uzay ---
+                { q: "Güneş'e en yakın gezegen hangisidir?", a: ["merkür"] },
+                { q: "'Kızıl Gezegen' olarak bilinen gezegen hangisidir?", a: ["mars"] },
+                { q: "Uzaya giden ilk insan kimdir?", a: ["gagarin", "yuri gagarin"] },
+
+                // --- Tarih ---
+                { q: "Osmanlı Devleti'nin kurucusu kimdir?", a: ["osman bey", "osman gazi"] },
+                { q: "İkinci Dünya Savaşı hangi yıl sona ermiştir?", a: ["1945"] },
+                { q: "TBMM hangi yıl açılmıştır?", a: ["1920"] },
+                { q: "Cumhuriyet hangi ayda ilan edilmiştir?", a: ["ekim"] },
+                { q: "Amerika kıtasına 1492'de ulaşan ünlü denizci kimdir?", a: ["kolomb", "kristof kolomb"] },
+
+                // --- Doğa & Hayvanlar ---
+                { q: "Ormanların kralı olarak bilinen hayvan hangisidir?", a: ["aslan"] },
+                { q: "Dünyanın en büyük hayvanı hangisidir?", a: ["mavi balina", "balina"] },
+                { q: "En hızlı kara hayvanı hangisidir?", a: ["çita"] },
+                { q: "Boynu çok uzun olan Afrika hayvanı hangisidir?", a: ["zürafa"] },
+                { q: "Kutup ayısının tüyleri hangi renktedir?", a: ["beyaz"] },
+
+                // --- Kültür & Genel ---
+                { q: "Bir futbol takımında sahada kaç oyuncu bulunur?", a: ["11"] },
+                { q: "Gökkuşağında kaç renk vardır?", a: ["7", "yedi"] },
+                { q: "Bir günde kaç saat vardır?", a: ["24"] },
+                { q: "Bir saat kaç dakikadır?", a: ["60"] },
+                { q: "Mona Lisa tablosunu kim yapmıştır?", a: ["da vinci", "leonardo da vinci", "leonardo"] },
+                { q: "İngilizcedeki 'apple' kelimesinin Türkçesi nedir?", a: ["elma"] },
+                { q: "Bir düzine kaç adettir?", a: ["12", "on iki"] },
+
+                // --- Matematik ---
+                { q: "Bir üçgenin iç açıları toplamı kaç derecedir?", a: ["180"] },
+                { q: "Bir dik açı kaç derecedir?", a: ["90"] },
+                { q: "Bir tam çember kaç derecedir?", a: ["360"] },
+                { q: "Pi sayısı yaklaşık kaçtır?", a: ["3.14", "3,14"] }
             ]
         },
 
