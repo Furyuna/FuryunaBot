@@ -266,18 +266,33 @@ module.exports = {
         roleId: "1234560409386881126",      // Takviyecilere verilen rol
         channelId: "1287071155219599525",   // Mesajın atılacağı kanal (Genel Sohbet)
         // {user} = kişi etiketi, {count} = sunucudaki toplam takviye sayısı
+        // {count} = sunucunun ulaştığı toplam takviye sayısı (sıralı gibi kullanılır)
         messages: [
-            "🎉 {user} sunucuya takviye bastı! Kocaman teşekkürler, sen efsanesin! 💜",
-            "💜 Vay canına! {user} bizi takviyeledi! Desteğin için minnettarız! 🚀",
-            "✨ {user} takviye basarak Furyuna'ya güç kattı! Seni seviyoruz! 🦊💜",
-            "🚀 {user} sayesinde sunucumuz daha da güçlendi! Takviye için teşekkürler! 💜",
-            "🥳 Alkışlar {user} için! Takviyenle sunucuya destek oldun, sağ ol! 💜",
-            "🎊 {user} takviye bastı! Sunucumuz artık {count} takviyede! Teşekkürler! 💜"
+            "🎉 {user} sunucunun {count}. takviyesini bastı! Efsanesin, teşekkürler! 💜",
+            "💜 {user} takviye bastı ve sunucumuzu {count}. takviyeye taşıdı! 🚀",
+            "✨ {count}. takviye {user} sayesinde geldi! Furyuna'ya güç kattın! 🦊💜",
+            "🚀 {user} bastı, sunucumuz artık {count}. takviyede! Kocaman teşekkürler! 💜",
+            "🥳 Alkışlar {user} için — {count}. takviye onun eseri! Sağ ol! 💜",
+            "🎊 {user} sunucunun {count}. takviyecisi oldu! Minnettarız! 💜",
+            "🌟 {count}. takviye tamam! {user} sen harikasın, teşekkürler! 💜"
         ],
         // Takviye bitince (rol kalkınca) mesaj atılsın mı?
-        endEnabled: false,
+        endEnabled: true,
         endMessages: [
             "🥺 {user} takviyesi sona erdi. Yine de desteğin için teşekkürler! 💜"
+        ],
+
+        // --- AYLIK SADAKAT ---
+        // Kesintisiz takviye basmaya devam edenler için (Discord premiumSince'ten
+        // hesaplanır). Kişinin her aylık dönümünde bir kez kutlanır.
+        // {months} = kaç aydır kesintisiz takviye bastığı
+        loyaltyEnabled: true,
+        loyaltyMessages: [
+            "💜 {user} tam {months} aydır takviye basıyor! Sadakatin için kocaman teşekkürler! 🦊",
+            "🏆 {user} {months} aydır aramızda takviyeci! Sen bir efsanesin! 💜",
+            "✨ {months} ay oldu ve {user} hâlâ takviyede! Desteğin için minnettarız! 💜",
+            "🚀 {user} {months} aydır sunucuya destek oluyor! Böyle dostlar var oldukça! 💜",
+            "🥹 {months} aydır kesintisiz takviye! {user} sen tam bir Furyuna aşığısın! 💜"
         ]
     },
 

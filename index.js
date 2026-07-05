@@ -30,6 +30,7 @@ require('./handlers/wordGameHandler')(client); // Kelime Oyunu (YENİ)
 // require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (ESKİ - İPTAL)
 require('./handlers/events/securityHandler').init(client); // Güvenlik Sistemi (Link/Medya Koruması)
 require('./handlers/memberCountChannel')(client); // Üye Sayısı Kanalı (Otomatik isim güncelleme)
+require('./handlers/boostLoyalty')(client); // Aylık takviye sadakati kutlaması
 // require('./handlers/events/gifWelcomeHandler').execute(member); // Eski (İptal)
 // Yeni Resimli Hoş Geldin Sistemi (Otomatik Event Handler tarafından yüklenir ama manuel init gerekebilir)
 // Event Handler zaten 'events' klasöründeki dosyaları yüklüyor mu?

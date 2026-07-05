@@ -29,3 +29,6 @@ handlers/events/revivalState.json
 # Backups
 backups/
 backups/*.sqlite
+
+# Boost sadakat durumu
+data/boostState.json
