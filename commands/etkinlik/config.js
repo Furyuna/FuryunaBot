@@ -310,6 +310,8 @@ module.exports = {
         removeRolesOnQuarantine: true, // Karantinada kişinin diğer rolleri kaldırılsın mı?
         alertChannelId: "",        // Yetkili bildirim kanalı (boşsa sadece konsola loglar)
         exemptRoleIds: [],         // Bu rollere sahip olanlar cezalandırılmaz (güvenilir/yetkili roller)
+        purgeEnabled: true,        // Yakalanınca kişinin AYNI mesajını (metin/resim) tüm kanallardan sil
+        purgeScanLimit: 60,        // Her kanalda taranacak son mesaj sayısı (performans/limit için)
         // {user}=etiket, {seconds}=süre
         warnMessage: "⚠️ {user} burası bir **tuzak kanal**, buraya yazmak yasak! **{seconds} saniye** içinde mesajını silmezsen işleme alınacaksın.",
         // {user}=etiket, {action}=uygulanan ceza

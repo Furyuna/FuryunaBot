@@ -5,6 +5,54 @@ const kayitConfig = require('../../commands/kayit/config.js');
 // Aynı anda işlenen kullanıcıları takip et (spam burst'te tek uyarı, tek işlem)
 const pending = new Set();
 
+// --- SPAM İMZASI & TÜM KANALLARDAN TEMİZLEME ---
+function normalizeText(str) {
+    return String(str || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+// Tuzak mesajının imzası: metin + ek dosyaların ad/boyutu (resim olsa bile eşleşir)
+function captureSignature(message) {
+    return {
+        text: message.content ? normalizeText(message.content) : null,
+        attachments: [...message.attachments.values()].map(a => ({ name: a.name, size: a.size }))
+    };
+}
+
+function matchesSignature(m, sig) {
+    if (sig.text && m.content && normalizeText(m.content) === sig.text) return true;
+    if (sig.attachments.length && m.attachments.size) {
+        for (const a of m.attachments.values()) {
+            if (sig.attachments.some(s => s.name === a.name && s.size === a.size)) return true;
+        }
+    }
+    return false;
+}
+
+// Kişinin, tuzak mesajıyla eşleşen mesajlarını tüm (erişilebilir) kanallardan sil
+async function purgeMatchingSpam(guild, userId, sig, scanLimit) {
+    if (!sig.text && sig.attachments.length === 0) return 0; // imza yoksa tarama yok
+
+    const me = guild.members.me;
+    if (!me) return 0;
+    let deleted = 0;
+
+    const channels = guild.channels.cache.filter(ch =>
+        ch.isTextBased() &&
+        ch.permissionsFor(me)?.has(['ViewChannel', 'ReadMessageHistory', 'ManageMessages'])
+    );
+
+    for (const [, ch] of channels) {
+        try {
+            const msgs = await ch.messages.fetch({ limit: scanLimit || 60 });
+            const bad = msgs.filter(m => m.author.id === userId && matchesSignature(m, sig));
+            if (bad.size === 0) continue;
+            const del = await ch.bulkDelete(bad, true).catch(() => null); // 14 günden eskiyi atlar
+            deleted += del ? del.size : 0;
+        } catch (e) { /* bu kanal atlanır */ }
+    }
+    return deleted;
+}
+
 // Cezayı uygula, uygulanan işlemin etiketini döndür
 async function applyAction(member) {
     const action = config.action || 'unregister';
@@ -88,7 +136,8 @@ module.exports = {
                     return;
                 }
 
-                // Ceza zamanı: mesajı sil + işlem uygula
+                // Ceza zamanı: önce spam imzasını al (silmeden önce), mesajı sil, işlem uygula
+                const sig = captureSignature(message);
                 await message.delete().catch(() => { });
 
                 let label, actionOk = true;
@@ -105,6 +154,12 @@ module.exports = {
                     await message.author.send(config.dmMessage).catch(() => { });
                 }
 
+                // Tüm kanallardaki AYNI mesajı (metin/resim) temizle
+                let purged = 0;
+                if (config.purgeEnabled) {
+                    purged = await purgeMatchingSpam(message.guild, userId, sig, config.purgeScanLimit);
+                }
+
                 // Yetkili bildirimi
                 if (config.alertChannelId) {
                     const alertCh = message.guild.channels.cache.get(config.alertChannelId);
@@ -116,7 +171,7 @@ module.exports = {
                         ).catch(() => { });
                     }
                 }
-                console.log(`[TUZAK] ${message.author.tag} tuzak kanala yazdı -> ${label}`);
+                console.log(`[TUZAK] ${message.author.tag} tuzak kanala yazdı -> ${label} | ${purged} spam mesajı temizlendi`);
 
                 if (warnMsg) warnMsg.delete().catch(() => { });
             } finally {
