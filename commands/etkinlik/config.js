@@ -259,6 +259,28 @@ module.exports = {
         updateIntervalMinutes: 10       // Discord rename limiti (~2/10dk) yüzünden düşük tutulmamalı
     },
 
+    // --- TAKVİYE (BOOST) DUYURUSU ---
+    // Başka bot takviyecilere roleId'yi veriyor; biz rol eklenince chate mesaj atarız.
+    boostAnnounce: {
+        enabled: true,
+        roleId: "1234560409386881126",      // Takviyecilere verilen rol
+        channelId: "1287071155219599525",   // Mesajın atılacağı kanal (Genel Sohbet)
+        // {user} = kişi etiketi, {count} = sunucudaki toplam takviye sayısı
+        messages: [
+            "🎉 {user} sunucuya takviye bastı! Kocaman teşekkürler, sen efsanesin! 💜",
+            "💜 Vay canına! {user} bizi takviyeledi! Desteğin için minnettarız! 🚀",
+            "✨ {user} takviye basarak Furyuna'ya güç kattı! Seni seviyoruz! 🦊💜",
+            "🚀 {user} sayesinde sunucumuz daha da güçlendi! Takviye için teşekkürler! 💜",
+            "🥳 Alkışlar {user} için! Takviyenle sunucuya destek oldun, sağ ol! 💜",
+            "🎊 {user} takviye bastı! Sunucumuz artık {count} takviyede! Teşekkürler! 💜"
+        ],
+        // Takviye bitince (rol kalkınca) mesaj atılsın mı?
+        endEnabled: false,
+        endMessages: [
+            "🥺 {user} takviyesi sona erdi. Yine de desteğin için teşekkürler! 💜"
+        ]
+    },
+
     // --- HOŞ GELDİN MESAJI ---
     welcome: {
         enabled: true,
