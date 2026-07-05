@@ -188,6 +188,14 @@ module.exports = {
         ]
     },
 
+    // --- ÜYE SAYISI KANALI (İsim otomatik güncellenir) ---
+    memberCountChannel: {
+        enabled: true,
+        channelId: "1288519209399353344",
+        format: "Üye Sayısı • {count}", // {count} yerine üye sayısı gelir
+        updateIntervalMinutes: 10       // Discord rename limiti (~2/10dk) yüzünden düşük tutulmamalı
+    },
+
     // --- HOŞ GELDİN MESAJI ---
     welcome: {
         enabled: true,

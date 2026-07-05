@@ -29,6 +29,7 @@ revivalHandler.init(client);
 require('./handlers/wordGameHandler')(client); // Kelime Oyunu (YENİ)
 // require('./handlers/events/morningHandler').init(client); // Günaydın Sistemi (ESKİ - İPTAL)
 require('./handlers/events/securityHandler').init(client); // Güvenlik Sistemi (Link/Medya Koruması)
+require('./handlers/memberCountChannel')(client); // Üye Sayısı Kanalı (Otomatik isim güncelleme)
 // require('./handlers/events/gifWelcomeHandler').execute(member); // Eski (İptal)
 // Yeni Resimli Hoş Geldin Sistemi (Otomatik Event Handler tarafından yüklenir ama manuel init gerekebilir)
 // Event Handler zaten 'events' klasöründeki dosyaları yüklüyor mu?
@@ -101,7 +102,10 @@ client.on('error', error => {
 
 process.on('unhandledRejection', error => {
     console.error('[UNHANDLED REJECTION]', error);
-    process.exit(1);
+});
+
+process.on('uncaughtException', error => {
+    console.error('[UNCAUGHT EXCEPTION]', error);
 });
 
 client.login(process.env.BOT_TOKEN);
