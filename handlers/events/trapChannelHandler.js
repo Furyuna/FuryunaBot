@@ -28,42 +28,46 @@ function matchesSignature(m, sig) {
     return false;
 }
 
+// Tek bir kanalı tara: eşleşme buldukça daha eskiye iner; bir sayfada hiç
+// eşleşme çıkmazsa o kanalda spam bitmiştir -> durur.
+async function purgeChannel(ch, userId, sig, pageCap) {
+    let deleted = 0;
+    let before;
+    for (let page = 0; page < pageCap; page++) {
+        let msgs;
+        try {
+            msgs = await ch.messages.fetch({ limit: 100, before });
+        } catch (e) { break; } // kanal okunamadı
+        if (msgs.size === 0) break; // kanal bitti
+
+        const bad = msgs.filter(m => m.author.id === userId && matchesSignature(m, sig));
+        if (bad.size === 0) break; // eşleşme yok -> daha derine inme
+
+        const del = await ch.bulkDelete(bad, true).catch(() => null); // 14 günden eskiyi atlar
+        deleted += del ? del.size : 0;
+        before = msgs.last().id; // bir sonraki (daha eski) sayfa
+    }
+    return deleted;
+}
+
 // Kişinin, tuzak mesajıyla eşleşen mesajlarını tüm (erişilebilir) kanallardan sil.
-// Her kanalda eşleşme buldukça daha eskiye iner; bir sayfada hiç eşleşme
-// çıkmazsa o kanalda spam bitmiştir -> durur. (Sabit tarama limiti yok;
-// maxPages sadece kilitlenmeyi önleyen güvenlik tavanı.)
+// Kanallar PARALEL taranır (her kanal ayrı rate-limit kovası; discord.js yönetir)
+// -> 50 kanal bile saniyeler sürer. Sabit tarama limiti yok; maxPages sadece
+// kilitlenmeyi önleyen güvenlik tavanı.
 async function purgeMatchingSpam(guild, userId, sig, maxPages) {
     if (!sig.text && sig.attachments.length === 0) return 0; // imza yoksa tarama yok
 
     const me = guild.members.me;
     if (!me) return 0;
-    let deleted = 0;
     const pageCap = maxPages || 10;
 
-    const channels = guild.channels.cache.filter(ch =>
+    const channels = [...guild.channels.cache.values()].filter(ch =>
         ch.isTextBased() &&
         ch.permissionsFor(me)?.has(['ViewChannel', 'ReadMessageHistory', 'ManageMessages'])
     );
 
-    for (const [, ch] of channels) {
-        let before;
-        for (let page = 0; page < pageCap; page++) {
-            let msgs;
-            try {
-                msgs = await ch.messages.fetch({ limit: 100, before });
-            } catch (e) { break; } // kanal okunamadı
-            if (msgs.size === 0) break; // kanal bitti
-
-            const bad = msgs.filter(m => m.author.id === userId && matchesSignature(m, sig));
-            if (bad.size === 0) break; // bu turda eşleşme yok -> bu kanalda daha derine inme
-
-            const del = await ch.bulkDelete(bad, true).catch(() => null); // 14 günden eskiyi atlar
-            deleted += del ? del.size : 0;
-
-            before = msgs.last().id; // bir sonraki (daha eski) sayfa
-        }
-    }
-    return deleted;
+    const results = await Promise.all(channels.map(ch => purgeChannel(ch, userId, sig, pageCap)));
+    return results.reduce((a, b) => a + b, 0);
 }
 
 // Cezayı uygula, uygulanan işlemin etiketini döndür
