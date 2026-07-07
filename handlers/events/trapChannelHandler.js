@@ -28,13 +28,17 @@ function matchesSignature(m, sig) {
     return false;
 }
 
-// Kişinin, tuzak mesajıyla eşleşen mesajlarını tüm (erişilebilir) kanallardan sil
-async function purgeMatchingSpam(guild, userId, sig, scanLimit) {
+// Kişinin, tuzak mesajıyla eşleşen mesajlarını tüm (erişilebilir) kanallardan sil.
+// Her kanalda eşleşme buldukça daha eskiye iner; bir sayfada hiç eşleşme
+// çıkmazsa o kanalda spam bitmiştir -> durur. (Sabit tarama limiti yok;
+// maxPages sadece kilitlenmeyi önleyen güvenlik tavanı.)
+async function purgeMatchingSpam(guild, userId, sig, maxPages) {
     if (!sig.text && sig.attachments.length === 0) return 0; // imza yoksa tarama yok
 
     const me = guild.members.me;
     if (!me) return 0;
     let deleted = 0;
+    const pageCap = maxPages || 10;
 
     const channels = guild.channels.cache.filter(ch =>
         ch.isTextBased() &&
@@ -42,13 +46,22 @@ async function purgeMatchingSpam(guild, userId, sig, scanLimit) {
     );
 
     for (const [, ch] of channels) {
-        try {
-            const msgs = await ch.messages.fetch({ limit: scanLimit || 60 });
+        let before;
+        for (let page = 0; page < pageCap; page++) {
+            let msgs;
+            try {
+                msgs = await ch.messages.fetch({ limit: 100, before });
+            } catch (e) { break; } // kanal okunamadı
+            if (msgs.size === 0) break; // kanal bitti
+
             const bad = msgs.filter(m => m.author.id === userId && matchesSignature(m, sig));
-            if (bad.size === 0) continue;
+            if (bad.size === 0) break; // bu turda eşleşme yok -> bu kanalda daha derine inme
+
             const del = await ch.bulkDelete(bad, true).catch(() => null); // 14 günden eskiyi atlar
             deleted += del ? del.size : 0;
-        } catch (e) { /* bu kanal atlanır */ }
+
+            before = msgs.last().id; // bir sonraki (daha eski) sayfa
+        }
     }
     return deleted;
 }
@@ -157,7 +170,7 @@ module.exports = {
                 // Tüm kanallardaki AYNI mesajı (metin/resim) temizle
                 let purged = 0;
                 if (config.purgeEnabled) {
-                    purged = await purgeMatchingSpam(message.guild, userId, sig, config.purgeScanLimit);
+                    purged = await purgeMatchingSpam(message.guild, userId, sig, config.purgeMaxPages);
                 }
 
                 // Yetkili bildirimi
