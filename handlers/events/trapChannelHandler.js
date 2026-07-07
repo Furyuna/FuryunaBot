@@ -127,14 +127,19 @@ module.exports = {
         }
         pending.add(userId);
 
-        // Uyarı at (kişi silip kurtulabilsin diye)
+        const graceSec = config.graceSeconds || 10;
+        const deadline = Math.floor((Date.now() + graceSec * 1000) / 1000); // canlı geri sayım için
+
+        // Uyarıyı kullanıcının mesajına YANIT olarak at (canlı geri sayımlı)
         let warnMsg = null;
         try {
-            warnMsg = await message.channel.send(
-                config.warnMessage
+            warnMsg = await message.reply({
+                content: config.warnMessage
                     .replace('{user}', `<@${userId}>`)
-                    .replace('{seconds}', config.graceSeconds)
-            );
+                    .replace('{countdown}', `<t:${deadline}:R>`)
+                    .replace('{seconds}', graceSec),
+                allowedMentions: { repliedUser: true }
+            });
         } catch (e) { /* önemsiz */ }
 
         setTimeout(async () => {
@@ -148,8 +153,13 @@ module.exports = {
                 }
 
                 if (deleted) {
-                    // Yanlışlıkla yazmış ve düzeltmiş -> ceza yok
-                    if (warnMsg) warnMsg.delete().catch(() => { });
+                    // Yanlışlıkla yazmış ve silmiş -> ceza yok; uyarıyı güvence mesajına çevir
+                    if (warnMsg) {
+                        warnMsg.edit({
+                            content: config.safeMessage.replace('{user}', `<@${userId}>`),
+                            allowedMentions: { users: [userId] }
+                        }).catch(() => { });
+                    }
                     return;
                 }
 
@@ -194,6 +204,6 @@ module.exports = {
             } finally {
                 pending.delete(userId);
             }
-        }, (config.graceSeconds || 10) * 1000);
+        }, graceSec * 1000);
     }
 };

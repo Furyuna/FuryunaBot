@@ -312,8 +312,10 @@ module.exports = {
         exemptRoleIds: [],         // Bu rollere sahip olanlar cezalandırılmaz (güvenilir/yetkili roller)
         purgeEnabled: true,        // Yakalanınca kişinin AYNI mesajını (metin/resim) tüm kanallardan sil
         purgeMaxPages: 10,         // GÜVENLİK tavanı: kanal başı en fazla kaç sayfa (100'lük) inilsin (kilitlenmeyi önler)
-        // {user}=etiket, {seconds}=süre
-        warnMessage: "⚠️ {user} burası bir **tuzak kanal**, buraya yazmak yasak! **{seconds} saniye** içinde mesajını silmezsen işleme alınacaksın.",
+        // {user}=etiket, {seconds}=süre, {countdown}=canlı geri sayım (Discord zaman etiketi)
+        warnMessage: "⚠️ {user} burası bir **tuzak kanal**, buraya yazmak **yasak!**\n⏳ {countdown} içinde mesajını silmezsen kaydın düşürülecek. Yanlışlıkla yazdıysan hemen sil!",
+        // Kullanıcı mesajını silince gösterilecek güvence mesajı ({user}=etiket)
+        safeMessage: "✅ {user} iyi ki mesajını sildin, sana **bir şey olmayacak!** 💛\nAma dikkatli ol — burası bir **tuzak kanal**, bir daha buraya yazma. Hesabını da güvende tut!",
         // {user}=etiket, {action}=uygulanan ceza
         alertMessage: "🚨 {user} tuzak kanala yazdı ve silmedi → **{action}**. Hesabı ele geçirilmiş olabilir, kontrol edin!",
 
